@@ -2,6 +2,7 @@ package ro.andreilarazboi.donutcore.sell;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import java.io.File;
+import java.time.Duration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -20,8 +21,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -236,7 +237,7 @@ public final class DonutSell implements Listener {
 
         if (this.getConfig().getBoolean("use-new-sell-menu", false)) {
             Objects.requireNonNull(this.parent.getCommand("sellmulti")).setExecutor((sender, cmd, lbl, args) -> {
-                if (!(sender instanceof Player p)) { sender.sendMessage("§cOnly players can use this command."); return true; }
+                if (!(sender instanceof Player p)) { sender.sendMessage(Utils.toComponent("&cOnly players can use this command.")); return true; }
                 this.getSellGui().openNew(p);
                 return true;
             });
@@ -266,14 +267,14 @@ public final class DonutSell implements Listener {
                             if (expiry == null) continue;
                             if (now >= expiry) {
                                 inv.setItem(slot, null);
-                                player.sendMessage(Utils.formatColors("&cYour Sell Wand has expired and been removed."));
+                                player.sendMessage(Utils.toComponent("&cYour Sell Wand has expired and been removed."));
                                 continue;
                             }
                             String formatted = this.formatDuration(expiry - now);
                             List<String> template = this.getConfig().getStringList("sell-axe.lore");
-                            ArrayList<String> newLore = new ArrayList<>();
-                            for (String line : template) newLore.add(Utils.formatColors(line.replace("%countdown%", formatted)));
-                            meta.setLore(newLore);
+                            ArrayList<Component> newLore = new ArrayList<>();
+                            for (String line : template) newLore.add(Utils.toComponent(line.replace("%countdown%", formatted)));
+                            meta.lore(newLore);
                             item.setItemMeta(meta);
                         }
                     });
@@ -336,7 +337,7 @@ public final class DonutSell implements Listener {
                 for (Player online : Bukkit.getOnlinePlayers()) {
                     this.runAtPlayer(online, () -> {
                         if (online.hasPermission("sell.admin"))
-                            online.sendMessage(Utils.formatColors("&cWARNING: You changed use-new-sell-menu. Please restart your server!"));
+                            online.sendMessage(Utils.toComponent("&cWARNING: You changed use-new-sell-menu. Please restart your server!"));
                     });
                 }
             }, 0L, 100L);
@@ -664,7 +665,7 @@ public final class DonutSell implements Listener {
         if (this.adminPriceEditorMenu == null || !player.hasPermission("sell.admin")) return;
         if (this.getLookupKey(clicked) == null) return;
         player.closeInventory();
-        player.sendMessage(Utils.formatColors("&ePlease use &f/donutsell prices &eto edit prices."));
+        player.sendMessage(Utils.toComponent("&ePlease use &f/donutsell prices &eto edit prices."));
     }
 
     public boolean isSellable(ItemStack item) {
@@ -884,16 +885,24 @@ public final class DonutSell implements Listener {
         String itemsStr = String.valueOf(itemsSold);
         if (modes.contains(SellNotifyMode.CHAT)) {
             String chatMsg = Utils.formatColors(this.getMenusConfig().getString("sell-menu.chat-message", "&#34ee80+$%amount%")).replace("%amount%", amt).replace("%items%", itemsStr);
-            p.sendMessage(chatMsg);
+            p.sendMessage(Utils.toComponent(chatMsg));
         }
         if (modes.contains(SellNotifyMode.ACTIONBAR)) {
             String actionbar = Utils.formatColors(this.getMenusConfig().getString("sell-menu.actionbar-message", "&#34ee80+$%amount%")).replace("%amount%", amt).replace("%items%", itemsStr);
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionbar));
+            p.sendActionBar(Utils.toComponent(actionbar));
         }
         if (modes.contains(SellNotifyMode.TITLE)) {
             String title = Utils.formatColors(this.getConfig().getString("sell-notify.screen.title", "&a+$%amount%")).replace("%amount%", amt).replace("%items%", itemsStr);
             String subtitle = Utils.formatColors(this.getConfig().getString("sell-notify.screen.subtitle", "&7You sold %items% items")).replace("%amount%", amt).replace("%items%", itemsStr);
-            p.sendTitle(title, subtitle, this.getConfig().getInt("sell-notify.screen.fade-in", 5), this.getConfig().getInt("sell-notify.screen.stay", 40), this.getConfig().getInt("sell-notify.screen.fade-out", 10));
+            p.showTitle(Title.title(
+                Utils.toComponent(title),
+                Utils.toComponent(subtitle),
+                Title.Times.times(
+                    Duration.ofMillis(this.getConfig().getInt("sell-notify.screen.fade-in", 5) * 50L),
+                    Duration.ofMillis(this.getConfig().getInt("sell-notify.screen.stay", 40) * 50L),
+                    Duration.ofMillis(this.getConfig().getInt("sell-notify.screen.fade-out", 10) * 50L)
+                )
+            ));
         }
     }
 

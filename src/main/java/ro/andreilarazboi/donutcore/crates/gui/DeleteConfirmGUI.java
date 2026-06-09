@@ -3,6 +3,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.Collections;
 import java.util.List;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.Utils;
 import org.bukkit.Bukkit;
@@ -31,7 +32,7 @@ public class DeleteConfirmGUI {
             ItemStack f = new ItemStack(filler);
             ItemMeta fm = f.getItemMeta();
             if (fm != null) {
-                fm.setDisplayName(" ");
+                fm.displayName(Utils.toComponent(" "));
                 f.setItemMeta(fm);
             }
             for (int i = 0; i < size; ++i) {
@@ -44,10 +45,15 @@ public class DeleteConfirmGUI {
         ItemStack mid = display == null ? new ItemStack(Material.BARRIER) : display.clone();
         ItemMeta cm = mid.getItemMeta();
         if (cm != null) {
-            String repl = display != null && display.hasItemMeta() && display.getItemMeta().hasDisplayName() ? display.getItemMeta().getDisplayName() : (display != null ? display.getType().name() : "Unknown");
-            cm.setDisplayName(Utils.formatColors(clickedNameTpl.replace("%ClickedItemName%", repl)));
+            String repl;
+            if (display != null && display.hasItemMeta() && display.getItemMeta().hasDisplayName() && display.getItemMeta().displayName() != null) {
+                repl = LegacyComponentSerializer.legacySection().serialize(display.getItemMeta().displayName());
+            } else {
+                repl = display != null ? display.getType().name() : "Unknown";
+            }
+            cm.displayName(Utils.toComponent(clickedNameTpl.replace("%ClickedItemName%", repl)));
             if (!clickedLore.isEmpty()) {
-                cm.setLore(Utils.formatColors(clickedLore));
+                cm.lore(Utils.toComponents(clickedLore));
             }
             mid.setItemMeta(cm);
         }
@@ -59,9 +65,9 @@ public class DeleteConfirmGUI {
         ItemStack con = new ItemStack(confirmMat);
         ItemMeta cmeta = con.getItemMeta();
         if (cmeta != null) {
-            cmeta.setDisplayName(Utils.formatColors(confirmName));
+            cmeta.displayName(Utils.toComponent(confirmName));
             if (!confirmLore.isEmpty()) {
-                cmeta.setLore(Utils.formatColors(confirmLore));
+                cmeta.lore(Utils.toComponents(confirmLore));
             }
             con.setItemMeta(cmeta);
         }
@@ -73,9 +79,9 @@ public class DeleteConfirmGUI {
         ItemStack dec = new ItemStack(declineMat);
         ItemMeta dmeta = dec.getItemMeta();
         if (dmeta != null) {
-            dmeta.setDisplayName(Utils.formatColors(declineName));
+            dmeta.displayName(Utils.toComponent(declineName));
             if (!declineLore.isEmpty()) {
-                dmeta.setLore(Utils.formatColors(declineLore));
+                dmeta.lore(Utils.toComponents(declineLore));
             }
             dec.setItemMeta(dmeta);
         }

@@ -29,7 +29,7 @@ public class EnderChestInventoryListener implements Listener {
             if (event.getAction() != InventoryAction.NOTHING) {
                 event.setCancelled(true);
                 if (event.getWhoClicked() instanceof Player player) {
-                    player.sendMessage(plugin.msg("cannot-modify"));
+                    player.sendMessage(plugin.msgComponent("cannot-modify"));
                 }
             }
             return;
@@ -39,7 +39,7 @@ public class EnderChestInventoryListener implements Listener {
         if (toPlace != null && !toPlace.getType().isAir() && plugin.getEnderChestManager().isBlacklisted(toPlace)) {
             event.setCancelled(true);
             if (event.getWhoClicked() instanceof Player player) {
-                player.sendMessage(plugin.formatColors(
+                player.sendMessage(plugin.formatComponent(
                         plugin.getConfig().getString("blacklisted-message",
                                 "&4You cannot put that item into an ender chest.")));
             }
@@ -60,7 +60,7 @@ public class EnderChestInventoryListener implements Listener {
         if (affectsTop && plugin.getEnderChestManager().isBlacklisted(event.getOldCursor())) {
             event.setCancelled(true);
             if (event.getWhoClicked() instanceof Player player) {
-                player.sendMessage(plugin.formatColors(
+                player.sendMessage(plugin.formatComponent(
                         plugin.getConfig().getString("blacklisted-message",
                                 "&4You cannot put that item into an ender chest.")));
             }

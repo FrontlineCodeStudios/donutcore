@@ -3,6 +3,7 @@ package ro.andreilarazboi.donutcore.crates.opening.anim;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -49,7 +50,7 @@ implements OpeningAnimation {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(" ");
+            meta.displayName(Component.text(" "));
             item.setItemMeta(meta);
         }
         return item;

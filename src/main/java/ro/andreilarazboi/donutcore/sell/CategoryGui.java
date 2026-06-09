@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -158,7 +159,7 @@ public class CategoryGui {
                 if (found != null) {
                     esm.addStoredEnchant(found, lvl, true);
                 } else {
-                    esm.setDisplayName("Enchanted Book (" + prettyEn + " " + this.toRoman(lvl) + ")");
+                    esm.displayName(Utils.toComponent("Enchanted Book (" + prettyEn + " " + this.toRoman(lvl) + ")"));
                 }
                 esm.getPersistentDataContainer().set(this.PDC_CATEGORY, PersistentDataType.STRING, "book");
                 stk.setItemMeta(esm);
@@ -233,16 +234,16 @@ public class CategoryGui {
         ItemMeta im = stk.getItemMeta();
         if (im == null) return;
         if (customName != null) {
-            im.setDisplayName(customName);
+            im.displayName(Utils.toComponent(customName));
         } else if (!im.hasDisplayName()) {
             String base = this.prettyName(entryKey.replace("-value", ""));
-            im.setDisplayName(this.itemNameTpl.replace("%item%", base));
+            im.displayName(Utils.toComponent(this.itemNameTpl.replace("%item%", base)));
         }
-        ArrayList<String> lore = new ArrayList<>();
+        ArrayList<Component> lore = new ArrayList<>();
         for (String line : this.itemLoreTpl) {
-            lore.add(Utils.formatColors(line.replace("%item-value%", Utils.abbreviateNumber(price))));
+            lore.add(Utils.toComponent(line.replace("%item-value%", Utils.abbreviateNumber(price))));
         }
-        im.setLore(lore);
+        im.lore(lore);
         stk.setItemMeta(im);
     }
 
@@ -250,8 +251,8 @@ public class CategoryGui {
         ItemStack b = new ItemStack(mat);
         ItemMeta m = b.getItemMeta();
         if (m != null) {
-            m.setDisplayName(name);
-            m.setLore(lore);
+            m.displayName(Utils.toComponent(name));
+            m.lore(Utils.toComponents(lore));
             b.setItemMeta(m);
         }
         return b;

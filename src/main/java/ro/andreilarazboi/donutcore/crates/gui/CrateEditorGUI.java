@@ -2,6 +2,7 @@
 package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -9,7 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -27,11 +27,11 @@ public class CrateEditorGUI {
         int size = editorRows * 9;
         int rewardAreaSize = rows * 9;
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)size, (String)Utils.formatColors("&#444444" + crateName + " Rewards"));
+        Inventory inv = Bukkit.createInventory(holder, size, Utils.toComponent("&#444444" + crateName + " Rewards"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
-        fm.setDisplayName(" ");
+        fm.displayName(Utils.toComponent(" "));
         filler.setItemMeta(fm);
         for (int i = 0; i < size; ++i) {
             inv.setItem(i, filler);
@@ -44,20 +44,20 @@ public class CrateEditorGUI {
                 if (slot < 0 || slot >= rewardAreaSize) continue;
                 ItemStack is = this.plugin.guiItemUtil.buildItemFromSection(it);
                 ItemMeta im = is.getItemMeta();
-                ArrayList<String> lore = im != null && im.hasLore() ? new ArrayList<String>(im.getLore()) : new ArrayList<String>();
+                ArrayList<Component> lore = im != null && im.hasLore() && im.lore() != null ? new ArrayList<>(im.lore()) : new ArrayList<>();
                 double chance = it.getDouble("chance", 0.0);
-                lore.add("");
+                lore.add(Utils.toComponent(""));
                 if (chance > 0.0) {
-                    lore.add(Utils.formatColors("&#27B0F5Chance: &f" + chance + "%"));
+                    lore.add(Utils.toComponent("&#27B0F5Chance: &f" + chance + "%"));
                 } else {
-                    lore.add(Utils.formatColors("&#27B0F5Chance: &fAuto (equal weight)"));
+                    lore.add(Utils.toComponent("&#27B0F5Chance: &fAuto (equal weight)"));
                 }
-                lore.add(Utils.formatColors("&#bfbfbfClick to edit reward."));
-                lore.add(Utils.formatColors("&#bfbfbfShift-Left/Right to move."));
+                lore.add(Utils.toComponent("&#bfbfbfClick to edit reward."));
+                lore.add(Utils.toComponent("&#bfbfbfShift-Left/Right to move."));
                 if (im == null) {
                     im = is.getItemMeta();
                 }
-                im.setLore(lore);
+                im.lore(lore);
                 is.setItemMeta(im);
                 inv.setItem(slot, is);
             }
@@ -72,13 +72,13 @@ public class CrateEditorGUI {
     private ItemStack named(Material m, String name, String ... lore) {
         ItemStack i = new ItemStack(m);
         ItemMeta im = i.getItemMeta();
-        im.setDisplayName(Utils.formatColors(name));
+        im.displayName(Utils.toComponent(name));
         if (lore.length > 0) {
-            ArrayList<String> l = new ArrayList<String>();
+            ArrayList<Component> l = new ArrayList<>();
             for (String s : lore) {
-                l.add(Utils.formatColors(s));
+                l.add(Utils.toComponent(s));
             }
-            im.setLore(l);
+            im.lore(l);
         }
         i.setItemMeta(im);
         return i;

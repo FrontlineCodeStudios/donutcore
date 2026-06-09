@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -23,19 +22,19 @@ public class CrateGUI {
         ConfigurationSection items;
         ConfigurationSection sec = this.plugin.cfg.crates.getConfigurationSection("Crates." + crateName);
         if (sec == null) {
-            return Bukkit.createInventory(null, (int)9, (String)Utils.formatColors("&cInvalid crate"));
+            return Bukkit.createInventory(null, 9, Utils.toComponent(Utils.formatColors("&cInvalid crate")));
         }
         String title = Utils.formatColors(sec.getString("title", crateName).replace("%crate%", crateName));
         int rows = sec.getInt("rows", 3);
         boolean fill = sec.getBoolean("fillerEnabled", false);
         Material filler = Material.valueOf((String)sec.getString("fillerMaterial", "GRAY_STAINED_GLASS_PANE"));
         CrateHolder holder = new CrateHolder(crateName, preview);
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)(rows * 9), (String)title);
+        Inventory inv = Bukkit.createInventory(holder, rows * 9, Utils.toComponent(title));
         holder.setInventory(inv);
         if (fill) {
             ItemStack f = new ItemStack(filler);
             ItemMeta fm = f.getItemMeta();
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             f.setItemMeta(fm);
             for (int i = 0; i < rows * 9; ++i) {
                 inv.setItem(i, f);

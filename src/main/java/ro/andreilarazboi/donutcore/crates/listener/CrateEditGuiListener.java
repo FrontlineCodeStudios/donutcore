@@ -1,7 +1,9 @@
 
 package ro.andreilarazboi.donutcore.crates.listener;
 
+import java.time.Duration;
 import java.util.UUID;
+import net.kyori.adventure.title.Title;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -63,14 +65,14 @@ implements Listener {
                 GuiUtil.playClick(this.plugin, p);
                 this.plugin.pendingCopyCrate.put(uid, crate);
                 p.closeInventory();
-                p.sendTitle("\u00a7d[Copy crate]", "\u00a77Left-click a block to clone this crate!", 10, 60, 10);
+                p.showTitle(Title.title(Utils.toComponent("\u00a7d[Copy crate]"), Utils.toComponent("\u00a77Left-click a block to clone this crate!"), Title.Times.times(Duration.ofMillis(500L), Duration.ofMillis(3000L), Duration.ofMillis(500L))));
                 break;
             }
             case 11: {
                 GuiUtil.playClick(this.plugin, p);
                 this.plugin.pendingMoveCrate.put(uid, crate);
                 p.closeInventory();
-                p.sendTitle("\u00a7b[Move crate]", "\u00a77Left-click a block to set new location!", 10, 60, 10);
+                p.showTitle(Title.title(Utils.toComponent("\u00a7b[Move crate]"), Utils.toComponent("\u00a77Left-click a block to set new location!"), Title.Times.times(Duration.ofMillis(500L), Duration.ofMillis(3000L), Duration.ofMillis(500L))));
                 break;
             }
             case 12: {
@@ -81,7 +83,7 @@ implements Listener {
                 ItemStack display = new ItemStack(mat);
                 ItemMeta im = display.getItemMeta();
                 if (im != null) {
-                    im.setDisplayName(Utils.formatColors("&#d61111" + crate));
+                    im.displayName(Utils.toComponent("&#d61111" + crate));
                     display.setItemMeta(im);
                 }
                 p.openInventory(this.plugin.guiDeleteConfirm.build(p, display));

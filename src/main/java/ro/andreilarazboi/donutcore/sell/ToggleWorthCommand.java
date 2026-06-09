@@ -17,7 +17,7 @@ public class ToggleWorthCommand implements CommandExecutor {
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cOnly players can use this command.");
+            sender.sendMessage(Utils.toComponent("&cOnly players can use this command."));
             return true;
         }
         Player p = (Player) sender;
@@ -32,7 +32,7 @@ public class ToggleWorthCommand implements CommandExecutor {
         }
         String path = targetEnabled ? "messages.worth-enabled" : "messages.worth-disabled";
         String fallback = targetEnabled ? "&#34ee80Worth lore: &aENABLED" : "&#34ee80Worth lore: &cDISABLED";
-        p.sendMessage(Utils.formatColors(this.plugin.getMessagesConfig().getString(path, fallback)));
+        p.sendMessage(Utils.toComponent(this.plugin.getMessagesConfig().getString(path, fallback)));
         return true;
     }
 }

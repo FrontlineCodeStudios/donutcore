@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class Utils {
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
@@ -27,11 +28,47 @@ public final class Utils {
             matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement.toString()));
         }
         matcher.appendTail(buffer);
-        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
+        return translateAmpersandCodes(buffer.toString());
+    }
+
+    private static String translateAmpersandCodes(String input) {
+        char[] chars = input.toCharArray();
+        StringBuilder sb = new StringBuilder(chars.length);
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == '&' && i + 1 < chars.length) {
+                char code = Character.toLowerCase(chars[i + 1]);
+                if ("0123456789abcdefklmnorx".indexOf(code) >= 0) {
+                    sb.append('§').append(code);
+                    i++;
+                    continue;
+                }
+            }
+            sb.append(chars[i]);
+        }
+        return sb.toString();
+    }
+
+    public static Component toComponent(String text) {
+        if (text == null) return Component.empty();
+        return LegacyComponentSerializer.legacySection().deserialize(formatColors(text));
+    }
+
+    public static List<Component> toComponents(List<String> lines) {
+        return lines.stream().map(Utils::toComponent).collect(Collectors.toList());
     }
 
     public static List<String> formatColors(List<String> lines) {
         return lines.stream().map(Utils::formatColors).collect(Collectors.toList());
+    }
+
+    public static String stripColor(String s) {
+        if (s == null) return null;
+        return s.replaceAll("§[0-9a-fA-Fk-oK-OrRxX]", "");
+    }
+
+    public static String stripColor(Component component) {
+        if (component == null) return "";
+        return stripColor(LegacyComponentSerializer.legacySection().serialize(component));
     }
 
     public static String abbreviateNumber(double number) {

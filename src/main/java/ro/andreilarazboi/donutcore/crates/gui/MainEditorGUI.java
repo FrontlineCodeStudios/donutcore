@@ -4,6 +4,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -30,7 +31,7 @@ public class MainEditorGUI {
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             filler.setItemMeta(fm);
         }
         for (int i = 0; i < inv.getSize(); ++i) {
@@ -39,16 +40,16 @@ public class MainEditorGUI {
         ItemStack back = new ItemStack(Material.ARROW);
         ItemMeta bm = back.getItemMeta();
         if (bm != null) {
-            bm.setDisplayName(Utils.formatColors("&#f5f5f5\u00ab Back"));
-            bm.setLore(Utils.formatColors(List.of("&7Return to the main editor.")));
+            bm.displayName(Utils.toComponent("&#f5f5f5\u00ab Back"));
+            bm.lore(List.of(Utils.toComponent("&7Return to the main editor.")));
             back.setItemMeta(bm);
         }
         inv.setItem(45, back);
         ItemStack create = new ItemStack(Material.NETHER_STAR);
         ItemMeta cm = create.getItemMeta();
         if (cm != null) {
-            cm.setDisplayName(Utils.formatColors("&#0fe30f&lCreate New Crate"));
-            cm.setLore(Utils.formatColors(List.of("&7Click, then left-click any block", "&7to create a new crate there.")));
+            cm.displayName(Utils.toComponent("&#0fe30f&lCreate New Crate"));
+            cm.lore(List.of(Utils.toComponent("&7Click, then left-click any block"), Utils.toComponent("&7to create a new crate there.")));
             create.setItemMeta(cm);
         }
         inv.setItem(49, create);
@@ -65,18 +66,18 @@ public class MainEditorGUI {
             ItemStack icon = new ItemStack(mat);
             ItemMeta im = icon.getItemMeta();
             if (im != null) {
-                im.setDisplayName(Utils.formatColors("&#f5f5f5" + crate));
-                ArrayList<String> lore = new ArrayList<String>();
-                lore.add(Utils.formatColors("&7Click to edit crate settings."));
-                lore.add(Utils.formatColors(""));
-                lore.add(Utils.formatColors("&#27B0F5Key: &f" + keyId));
+                im.displayName(Utils.toComponent("&#f5f5f5" + crate));
+                ArrayList<Component> lore = new ArrayList<Component>();
+                lore.add(Utils.toComponent("&7Click to edit crate settings."));
+                lore.add(Utils.toComponent(""));
+                lore.add(Utils.toComponent("&#27B0F5Key: &f" + keyId));
                 if (keyMissing) {
-                    lore.add(Utils.formatColors(""));
-                    lore.add(Utils.formatColors("&#d61111\u2716 Problem detected"));
-                    lore.add(Utils.formatColors("&#bfbfbfSelected key is missing."));
-                    lore.add(Utils.formatColors("&#bfbfbfOpen settings \u2192 Key to fix."));
+                    lore.add(Utils.toComponent(""));
+                    lore.add(Utils.toComponent("&#d61111\u2716 Problem detected"));
+                    lore.add(Utils.toComponent("&#bfbfbfSelected key is missing."));
+                    lore.add(Utils.toComponent("&#bfbfbfOpen settings \u2192 Key to fix."));
                 }
-                im.setLore(lore);
+                im.lore(lore);
                 icon.setItemMeta(im);
             }
             if (idx == 49) {

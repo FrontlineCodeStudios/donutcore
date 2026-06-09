@@ -25,13 +25,13 @@ public class EnderChestCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(plugin.formatColors("&cOnly players can use this command."));
+            sender.sendMessage(plugin.formatComponent("&cOnly players can use this command."));
             return true;
         }
 
         if (args.length == 0) {
             if (!player.hasPermission("enderchest.command")) {
-                player.sendMessage(plugin.msg("no-permission"));
+                player.sendMessage(plugin.msgComponent("no-permission"));
                 return true;
             }
             plugin.getEnderChestManager().openOwnChest(player);
@@ -39,14 +39,14 @@ public class EnderChestCommand implements CommandExecutor, TabCompleter {
         }
 
         if (!player.hasPermission("enderchest.command.others")) {
-            player.sendMessage(plugin.msg("no-permission"));
+            player.sendMessage(plugin.msgComponent("no-permission"));
             return true;
         }
 
         String targetName = args[0];
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         if (!target.hasPlayedBefore() && target.getPlayer() == null) {
-            player.sendMessage(plugin.msg("player-not-found").replace("<player>", targetName));
+            player.sendMessage(plugin.formatComponent(plugin.msg("player-not-found").replace("<player>", targetName)));
             return true;
         }
 

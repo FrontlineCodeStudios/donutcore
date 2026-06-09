@@ -4,6 +4,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -59,28 +60,28 @@ public class HologramBackgroundGUI {
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
-        fm.setDisplayName(" ");
+        fm.displayName(Utils.toComponent(" "));
         filler.setItemMeta(fm);
         for (int i = 0; i < inv.getSize(); ++i) {
             inv.setItem(i, filler);
         }
         ItemStack back = new ItemStack(Material.ARROW);
         ItemMeta bm = back.getItemMeta();
-        bm.setDisplayName(Utils.formatColors("&#f5f5f5\u00ab Back"));
-        ArrayList<String> bl = new ArrayList<String>();
-        bl.add(Utils.formatColors("&#bfbfbfReturn to the hologram editor."));
-        bm.setLore(bl);
+        bm.displayName(Utils.toComponent("&#f5f5f5\u00ab Back"));
+        ArrayList<Component> bl = new ArrayList<Component>();
+        bl.add(Utils.toComponent("&#bfbfbfReturn to the hologram editor."));
+        bm.lore(bl);
         back.setItemMeta(bm);
         inv.setItem(45, back);
         ItemStack header = new ItemStack(Material.BOOK);
         ItemMeta hm = header.getItemMeta();
-        hm.setDisplayName(Utils.formatColors("&#0f99e3Select Background Color"));
-        ArrayList<String> hl = new ArrayList<String>();
-        hl.add(Utils.formatColors("&#bfbfbfThis controls the box behind"));
-        hl.add(Utils.formatColors("&#bfbfbfyour hologram text."));
-        hl.add(Utils.formatColors(""));
-        hl.add(Utils.formatColors("&#bfbfbfUse &fTransparent &7for no box at all."));
-        hm.setLore(hl);
+        hm.displayName(Utils.toComponent("&#0f99e3Select Background Color"));
+        ArrayList<Component> hl = new ArrayList<Component>();
+        hl.add(Utils.toComponent("&#bfbfbfThis controls the box behind"));
+        hl.add(Utils.toComponent("&#bfbfbfyour hologram text."));
+        hl.add(Utils.toComponent(""));
+        hl.add(Utils.toComponent("&#bfbfbfUse &fTransparent &7for no box at all."));
+        hm.lore(hl);
         header.setItemMeta(hm);
         inv.setItem(4, header);
         String base = "Crates." + crate + ".Hologram";
@@ -98,18 +99,18 @@ public class HologramBackgroundGUI {
             boolean isSelected = opt.id.equalsIgnoreCase(selectedId);
             ItemStack icon = new ItemStack(opt.material);
             ItemMeta im = icon.getItemMeta();
-            im.setDisplayName(Utils.formatColors(isSelected ? "&#0fe30f" + opt.name + " &7(Selected)" : "&#f5f5f5" + opt.name));
-            ArrayList<String> lore = new ArrayList<String>();
-            lore.add(Utils.formatColors("&#bfbfbf" + opt.description));
-            lore.add("");
+            im.displayName(Utils.toComponent(isSelected ? "&#0fe30f" + opt.name + " &7(Selected)" : "&#f5f5f5" + opt.name));
+            ArrayList<Component> lore = new ArrayList<Component>();
+            lore.add(Utils.toComponent("&#bfbfbf" + opt.description));
+            lore.add(Utils.toComponent(""));
             if (isSelected) {
-                lore.add(Utils.formatColors("&#0fe30f\u2714 Currently selected"));
+                lore.add(Utils.toComponent("&#0fe30f\u2714 Currently selected"));
                 im.addEnchant(Enchantment.UNBREAKING, 1, true);
                 im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
             } else {
-                lore.add(Utils.formatColors("&#bfbfbfClick to select this background."));
+                lore.add(Utils.toComponent("&#bfbfbfClick to select this background."));
             }
-            im.setLore(lore);
+            im.lore(lore);
             im.getPersistentDataContainer().set(this.bgColorTag, PersistentDataType.STRING, opt.id.toUpperCase(Locale.ROOT));
             icon.setItemMeta(im);
             inv.setItem(COLOR_SLOTS[idx++], icon);

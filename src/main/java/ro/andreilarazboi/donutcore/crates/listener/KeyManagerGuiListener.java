@@ -67,7 +67,7 @@ implements Listener {
                 return;
             }
             String keyId = (String)meta.getPersistentDataContainer().get(this.keyListIdTag, PersistentDataType.STRING);
-            if ((keyId == null || keyId.isBlank()) && meta.hasDisplayName() && (name = Utils.stripColor(meta.getDisplayName())).startsWith("Key: ")) {
+            if ((keyId == null || keyId.isBlank()) && meta.hasDisplayName() && (name = Utils.stripColor(meta.displayName())).startsWith("Key: ")) {
                 keyId = name.substring("Key: ".length()).trim();
             }
             if (keyId != null && !keyId.isBlank()) {

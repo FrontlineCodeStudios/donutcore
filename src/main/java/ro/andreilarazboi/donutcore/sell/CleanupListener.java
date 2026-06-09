@@ -3,7 +3,8 @@ package ro.andreilarazboi.donutcore.sell;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -26,7 +27,7 @@ public class CleanupListener implements Listener {
     public CleanupListener(DonutSell plugin) {
         this.plugin = plugin;
         this.lorePrefixes = plugin.getConfig().getStringList("lore").stream()
-                .map(line -> ChatColor.stripColor(Utils.formatColors(line.replace("%amount%", ""))).toLowerCase(Locale.ROOT).trim())
+                .map(line -> Utils.stripColor(Utils.formatColors(line.replace("%amount%", ""))).toLowerCase(Locale.ROOT).trim())
                 .toList();
     }
 
@@ -34,13 +35,14 @@ public class CleanupListener implements Listener {
         for (ItemStack it : p.getInventory().getContents()) {
             ItemMeta meta;
             if (it == null || !it.hasItemMeta() || (meta = it.getItemMeta()) == null || !meta.hasLore()) continue;
-            ArrayList<String> filtered = new ArrayList<>();
-            for (String line : meta.getLore()) {
-                String plain = ChatColor.stripColor(line).toLowerCase(Locale.ROOT).trim();
+            List<Component> origLore = meta.lore() != null ? meta.lore() : new ArrayList<>();
+            ArrayList<Component> filtered = new ArrayList<>();
+            for (Component comp : origLore) {
+                String plain = Utils.stripColor(comp).toLowerCase(Locale.ROOT).trim();
                 if (!this.lorePrefixes.stream().noneMatch(plain::startsWith)) continue;
-                filtered.add(line);
+                filtered.add(comp);
             }
-            meta.setLore(filtered.isEmpty() ? null : filtered);
+            meta.lore(filtered.isEmpty() ? null : filtered);
             it.setItemMeta(meta);
         }
         p.updateInventory();
@@ -99,13 +101,14 @@ public class CleanupListener implements Listener {
         ItemStack copy = original.clone();
         ItemMeta meta = copy.getItemMeta();
         if (meta == null || !meta.hasLore()) return copy;
-        ArrayList<String> keep = new ArrayList<>();
-        for (String line : meta.getLore()) {
-            String plain = ChatColor.stripColor(line).toLowerCase(Locale.ROOT).trim();
+        List<Component> origLore = meta.lore() != null ? meta.lore() : new ArrayList<>();
+        ArrayList<Component> keep = new ArrayList<>();
+        for (Component comp : origLore) {
+            String plain = Utils.stripColor(comp).toLowerCase(Locale.ROOT).trim();
             if (!this.lorePrefixes.stream().noneMatch(plain::startsWith)) continue;
-            keep.add(line);
+            keep.add(comp);
         }
-        meta.setLore(keep.isEmpty() ? null : keep);
+        meta.lore(keep.isEmpty() ? null : keep);
         copy.setItemMeta(meta);
         return copy;
     }

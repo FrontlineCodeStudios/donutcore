@@ -27,6 +27,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import java.time.Duration;
+import net.kyori.adventure.title.Title;
 import org.bukkit.plugin.Plugin;
 import ro.andreilarazboi.donutcore.crates.opening.OpeningAnimationService;
 import ro.andreilarazboi.donutcore.crates.opening.OpeningAnimationType;
@@ -67,7 +69,7 @@ implements Listener {
             this.plugin.pendingCreate.remove(p.getUniqueId());
             this.plugin.pendingCreateRandom.remove(p.getUniqueId());
             p.openInventory(this.plugin.guiCrateSettings.build(name));
-            p.sendTitle("\u00a7a[Crate created]", "\u00a77Opened settings for \u00a7e" + name, 10, 40, 10);
+            p.showTitle(Title.title(Utils.toComponent("\u00a7a[Crate created]"), Utils.toComponent("\u00a77Opened settings for \u00a7e" + name), Title.Times.times(Duration.ofMillis(500L), Duration.ofMillis(2000L), Duration.ofMillis(500L))));
             return;
         }
         if (action == Action.LEFT_CLICK_BLOCK && b != null && this.plugin.pendingMoveCrate.containsKey(p.getUniqueId())) {
@@ -75,7 +77,7 @@ implements Listener {
             String crate = this.plugin.pendingMoveCrate.remove(p.getUniqueId());
             this.plugin.crateMgr.moveCrate(crate, b, p);
             p.openInventory(this.plugin.guiCrateSettings.build(crate));
-            p.sendTitle("\u00a7a[Crate moved]", "\u00a77Location updated for \u00a7e" + crate, 10, 40, 10);
+            p.showTitle(Title.title(Utils.toComponent("\u00a7a[Crate moved]"), Utils.toComponent("\u00a77Location updated for \u00a7e" + crate), Title.Times.times(Duration.ofMillis(500L), Duration.ofMillis(2000L), Duration.ofMillis(500L))));
             return;
         }
         if (action == Action.LEFT_CLICK_BLOCK && b != null && this.plugin.pendingCopyCrate.containsKey(p.getUniqueId())) {
@@ -132,7 +134,7 @@ implements Listener {
             this.plugin.cfg.saveAll();
             this.plugin.holoMgr.refreshCrate(newName);
             p.openInventory(this.plugin.guiCrateSettings.build(newName));
-            p.sendTitle("\u00a7a[Crate copied]", "\u00a77Cloned \u00a7e" + source + " \u00a77to \u00a7e" + newName, 10, 40, 10);
+            p.showTitle(Title.title(Utils.toComponent("\u00a7a[Crate copied]"), Utils.toComponent("\u00a77Cloned \u00a7e" + source + " \u00a77to \u00a7e" + newName), Title.Times.times(Duration.ofMillis(500L), Duration.ofMillis(2000L), Duration.ofMillis(500L))));
             return;
         }
         if (action != Action.RIGHT_CLICK_BLOCK && action != Action.LEFT_CLICK_BLOCK) {
@@ -340,11 +342,11 @@ implements Listener {
                 for (String line : lines) {
                     if (line == null) continue;
                     if (line.isEmpty()) {
-                        online.sendMessage("");
+                        online.sendMessage(Utils.toComponent(""));
                         continue;
                     }
                     String out = line.replace("{player}", p.getName()).replace("{crate}", crateDisplay).replace("{item-name}", po.rewardName).replace("{item-chance}", chanceText);
-                    online.sendMessage(Utils.formatColors(out));
+                    online.sendMessage(Utils.toComponent(out));
                 }
             }
         }

@@ -43,7 +43,7 @@ public class EnderChestManager {
     public void openOwnChest(Player player) {
         int rows = getRows(player);
         if (rows == 0) {
-            player.sendMessage(plugin.msg("no-enderchest"));
+            player.sendMessage(plugin.msgComponent("no-enderchest"));
             return;
         }
         openAsync(player, player.getUniqueId(), player.getName(), rows, false);
@@ -69,7 +69,7 @@ public class EnderChestManager {
                 }
                 viewer.openInventory(inv);
                 if (!viewer.getUniqueId().equals(ownerUUID)) {
-                    viewer.sendMessage(plugin.msg("viewing-others").replace("<player>", ownerName));
+                    viewer.sendMessage(plugin.formatComponent(plugin.msg("viewing-others").replace("<player>", ownerName)));
                 }
             });
         });

@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -185,7 +187,7 @@ public class ItemPricesMenu implements Listener {
                 pmMeta.setBasePotionData(new PotionData(type, extended, upgraded));
             } else {
                 pmMeta.setBasePotionData(new PotionData(PotionType.AWKWARD, false, false));
-                pmMeta.setDisplayName(this.prettify(effectName) + " Potion");
+                pmMeta.displayName(Utils.toComponent(this.prettify(effectName) + " Potion"));
             }
             pmMeta.getPersistentDataContainer().set(this.PDC_CATEGORY, PersistentDataType.STRING, "brewing_stand");
             pot.setItemMeta(pmMeta);
@@ -253,13 +255,19 @@ public class ItemPricesMenu implements Listener {
                 case LOW_TO_HIGH -> sorted.sort(Comparator.comparingDouble(Map.Entry::getValue));
                 case A_TO_Z, NAME -> sorted.sort(Comparator.comparing(en -> {
                     ItemMeta m = en.getKey().getItemMeta();
-                    return m != null && m.hasDisplayName() ? m.getDisplayName() : this.prettify(en.getKey().getType());
+                    return m != null && m.hasDisplayName() && m.displayName() != null
+                            ? LegacyComponentSerializer.legacySection().serialize(m.displayName())
+                            : this.prettify(en.getKey().getType());
                 }, String.CASE_INSENSITIVE_ORDER));
                 case Z_TO_A -> sorted.sort((a, b) -> {
                     ItemMeta ma = a.getKey().getItemMeta();
                     ItemMeta mb = b.getKey().getItemMeta();
-                    String da = ma != null && ma.hasDisplayName() ? ma.getDisplayName() : this.prettify(a.getKey().getType());
-                    String db = mb != null && mb.hasDisplayName() ? mb.getDisplayName() : this.prettify(b.getKey().getType());
+                    String da = ma != null && ma.hasDisplayName() && ma.displayName() != null
+                            ? LegacyComponentSerializer.legacySection().serialize(ma.displayName())
+                            : this.prettify(a.getKey().getType());
+                    String db = mb != null && mb.hasDisplayName() && mb.displayName() != null
+                            ? LegacyComponentSerializer.legacySection().serialize(mb.displayName())
+                            : this.prettify(b.getKey().getType());
                     return String.CASE_INSENSITIVE_ORDER.compare(db, da);
                 });
             }
@@ -292,16 +300,18 @@ public class ItemPricesMenu implements Listener {
                     base = this.prettify("SPAWNER");
                 }
             } else {
-                base = m.hasDisplayName() ? m.getDisplayName() : this.prettify(is.getType());
+                base = m.hasDisplayName() && m.displayName() != null
+                        ? LegacyComponentSerializer.legacySection().serialize(m.displayName())
+                        : this.prettify(is.getType());
             }
-            m.setDisplayName(Utils.formatColors(this.itemDisplayTemplate
+            m.displayName(Utils.toComponent(this.itemDisplayTemplate
                     .replace("%ItemName%", base)
                     .replace("%amount%", Utils.abbreviateNumber(ent.getValue()))));
-            ArrayList<String> lore = new ArrayList<>();
+            ArrayList<Component> lore = new ArrayList<>();
             for (String line : this.itemLoreTemplate) {
-                lore.add(Utils.formatColors(line.replace("%ItemName%", base).replace("%amount%", Utils.abbreviateNumber(ent.getValue()))));
+                lore.add(Utils.toComponent(line.replace("%ItemName%", base).replace("%amount%", Utils.abbreviateNumber(ent.getValue()))));
             }
-            m.setLore(lore);
+            m.lore(lore);
             is.setItemMeta(m);
             inv.setItem(i - start, is);
         }
@@ -311,30 +321,30 @@ public class ItemPricesMenu implements Listener {
         ItemStack sortItem = new ItemStack(this.sortMat);
         ItemMeta sm = sortItem.getItemMeta();
         if (sm != null) {
-            sm.setDisplayName(Utils.formatColors(this.sortName));
-            ArrayList<String> lore = new ArrayList<>();
+            sm.displayName(Utils.toComponent(this.sortName));
+            ArrayList<Component> sortLore = new ArrayList<>();
             ViewTracker.SortOrder cur = vt.getOrder(player.getUniqueId());
             for (String option : this.sortOptions) {
                 ViewTracker.SortOrder mode = this.sortOrderFromLabel(option);
                 String col = mode == cur ? this.sortCurColor : this.sortNotCurColor;
-                lore.add(Utils.formatColors(col + "• " + option));
+                sortLore.add(Utils.toComponent(col + "• " + option));
             }
-            sm.setLore(lore);
+            sm.lore(sortLore);
             sortItem.setItemMeta(sm);
             inv.setItem(this.sortSlot, sortItem);
         }
         ItemStack filterItem = new ItemStack(this.filterMat);
         ItemMeta fm = filterItem.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(Utils.formatColors(this.filterName));
-            ArrayList<String> lore = new ArrayList<>();
+            fm.displayName(Utils.toComponent(this.filterName));
+            ArrayList<Component> filterLore = new ArrayList<>();
             String curFilt = filterCategory == null ? FILTER_ALL : filterCategory;
             List<String> dynamic = this.filterOptions.isEmpty() ? Collections.singletonList(FILTER_ALL) : this.filterOptions;
             for (String opt : dynamic) {
                 String col = opt.equalsIgnoreCase(curFilt) ? this.filterCurColor : this.filterNotCurColor;
-                lore.add(Utils.formatColors(col + this.prettyCategoryName(opt)));
+                filterLore.add(Utils.toComponent(col + this.prettyCategoryName(opt)));
             }
-            fm.setLore(lore);
+            fm.lore(filterLore);
             filterItem.setItemMeta(fm);
             inv.setItem(this.filterSlot, filterItem);
         }
@@ -351,8 +361,8 @@ public class ItemPricesMenu implements Listener {
         ItemStack b = new ItemStack(mat);
         ItemMeta m = b.getItemMeta();
         if (m != null) {
-            m.setDisplayName(Utils.formatColors(name));
-            m.setLore(Utils.formatColors(lore));
+            m.displayName(Utils.toComponent(name));
+            m.lore(Utils.toComponents(lore));
             b.setItemMeta(m);
             inv.setItem(slot, b);
         }

@@ -12,7 +12,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -26,7 +25,7 @@ public class CrateStatsGUI {
 
     public Inventory buildMain(Player player) {
         CrateStatsHolder holder = new CrateStatsHolder(null, false);
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)54, (String)Utils.formatColors("&#444444Crate Stats"));
+        Inventory inv = Bukkit.createInventory(holder, 54, Utils.toComponent("&#444444Crate Stats"));
         holder.setInventory(inv);
         ArrayList<String> crates = new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet());
         crates.sort(String::compareToIgnoreCase);
@@ -38,8 +37,8 @@ public class CrateStatsGUI {
             ItemMeta meta = item.getItemMeta();
             if (meta == null) continue;
             String crateDisplay = this.plugin.getCrateDisplayNameRaw(crate);
-            meta.setDisplayName(Utils.formatColors("&r" + crateDisplay));
-            meta.setLore(List.of(Utils.formatColors("&7Totaled Opened: &f" + opened), Utils.formatColors("&8Click to view last 45 rewards")));
+            meta.displayName(Utils.toComponent("&r" + crateDisplay));
+            meta.lore(List.of(Utils.toComponent("&7Totaled Opened: &f" + opened), Utils.toComponent("&8Click to view last 45 rewards")));
             meta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
             item.setItemMeta(meta);
             inv.setItem(slot, item);
@@ -49,15 +48,15 @@ public class CrateStatsGUI {
 
     public Inventory buildHistory(Player player, String crate) {
         CrateStatsHolder holder = new CrateStatsHolder(crate, true);
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)54, (String)Utils.formatColors("&#0fe30f" + crate + " Rewards"));
+        Inventory inv = Bukkit.createInventory(holder, 54, Utils.toComponent("&#0fe30f" + crate + " Rewards"));
         holder.setInventory(inv);
         List<ItemStack> rewards = this.plugin.dataMgr.getRecentRewardItems(player.getUniqueId(), crate, 45);
         if (rewards.isEmpty()) {
             ItemStack none = new ItemStack(Material.BARRIER);
             ItemMeta noneMeta = none.getItemMeta();
             if (noneMeta != null) {
-                noneMeta.setDisplayName(Utils.formatColors("&#ff5555No rewards yet"));
-                noneMeta.setLore(List.of(Utils.formatColors("&7Open this crate to build your history.")));
+                noneMeta.displayName(Utils.toComponent("&#ff5555No rewards yet"));
+                noneMeta.lore(List.of(Utils.toComponent("&7Open this crate to build your history.")));
                 none.setItemMeta(noneMeta);
             }
             inv.setItem(22, none);
@@ -71,7 +70,7 @@ public class CrateStatsGUI {
         ItemStack back = new ItemStack(Material.ARROW);
         ItemMeta backMeta = back.getItemMeta();
         if (backMeta != null) {
-            backMeta.setDisplayName(Utils.formatColors("&#0f99e3Back"));
+            backMeta.displayName(Utils.toComponent("&#0f99e3Back"));
             back.setItemMeta(backMeta);
         }
         inv.setItem(53, back);

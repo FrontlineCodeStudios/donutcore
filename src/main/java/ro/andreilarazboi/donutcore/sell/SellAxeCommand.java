@@ -1,6 +1,7 @@
 package ro.andreilarazboi.donutcore.sell;
 
 import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,21 +47,21 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.hasPermission("sell.admin")) {
-            sender.sendMessage(Utils.formatColors("&cYou do not have permission."));
+            sender.sendMessage(Utils.toComponent("&cYou do not have permission."));
             return true;
         }
         if (args.length == 0) {
-            sender.sendMessage(Utils.formatColors("&cUsage: /donutsell <givesellwand|reload|resetall|addhanditem|prices>"));
+            sender.sendMessage(Utils.toComponent("&cUsage: /donutsell <givesellwand|reload|resetall|addhanditem|prices>"));
             return true;
         }
         if (args[0].equalsIgnoreCase("reload")) {
             this.plugin.reloadPlugin();
-            sender.sendMessage(Utils.formatColors("&aSell config reloaded."));
+            sender.sendMessage(Utils.toComponent("&aSell config reloaded."));
             return true;
         }
         if (args[0].equalsIgnoreCase("prices")) {
             if (!(sender instanceof Player p)) {
-                sender.sendMessage(Utils.formatColors("&cOnly players can open the price editor."));
+                sender.sendMessage(Utils.toComponent("&cOnly players can open the price editor."));
                 return true;
             }
             this.plugin.getAdminPriceEditorMenu().open(p, 1);
@@ -70,26 +71,26 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
             String targetName = args[1];
             OfflinePlayer offline = Bukkit.getOfflinePlayer(targetName);
             if (!offline.hasPlayedBefore() && Bukkit.getPlayerExact(targetName) == null) {
-                sender.sendMessage(Utils.formatColors("&cPlayer &e" + targetName + " &cnot found."));
+                sender.sendMessage(Utils.toComponent("&cPlayer &e" + targetName + " &cnot found."));
                 return true;
             }
             if (sender instanceof Player adminPlayer) {
                 this.plugin.getResetConfirmationGui().open(adminPlayer, offline);
             } else {
-                sender.sendMessage(Utils.formatColors("&cOnly in-game players can confirm a reset."));
+                sender.sendMessage(Utils.toComponent("&cOnly in-game players can confirm a reset."));
             }
             return true;
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("addhanditem")) {
             if (!(sender instanceof Player player)) {
-                sender.sendMessage(Utils.formatColors("&cOnly players can use this."));
+                sender.sendMessage(Utils.toComponent("&cOnly players can use this."));
                 return true;
             }
             String category = args[1].toLowerCase(Locale.ROOT);
             FileConfiguration cfg = this.plugin.getWorthConfig();
             ConfigurationSection catsSection = cfg.getConfigurationSection("categories");
             if (catsSection == null || !catsSection.getKeys(false).contains(category)) {
-                sender.sendMessage(Utils.formatColors("&cUnknown category: " + category));
+                sender.sendMessage(Utils.toComponent("&cUnknown category: " + category));
                 return true;
             }
             double price;
@@ -97,12 +98,12 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
                 price = Double.parseDouble(args[2]);
                 if (price < 0.0) throw new NumberFormatException();
             } catch (NumberFormatException e) {
-                sender.sendMessage(Utils.formatColors("&cPlease specify a valid non-negative number for price."));
+                sender.sendMessage(Utils.toComponent("&cPlease specify a valid non-negative number for price."));
                 return true;
             }
             ItemStack hand = player.getInventory().getItemInMainHand();
             if (hand == null || hand.getType().isAir()) {
-                sender.sendMessage(Utils.formatColors("&cHold an item to set its price."));
+                sender.sendMessage(Utils.toComponent("&cHold an item to set its price."));
                 return true;
             }
             String entryKey;
@@ -116,7 +117,7 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
                 }
             } else if (hand.getType() == Material.ENCHANTED_BOOK && handMeta instanceof EnchantmentStorageMeta esm) {
                 if (esm.getStoredEnchants().size() != 1) {
-                    sender.sendMessage(Utils.formatColors("&cHold an enchanted book with exactly one enchantment."));
+                    sender.sendMessage(Utils.toComponent("&cHold an enchanted book with exactly one enchantment."));
                     return true;
                 }
                 Map.Entry<Enchantment, Integer> e = esm.getStoredEnchants().entrySet().iterator().next();
@@ -156,13 +157,13 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
             cfg.set(path, newList);
             this.plugin.saveWorthConfig();
             this.plugin.reloadPlugin();
-            sender.sendMessage(Utils.formatColors("&aSet &e" + entryKey + " &ain category &e" + category + " &ato &e" + price));
+            sender.sendMessage(Utils.toComponent("&aSet &e" + entryKey + " &ain category &e" + category + " &ato &e" + price));
             return true;
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("givesellwand")) {
             Player target = Bukkit.getPlayerExact(args[1]);
             if (target == null) {
-                sender.sendMessage(Utils.formatColors("&cPlayer not found: " + args[1]));
+                sender.sendMessage(Utils.toComponent("&cPlayer not found: " + args[1]));
                 return true;
             }
             ItemStack sellAxe = new ItemStack(Material.NETHERITE_AXE, 1);
@@ -172,23 +173,24 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             String rawName = this.plugin.getConfig().getString("sell-axe.display-name", "&aSell Wand");
-            meta.setDisplayName(Utils.formatColors(rawName));
+            meta.displayName(Utils.toComponent(rawName));
             List<String> loreTemplate = new ArrayList<>(this.plugin.getConfig().getStringList("sell-axe.lore"));
             boolean useCountdown = this.plugin.getConfig().getBoolean("sell-axe.use-countdown", true);
             long expiryMillis = 0L;
+            List<Component> loreComponents = new ArrayList<>();
             if (useCountdown) {
                 long durationSeconds = this.plugin.getConfig().getLong("sell-axe.duration-seconds", 259200L);
                 expiryMillis = System.currentTimeMillis() + durationSeconds * 1000L;
                 String initialCountdown = this.formatDuration(durationSeconds * 1000L);
-                for (int i = 0; i < loreTemplate.size(); ++i) {
-                    loreTemplate.set(i, Utils.formatColors(loreTemplate.get(i).replace("%countdown%", initialCountdown)));
+                for (String line : loreTemplate) {
+                    loreComponents.add(Utils.toComponent(line.replace("%countdown%", initialCountdown)));
                 }
             } else {
-                for (int i = 0; i < loreTemplate.size(); ++i) {
-                    loreTemplate.set(i, Utils.formatColors(loreTemplate.get(i)));
+                for (String line : loreTemplate) {
+                    loreComponents.add(Utils.toComponent(line));
                 }
             }
-            meta.setLore(loreTemplate);
+            meta.lore(loreComponents);
             List<String> enchList = this.plugin.getConfig().getStringList("sell-axe.enchantments");
             for (String enchEntry : enchList) {
                 String[] parts = enchEntry.split(":");
@@ -208,7 +210,7 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
             target.getInventory().addItem(sellAxe);
             return true;
         }
-        sender.sendMessage(Utils.formatColors("&cUsage: /donutsell <givesellwand|reload|resetall|addhanditem|prices>"));
+        sender.sendMessage(Utils.toComponent("&cUsage: /donutsell <givesellwand|reload|resetall|addhanditem|prices>"));
         return true;
     }
 

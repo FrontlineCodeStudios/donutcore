@@ -12,8 +12,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
@@ -78,7 +78,7 @@ public class AdminPriceEditorMenu implements Listener {
 
     public void open(Player player, int requestedPage) {
         if (!this.loaded) {
-            player.sendMessage(Utils.formatColors("&ePrice editor is still loading. Please try again in a second."));
+            player.sendMessage(Utils.toComponent("&ePrice editor is still loading. Please try again in a second."));
             return;
         }
         UUID uuid = player.getUniqueId();
@@ -100,12 +100,12 @@ public class AdminPriceEditorMenu implements Listener {
                     ItemStack item = new ItemStack(data.material());
                     ItemMeta meta = item.getItemMeta();
                     if (meta != null) {
-                        meta.setDisplayName(Utils.formatColors("&f" + data.display()));
-                        ArrayList<String> lore = new ArrayList<>();
-                        lore.add(Utils.formatColors("&7Key: &f" + data.key()));
-                        lore.add(Utils.formatColors("&7Price: &#34ee80$" + Utils.abbreviateNumber(data.price())));
-                        lore.add(Utils.formatColors("&fClick to edit"));
-                        meta.setLore(lore);
+                        meta.displayName(Utils.toComponent("&f" + data.display()));
+                        ArrayList<Component> lore = new ArrayList<>();
+                        lore.add(Utils.toComponent("&7Key: &f" + data.key()));
+                        lore.add(Utils.toComponent("&7Price: &#34ee80$" + Utils.abbreviateNumber(data.price())));
+                        lore.add(Utils.toComponent("&fClick to edit"));
+                        meta.lore(lore);
                         item.setItemMeta(meta);
                     }
                     inv.setItem(i, item);
@@ -136,7 +136,7 @@ public class AdminPriceEditorMenu implements Listener {
             price = Double.parseDouble(message);
             if (price < 0.0) throw new NumberFormatException();
         } catch (NumberFormatException ex) {
-            player.sendMessage(Utils.formatColors("&cPlease type a valid number or 'cancel'."));
+            player.sendMessage(Utils.toComponent("&cPlease type a valid number or 'cancel'."));
             return;
         }
         this.awaitingChat.remove(uuid);
@@ -193,7 +193,7 @@ public class AdminPriceEditorMenu implements Listener {
             this.plugin.runLaterGlobal(() -> this.recentClicks.remove(token), 2L);
             this.awaitingChat.put(uuid, new PendingChat(key, this.prettify(clicked.getType()), clicked.getType()));
             player.closeInventory();
-            player.sendMessage(Utils.formatColors("&eType a new price for &f" + key + "&e in chat. Type 'cancel' to abort."));
+            player.sendMessage(Utils.toComponent("&eType a new price for &f" + key + "&e in chat. Type 'cancel' to abort."));
         }
     }
 
@@ -207,8 +207,8 @@ public class AdminPriceEditorMenu implements Listener {
         ItemStack selectedItem = new ItemStack(pending.material());
         ItemMeta selectedMeta = selectedItem.getItemMeta();
         if (selectedMeta != null) {
-            selectedMeta.setDisplayName(Utils.formatColors("&#34ee80Selected Item"));
-            selectedMeta.setLore(Utils.formatColors(Arrays.asList(
+            selectedMeta.displayName(Utils.toComponent("&#34ee80Selected Item"));
+            selectedMeta.lore(Utils.toComponents(Arrays.asList(
                     "&7Item: &f" + pending.display(),
                     "&7Price: &#34ee80$" + Utils.abbreviateNumber(pending.price()))));
             selectedItem.setItemMeta(selectedMeta);
@@ -226,9 +226,9 @@ public class AdminPriceEditorMenu implements Listener {
             ItemStack item = this.button(material, display, lore);
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
-                ArrayList<String> withCat = new ArrayList<>(meta.getLore() == null ? Collections.emptyList() : meta.getLore());
-                withCat.add(Utils.formatColors("&8category:" + category));
-                meta.setLore(withCat);
+                ArrayList<Component> withCat = new ArrayList<>(meta.lore() != null ? meta.lore() : Collections.emptyList());
+                withCat.add(Utils.toComponent("&8category:" + category));
+                meta.lore(withCat);
                 item.setItemMeta(meta);
             }
             inv.setItem(slot, item);
@@ -243,11 +243,11 @@ public class AdminPriceEditorMenu implements Listener {
         if (pending == null) { player.closeInventory(); return; }
         ItemStack clicked = top.getItem(slot);
         if (clicked == null || clicked.getType().isAir() || !clicked.hasItemMeta()) return;
-        List<String> lore = clicked.getItemMeta().getLore();
+        List<Component> lore = clicked.getItemMeta().lore();
         if (lore == null) return;
         String category = null;
-        for (String line : lore) {
-            String stripped = ChatColor.stripColor(Utils.formatColors(line));
+        for (Component comp : lore) {
+            String stripped = Utils.stripColor(comp);
             if (stripped == null || !stripped.toLowerCase(Locale.ROOT).startsWith("category:")) continue;
             category = stripped.substring("category:".length()).trim();
             break;
@@ -255,7 +255,7 @@ public class AdminPriceEditorMenu implements Listener {
         if (category == null || category.isEmpty()) return;
         this.applyPriceToCategory(category, pending.key(), pending.price());
         this.awaitingCategory.remove(uuid);
-        player.sendMessage(Utils.formatColors("&aUpdated &f" + pending.key() + " &ato &#34ee80$" + pending.price() + " &ain category &f" + category));
+        player.sendMessage(Utils.toComponent("&aUpdated &f" + pending.key() + " &ato &#34ee80$" + pending.price() + " &ain category &f" + category));
         player.closeInventory();
         this.plugin.reloadPlugin();
     }
@@ -442,8 +442,8 @@ public class AdminPriceEditorMenu implements Listener {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(Utils.formatColors(name));
-            meta.setLore(Utils.formatColors(lore));
+            meta.displayName(Utils.toComponent(name));
+            meta.lore(Utils.toComponents(lore));
             item.setItemMeta(meta);
         }
         return item;

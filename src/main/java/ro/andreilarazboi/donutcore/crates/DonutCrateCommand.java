@@ -262,7 +262,7 @@ TabCompleter {
     }
 
     private void sendHelpLine(CommandSender sender, String raw) {
-        sender.sendMessage(this.plugin.getPrefix() + Utils.formatColors(raw));
+        sender.sendMessage(Utils.toComponent(this.plugin.getPrefix() + raw));
     }
 
     private boolean handleKeyPay(CommandSender sender, String[] args) {

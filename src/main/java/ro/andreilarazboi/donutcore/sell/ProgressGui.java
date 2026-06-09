@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -131,7 +132,7 @@ public class ProgressGui {
             Material mat = isComplete ? this.completeMat : (isWorking ? this.workingMat : this.incompleteMat);
             ItemStack pane = new ItemStack(mat);
             ItemMeta meta = pane.getItemMeta();
-            meta.setDisplayName(isComplete ? this.completeName : (isWorking ? this.workingName : this.incompleteName));
+            meta.displayName(Utils.toComponent(isComplete ? this.completeName : (isWorking ? this.workingName : this.incompleteName)));
             double progress = Math.min(sold, lvl.amountNeeded);
             double frac = lvl.amountNeeded > 0L ? progress / lvl.amountNeeded : 0.0;
             String needed = Utils.abbreviateNumber(lvl.amountNeeded);
@@ -147,15 +148,15 @@ public class ProgressGui {
                 bar = "&f" + this.barSymbol.repeat(this.barLength);
             }
             List<String> template = isComplete ? this.completeLore : (isWorking ? this.workingLore : this.incompleteLore);
-            ArrayList<String> finalLore = new ArrayList<>();
+            ArrayList<Component> finalLore = new ArrayList<>();
             for (String line : template) {
-                finalLore.add(Utils.formatColors(line
+                finalLore.add(Utils.toComponent(line
                         .replace("%loading-bar%", bar)
                         .replace("%multi%", String.valueOf(lvl.multi))
                         .replace("%progress%", String.format("%.1f", frac * 100.0))
                         .replace("%amount-needed%", amtStr)));
             }
-            meta.setLore(finalLore);
+            meta.lore(finalLore);
             pane.setItemMeta(meta);
             inv.setItem(lvl.slot, pane);
         }
@@ -163,20 +164,20 @@ public class ProgressGui {
         if (ci != null) {
             ItemStack icon = new ItemStack(ci.material);
             ItemMeta im = icon.getItemMeta();
-            im.setDisplayName(ci.displayName.replace("%item%", this.capitalize(key)).replace("%sold%", Utils.abbreviateNumber(sold)));
-            ArrayList<String> lore = new ArrayList<>();
+            im.displayName(Utils.toComponent(ci.displayName.replace("%item%", this.capitalize(key)).replace("%sold%", Utils.abbreviateNumber(sold))));
+            ArrayList<Component> lore = new ArrayList<>();
             for (String l : ci.lore) {
-                lore.add(Utils.formatColors(l.replace("%item%", this.capitalize(key)).replace("%sold%", Utils.abbreviateNumber(sold))));
+                lore.add(Utils.toComponent(l.replace("%item%", this.capitalize(key)).replace("%sold%", Utils.abbreviateNumber(sold))));
             }
-            im.setLore(lore);
+            im.lore(lore);
             icon.setItemMeta(im);
             inv.setItem(ci.slot, icon);
         }
         if (this.fillerEnabled) {
             ItemStack f = new ItemStack(this.fillerMat);
             ItemMeta fm = f.getItemMeta();
-            fm.setDisplayName(this.fillerName);
-            fm.setLore(this.fillerLore);
+            fm.displayName(Utils.toComponent(this.fillerName));
+            fm.lore(Utils.toComponents(this.fillerLore));
             f.setItemMeta(fm);
             for (int i = 0; i < this.size; ++i) {
                 if (inv.getItem(i) == null) inv.setItem(i, f.clone());
@@ -185,8 +186,8 @@ public class ProgressGui {
         if (this.backEnabled && this.backSlot >= 0 && this.backSlot < this.size) {
             ItemStack b = new ItemStack(this.backMat);
             ItemMeta bm = b.getItemMeta();
-            bm.setDisplayName(this.backName);
-            bm.setLore(this.backLore);
+            bm.displayName(Utils.toComponent(this.backName));
+            bm.lore(Utils.toComponents(this.backLore));
             b.setItemMeta(bm);
             inv.setItem(this.backSlot, b);
         }

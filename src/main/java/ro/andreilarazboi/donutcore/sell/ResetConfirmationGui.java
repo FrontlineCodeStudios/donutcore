@@ -1,6 +1,7 @@
 package ro.andreilarazboi.donutcore.sell;
 
 import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -40,25 +41,25 @@ public class ResetConfirmationGui implements Listener {
         if (skullMeta != null) {
             PlayerProfile profile = Bukkit.createPlayerProfile(target.getUniqueId());
             skullMeta.setOwnerProfile(profile);
-            skullMeta.setDisplayName("§e" + target.getName());
-            ArrayList<String> lore = new ArrayList<>();
+            skullMeta.displayName(Utils.toComponent("§e" + target.getName()));
+            ArrayList<Component> lore = new ArrayList<>();
             String totalStr = this.plugin.getFormattedTotalSold(target.getUniqueId());
-            lore.add("§7Total sold: §b" + totalStr);
-            skullMeta.setLore(lore);
+            lore.add(Utils.toComponent("§7Total sold: §b" + totalStr));
+            skullMeta.lore(lore);
             head.setItemMeta(skullMeta);
             inv.setItem(13, head);
         }
         ItemStack confirmPane = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
         ItemMeta cMeta = confirmPane.getItemMeta();
         if (cMeta != null) {
-            cMeta.setDisplayName("§aConfirm Reset");
+            cMeta.displayName(Utils.toComponent("§aConfirm Reset"));
             confirmPane.setItemMeta(cMeta);
             inv.setItem(15, confirmPane);
         }
         ItemStack declinePane = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta dMeta = declinePane.getItemMeta();
         if (dMeta != null) {
-            dMeta.setDisplayName("§cCancel");
+            dMeta.displayName(Utils.toComponent("§cCancel"));
             declinePane.setItemMeta(dMeta);
             inv.setItem(11, declinePane);
         }
@@ -89,10 +90,10 @@ public class ResetConfirmationGui implements Listener {
             ItemStack catItem = new ItemStack(mat);
             ItemMeta im = catItem.getItemMeta();
             if (im != null) {
-                im.setDisplayName(displayName);
-                ArrayList<String> lore = new ArrayList<>();
-                lore.add("§7Sold: §b" + formattedSold);
-                im.setLore(lore);
+                im.displayName(Utils.toComponent(displayName));
+                ArrayList<Component> lore = new ArrayList<>();
+                lore.add(Utils.toComponent("§7Sold: §b" + formattedSold));
+                im.lore(lore);
                 catItem.setItemMeta(im);
             }
             inv.setItem(27 + i, catItem);
@@ -117,9 +118,9 @@ public class ResetConfirmationGui implements Listener {
             OfflinePlayer targetOffline = Bukkit.getOfflinePlayer(targetUUID);
             this.plugin.resetPlayerData(targetUUID);
             admin.playSound(admin.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f);
-            admin.sendMessage(Utils.formatColors("§aAll sell stats for §e" + targetOffline.getName() + " §ahas been reset."));
+            admin.sendMessage(Utils.toComponent("§aAll sell stats for §e" + targetOffline.getName() + " §ahas been reset."));
             if (targetOffline.isOnline()) {
-                ((Player) targetOffline).sendMessage(Utils.formatColors("§cYour sell stats has been reset by an admin."));
+                ((Player) targetOffline).sendMessage(Utils.toComponent("§cYour sell stats has been reset by an admin."));
             }
             this.pendingReset.remove(adminUUID);
             admin.closeInventory();

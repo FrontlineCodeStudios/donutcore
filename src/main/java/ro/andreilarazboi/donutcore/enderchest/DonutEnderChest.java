@@ -1,7 +1,8 @@
 package ro.andreilarazboi.donutcore.enderchest;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -70,7 +71,30 @@ public class DonutEnderChest {
     }
 
     public String formatColors(String s) {
-        return ChatColor.translateAlternateColorCodes('&', s);
+        if (s == null) return "";
+        char[] chars = s.toCharArray();
+        StringBuilder sb = new StringBuilder(chars.length);
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == '&' && i + 1 < chars.length) {
+                char code = Character.toLowerCase(chars[i + 1]);
+                if ("0123456789abcdefklmnorx".indexOf(code) >= 0) {
+                    sb.append('§').append(code);
+                    i++;
+                    continue;
+                }
+            }
+            sb.append(chars[i]);
+        }
+        return sb.toString();
+    }
+
+    public Component msgComponent(String key) {
+        String raw = config.getString("messages." + key, "&c[EnderChest] Missing message: " + key);
+        return LegacyComponentSerializer.legacySection().deserialize(formatColors(raw));
+    }
+
+    public Component formatComponent(String s) {
+        return LegacyComponentSerializer.legacySection().deserialize(formatColors(s));
     }
 
     public String msg(String key) {

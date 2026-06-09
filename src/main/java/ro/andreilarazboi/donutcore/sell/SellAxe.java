@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
@@ -62,7 +60,7 @@ public class SellAxe implements Listener {
                 player.getInventory().remove(inHand);
                 event.setCancelled(true);
                 String msg = this.plugin.getMessagesConfig().getString("messages.expired-wand", "&cYour Sell Wand has expired and been removed.");
-                player.sendMessage(Utils.formatColors(msg));
+                player.sendMessage(Utils.toComponent(msg));
                 return;
             }
         }
@@ -135,7 +133,7 @@ public class SellAxe implements Listener {
         }
         if (sold.isEmpty()) {
             event.setCancelled(true);
-            player.sendMessage(Utils.formatColors(this.plugin.getMessagesConfig().getString("messages.empty-chest", "&7Chest is empty – nothing to sell.")));
+            player.sendMessage(Utils.toComponent(this.plugin.getMessagesConfig().getString("messages.empty-chest", "&7Chest is empty – nothing to sell.")));
             return;
         }
         this.plugin.recordSale(player, sold);
@@ -154,10 +152,10 @@ public class SellAxe implements Listener {
                 1.0f, 1.0f);
         String actionbar = Utils.formatColors(this.plugin.getMenusConfig().getString("sell-menu.actionbar-message", "&aSold $%amount%"))
                 .replace("%amount%", Utils.abbreviateNumber(payout));
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionbar));
+        player.sendActionBar(Utils.toComponent(actionbar));
         String chatMsg = Utils.formatColors(this.plugin.getMenusConfig().getString("sell-menu.chat-message", "&7[DonutCore]&r $%amount%"))
                 .replace("%amount%", Utils.abbreviateNumber(payout));
-        player.sendMessage(chatMsg);
+        player.sendMessage(Utils.toComponent(chatMsg));
         event.setCancelled(true);
         containerInv.clear();
     }

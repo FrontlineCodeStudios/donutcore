@@ -3,7 +3,6 @@ package ro.andreilarazboi.donutcore.crates;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -12,8 +11,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
@@ -294,12 +293,12 @@ public final class DonutCrates {
         }
         String colored = Utils.formatColors(raw);
         String full = this.getPrefix() + colored;
-        sender.sendMessage(full);
+        sender.sendMessage(Utils.toComponent(full));
         if (sender instanceof Player) {
             Player p = (Player)sender;
             boolean useActionbar = this.cfg != null && this.cfg.config != null && this.cfg.config.getBoolean("messages.actionbar-enabled", false);
             if (useActionbar) {
-                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText((String)full));
+                p.sendActionBar(Utils.toComponent(full));
             }
         }
     }
@@ -430,7 +429,7 @@ public final class DonutCrates {
         ItemMeta meta = keyItem.getItemMeta();
         if (meta != null) {
             if (!meta.hasDisplayName()) {
-                meta.setDisplayName(Utils.formatColors(this.cfg.saves.getString(base + ".displayname", "&#0fe30f" + keyId + " Key")));
+                meta.displayName(Utils.toComponent(this.cfg.saves.getString(base + ".displayname", "&#0fe30f" + keyId + " Key")));
             }
             if (meta.hasEnchants()) {
                 meta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
@@ -455,29 +454,17 @@ public final class DonutCrates {
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             try {
-                Method displayNameMethod = meta.getClass().getMethod("displayName", new Class[0]);
-                Object component = displayNameMethod.invoke((Object)meta, new Object[0]);
-                if (component != null) {
-                    Class<?> componentClass = Class.forName("net.kyori.adventure.text.Component");
-                    Class<?> serializerClass = Class.forName("net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer");
-                    Object serializer = serializerClass.getMethod("legacySection", new Class[0]).invoke(null, new Object[0]);
-                    Method serialize = serializer.getClass().getMethod("serialize", componentClass);
-                    String legacy = (String)serialize.invoke(serializer, component);
-                    if (legacy != null && !legacy.isEmpty()) {
-                        return legacy;
+                if (meta.hasDisplayName()) {
+                    Component dn = meta.displayName();
+                    if (dn != null) {
+                        String legacy = LegacyComponentSerializer.legacySection().serialize(dn);
+                        if (!legacy.isEmpty()) {
+                            return legacy;
+                        }
                     }
                 }
             }
-            catch (Throwable displayNameMethod) {
-                // empty catch block
-            }
-            try {
-                String legacy;
-                if (meta.hasDisplayName() && (legacy = meta.getDisplayName()) != null && !legacy.isEmpty()) {
-                    return legacy;
-                }
-            }
-            catch (Throwable legacy) {
+            catch (Throwable t) {
                 // empty catch block
             }
         }

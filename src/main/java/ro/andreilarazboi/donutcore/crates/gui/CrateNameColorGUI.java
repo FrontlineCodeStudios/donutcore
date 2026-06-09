@@ -3,6 +3,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -29,12 +30,12 @@ public class CrateNameColorGUI {
 
     public Inventory build(String crate) {
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)54, (String)Utils.formatColors("&#444444" + crate + " Name Color"));
+        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, 54, Utils.toComponent("&#444444" + crate + " Name Color"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             filler.setItemMeta(fm);
         }
         for (int i = 0; i < inv.getSize(); ++i) {
@@ -52,17 +53,17 @@ public class CrateNameColorGUI {
             ItemMeta im = it.getItemMeta();
             if (im != null) {
                 boolean selected = currentColored.startsWith(Utils.formatColors(c.code));
-                im.setDisplayName(Utils.formatColors(c.code + "&l" + c.name + " &8(" + c.code + ")"));
-                ArrayList<String> lore = new ArrayList<String>();
-                lore.add(Utils.formatColors("&#bfbfbfClick to apply this color."));
-                lore.add(Utils.formatColors("&#7f7f7fApplies to the display name."));
+                im.displayName(Utils.toComponent(c.code + "&l" + c.name + " &8(" + c.code + ")"));
+                ArrayList<Component> lore = new ArrayList<>();
+                lore.add(Utils.toComponent("&#bfbfbfClick to apply this color."));
+                lore.add(Utils.toComponent("&#7f7f7fApplies to the display name."));
                 if (selected) {
-                    lore.add("");
-                    lore.add(Utils.formatColors("&#0fe30f\u2714 Currently applied"));
+                    lore.add(Utils.toComponent(""));
+                    lore.add(Utils.toComponent("&#0fe30f\u2714 Currently applied"));
                     im.addEnchant(Enchantment.UNBREAKING, 1, true);
                     im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
                 }
-                im.setLore(lore);
+                im.lore(lore);
                 im.getPersistentDataContainer().set(this.colorTag, PersistentDataType.STRING, c.code);
                 it.setItemMeta(im);
             }
@@ -79,8 +80,8 @@ public class CrateNameColorGUI {
         ItemStack it = new ItemStack(mat);
         ItemMeta im = it.getItemMeta();
         if (im != null) {
-            im.setDisplayName(Utils.formatColors(name));
-            im.setLore(List.of(Utils.formatColors(loreLine)));
+            im.displayName(Utils.toComponent(name));
+            im.lore(List.of(Utils.toComponent(loreLine)));
             it.setItemMeta(im);
         }
         return it;

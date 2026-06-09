@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -61,7 +61,7 @@ public class SellHistoryGui {
         this.titleTemplate = Utils.formatColors(rawTitle);
         int idx = rawTitle.indexOf("%history-page%");
         if (idx < 0) idx = rawTitle.length();
-        this.titlePrefix = ChatColor.stripColor(Utils.formatColors(rawTitle.substring(0, idx)));
+        this.titlePrefix = Utils.stripColor(Utils.formatColors(rawTitle.substring(0, idx)));
         ConfigurationSection sold = cfg.getConfigurationSection("sold-items");
         this.itemNameTpl = Utils.formatColors(sold.getString("displayname", "%Item-Name%"));
         this.loreTpl = Utils.formatColors(sold.getStringList("lore"));
@@ -121,11 +121,11 @@ public class SellHistoryGui {
             }
             ItemStack it = new ItemStack(mat);
             ItemMeta m = it.getItemMeta();
-            m.setDisplayName(this.itemNameTpl.replace("%Item-Name%", this.capitalize(key)));
-            m.setLore(this.loreTpl.stream()
-                    .map(line -> line
+            m.displayName(Utils.toComponent(this.itemNameTpl.replace("%Item-Name%", this.capitalize(key))));
+            m.lore(this.loreTpl.stream()
+                    .map(line -> Utils.toComponent(line
                             .replace("%amount-sold%", String.valueOf((long) st.count))
-                            .replace("%price-sold%", Utils.abbreviateNumber(st.revenue)))
+                            .replace("%price-sold%", Utils.abbreviateNumber(st.revenue))))
                     .collect(Collectors.toList()));
             it.setItemMeta(m);
             inv.setItem(i - from, it);
@@ -136,17 +136,17 @@ public class SellHistoryGui {
         // Sort button with highlighted current sort
         ItemStack sortBtn = new ItemStack(this.sortMat);
         ItemMeta sm = sortBtn.getItemMeta();
-        sm.setDisplayName(this.sortName);
-        ArrayList<String> slore = new ArrayList<>();
+        sm.displayName(Utils.toComponent(this.sortName));
+        ArrayList<Component> slore = new ArrayList<>();
         for (String line : this.sortLoreBase) {
             String trimmed = line.trim();
             String prefix = (order == HistoryTracker.SortOrder.HIGH && trimmed.toLowerCase().contains("highest"))
                     || (order == HistoryTracker.SortOrder.LOW && trimmed.toLowerCase().contains("lowest"))
                     || (order == HistoryTracker.SortOrder.NAME && trimmed.toLowerCase().contains("name"))
                     ? this.currentColor : this.notCurrentColor;
-            slore.add(Utils.formatColors(prefix + trimmed));
+            slore.add(Utils.toComponent(prefix + trimmed));
         }
-        sm.setLore(slore);
+        sm.lore(slore);
         sortBtn.setItemMeta(sm);
         inv.setItem(this.sortSlot, sortBtn);
         // Player head
@@ -155,13 +155,14 @@ public class SellHistoryGui {
         sk.setOwningPlayer((OfflinePlayer) p);
         String display = Utils.formatColors(this.playerNameTpl).replace("%player%", p.getName());
         display = PlaceholderAPI.setPlaceholders(p, display);
-        sk.setDisplayName(display);
-        List<String> plore = this.playerLoreTpl.stream()
+        sk.displayName(Utils.toComponent(display));
+        List<Component> plore = this.playerLoreTpl.stream()
                 .map(line -> Utils.formatColors(line))
                 .map(line -> line.replace("%player%", p.getName()))
                 .map(line -> PlaceholderAPI.setPlaceholders(p, line))
+                .map(Utils::toComponent)
                 .collect(Collectors.toList());
-        sk.setLore(plore);
+        sk.lore(plore);
         head.setItemMeta(sk);
         inv.setItem(this.playerSlot, head);
         p.openInventory(inv);
@@ -171,14 +172,14 @@ public class SellHistoryGui {
     private void place(Inventory inv, int slot, Material mat, String name, List<String> lore) {
         ItemStack item = new ItemStack(mat);
         ItemMeta m = item.getItemMeta();
-        m.setDisplayName(name);
-        m.setLore(lore);
+        m.displayName(Utils.toComponent(name));
+        m.lore(Utils.toComponents(lore));
         item.setItemMeta(m);
         inv.setItem(slot, item);
     }
 
     public boolean matchesTitle(String openTitle) {
-        return ChatColor.stripColor(openTitle).startsWith(this.titlePrefix);
+        return Utils.stripColor(openTitle).startsWith(this.titlePrefix);
     }
 
     public int getRows() { return this.rows; }

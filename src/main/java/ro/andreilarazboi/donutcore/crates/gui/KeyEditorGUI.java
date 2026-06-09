@@ -2,6 +2,7 @@
 package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -42,7 +43,7 @@ public class KeyEditorGUI {
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             filler.setItemMeta(fm);
         }
         for (int i = 0; i < inv.getSize(); ++i) {
@@ -55,18 +56,18 @@ public class KeyEditorGUI {
             keyItem = new ItemStack(material);
             ItemMeta km0 = keyItem.getItemMeta();
             if (km0 != null) {
-                km0.setDisplayName(Utils.formatColors(name));
+                km0.displayName(Utils.toComponent(name));
                 keyItem.setItemMeta(km0);
             }
         }
         ItemMeta km = keyItem.getItemMeta();
         if (km != null) {
-            ArrayList<String> lore = km.hasLore() ? new ArrayList<String>(km.getLore()) : new ArrayList<>();
-            lore.add("");
-            lore.add(Utils.formatColors("&#bfbfbfPut an item on your cursor"));
-            lore.add(Utils.formatColors("&#bfbfbfand click this slot to set"));
-            lore.add(Utils.formatColors("&#bfbfbfthe physical key item."));
-            km.setLore(lore);
+            ArrayList<Component> lore = km.hasLore() && km.lore() != null ? new ArrayList<>(km.lore()) : new ArrayList<>();
+            lore.add(Utils.toComponent(""));
+            lore.add(Utils.toComponent("&#bfbfbfPut an item on your cursor"));
+            lore.add(Utils.toComponent("&#bfbfbfand click this slot to set"));
+            lore.add(Utils.toComponent("&#bfbfbfthe physical key item."));
+            km.lore(lore);
             km.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
             keyItem.setItemMeta(km);
         }
@@ -84,13 +85,13 @@ public class KeyEditorGUI {
         ItemStack i = new ItemStack(mat);
         ItemMeta im = i.getItemMeta();
         if (im != null) {
-            im.setDisplayName(Utils.formatColors(name));
+            im.displayName(Utils.toComponent(name));
             if (loreLines.length > 0) {
-                ArrayList<String> lore = new ArrayList<String>();
+                ArrayList<Component> lore = new ArrayList<Component>();
                 for (String s : loreLines) {
-                    lore.add(Utils.formatColors(s));
+                    lore.add(Utils.toComponent(s));
                 }
-                im.setLore(lore);
+                im.lore(lore);
             }
             im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
             i.setItemMeta(im);

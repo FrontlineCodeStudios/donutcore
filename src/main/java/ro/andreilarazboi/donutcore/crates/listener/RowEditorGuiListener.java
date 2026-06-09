@@ -57,7 +57,7 @@ implements Listener {
         if (clicked == null || clicked.getType() == Material.AIR || !clicked.hasItemMeta()) {
             return;
         }
-        String name = Utils.stripColor(clicked.getItemMeta().getDisplayName());
+        String name = Utils.stripColor(clicked.getItemMeta().displayName());
         try {
             rows = Integer.parseInt(name.split(" ")[0]);
         }

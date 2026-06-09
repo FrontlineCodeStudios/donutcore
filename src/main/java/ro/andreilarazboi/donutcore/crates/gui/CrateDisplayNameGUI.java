@@ -2,13 +2,13 @@
 package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -21,12 +21,12 @@ public class CrateDisplayNameGUI {
 
     public Inventory build(String crate) {
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)27, (String)Utils.formatColors("&#444444" + crate + " Display Name"));
+        Inventory inv = Bukkit.createInventory(holder, 27, Utils.toComponent("&#444444" + crate + " Display Name"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             filler.setItemMeta(fm);
         }
         for (int i = 0; i < inv.getSize(); ++i) {
@@ -47,12 +47,12 @@ public class CrateDisplayNameGUI {
         ItemStack it = new ItemStack(mat);
         ItemMeta im = it.getItemMeta();
         if (im != null) {
-            im.setDisplayName(Utils.formatColors(name));
-            ArrayList<String> lore = new ArrayList<String>();
+            im.displayName(Utils.toComponent(name));
+            ArrayList<Component> lore = new ArrayList<>();
             for (String s : loreLines) {
-                lore.add(Utils.formatColors(s));
+                lore.add(Utils.toComponent(s));
             }
-            im.setLore(lore);
+            im.lore(lore);
             it.setItemMeta(im);
         }
         return it;

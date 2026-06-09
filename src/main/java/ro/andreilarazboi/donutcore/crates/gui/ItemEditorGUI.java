@@ -2,6 +2,7 @@
 package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -33,7 +34,7 @@ public class ItemEditorGUI {
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
-        fm.setDisplayName(" ");
+        fm.displayName(Utils.toComponent(" "));
         filler.setItemMeta(fm);
         for (int i = 0; i < inv.getSize(); ++i) {
             inv.setItem(i, filler);
@@ -45,13 +46,13 @@ public class ItemEditorGUI {
             Object chanceText = chance == 0.0 ? "AUTO" : chance + "%";
             ItemStack chanceItem = new ItemStack(Material.CLOCK);
             ItemMeta cim = chanceItem.getItemMeta();
-            cim.setDisplayName(Utils.formatColors("&#f5f5f5Edit Chance"));
-            ArrayList<String> clore = new ArrayList<String>();
-            clore.add(Utils.formatColors("&#bfbfbfCurrent: &f" + (String)chanceText));
-            clore.add("");
-            clore.add(Utils.formatColors("&#bfbfbfLeft-click: &fSet custom chance"));
-            clore.add(Utils.formatColors("&#bfbfbfRight-click: &fSet AUTO mode"));
-            cim.setLore(clore);
+            cim.displayName(Utils.toComponent("&#f5f5f5Edit Chance"));
+            ArrayList<Component> clore = new ArrayList<Component>();
+            clore.add(Utils.toComponent("&#bfbfbfCurrent: &f" + (String)chanceText));
+            clore.add(Utils.toComponent(""));
+            clore.add(Utils.toComponent("&#bfbfbfLeft-click: &fSet custom chance"));
+            clore.add(Utils.toComponent("&#bfbfbfRight-click: &fSet AUTO mode"));
+            cim.lore(clore);
             chanceItem.setItemMeta(cim);
             inv.setItem(4, chanceItem);
         }
@@ -75,13 +76,13 @@ public class ItemEditorGUI {
     private ItemStack item(Material mat, String name, String ... loreLines) {
         ItemStack i = new ItemStack(mat);
         ItemMeta im = i.getItemMeta();
-        im.setDisplayName(Utils.formatColors(name));
+        im.displayName(Utils.toComponent(name));
         if (loreLines.length > 0) {
-            ArrayList<String> lore = new ArrayList<String>();
+            ArrayList<Component> lore = new ArrayList<Component>();
             for (String s : loreLines) {
-                lore.add(Utils.formatColors(s));
+                lore.add(Utils.toComponent(s));
             }
-            im.setLore(lore);
+            im.lore(lore);
         }
         im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
         i.setItemMeta(im);

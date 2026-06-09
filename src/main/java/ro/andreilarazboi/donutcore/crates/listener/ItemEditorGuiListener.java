@@ -66,7 +66,7 @@ implements Listener {
                 String base = "Crates." + crate + ".Items." + key;
                 ItemStack display = this.plugin.guiItemUtil.buildItemFromSection(this.plugin.cfg.crates.getConfigurationSection(base));
                 if (display != null && display.hasItemMeta() && (im = display.getItemMeta()) != null && !im.hasDisplayName()) {
-                    im.setDisplayName(Utils.formatColors("&#d61111" + key));
+                    im.displayName(Utils.toComponent("&#d61111" + key));
                     display.setItemMeta(im);
                 }
                 p.openInventory(this.plugin.guiDeleteConfirm.build(p, display));
@@ -97,7 +97,7 @@ implements Listener {
                     String base = "Crates." + crate + ".Items." + key;
                     if (this.plugin.cfg.crates.isItemStack(base + ".item") && (it = this.plugin.cfg.crates.getItemStack(base + ".item")) != null && it.hasItemMeta()) {
                         ItemMeta im = it.getItemMeta();
-                        im.setLore(new ArrayList<>());
+                        im.lore(new ArrayList<>());
                         it.setItemMeta(im);
                         this.plugin.cfg.crates.set(base + ".item", (Object)it);
                     }

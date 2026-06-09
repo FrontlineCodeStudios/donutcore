@@ -73,7 +73,7 @@ implements Listener {
             this.plugin.ensureKeyConfig(keyId);
             this.plugin.cfg.saves.set("keys." + keyId + ".displayname", (Object)msg);
             if (this.plugin.cfg.saves.isItemStack("keys." + keyId + ".item") && (it = this.plugin.cfg.saves.getItemStack("keys." + keyId + ".item")) != null && (im = it.getItemMeta()) != null) {
-                im.setDisplayName(Utils.formatColors(msg));
+                im.displayName(Utils.toComponent(msg));
                 it.setItemMeta(im);
                 this.plugin.cfg.saves.set("keys." + keyId + ".item", (Object)it);
             }
@@ -194,7 +194,7 @@ implements Listener {
             ItemStack it;
             this.plugin.cfg.crates.set(base + ".displayname", (Object)msg);
             if (this.plugin.cfg.crates.isItemStack(base + ".item") && (it = this.plugin.cfg.crates.getItemStack(base + ".item")) != null && (im = it.getItemMeta()) != null) {
-                im.setDisplayName(Utils.formatColors(msg));
+                im.displayName(Utils.toComponent(msg));
                 it.setItemMeta(im);
                 this.plugin.cfg.crates.set(base + ".item", (Object)it);
             }
@@ -207,7 +207,7 @@ implements Listener {
             lore.add(msg);
             this.plugin.cfg.crates.set(base + ".lore", lore);
             if (this.plugin.cfg.crates.isItemStack(base + ".item") && (it = this.plugin.cfg.crates.getItemStack(base + ".item")) != null && (im = it.getItemMeta()) != null) {
-                im.setLore(Utils.formatColors(lore));
+                im.lore(Utils.toComponents(lore));
                 it.setItemMeta(im);
                 this.plugin.cfg.crates.set(base + ".item", (Object)it);
             }

@@ -107,7 +107,7 @@ public class OpeningAnimationService {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(" ");
+            meta.displayName(Utils.toComponent(" "));
             item.setItemMeta(meta);
         }
         return item;

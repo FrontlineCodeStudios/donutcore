@@ -12,8 +12,9 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -59,11 +60,43 @@ public final class Utils {
             matcher.appendReplacement(buffer, Matcher.quoteReplacement(repl.toString()));
         }
         matcher.appendTail(buffer);
-        return ChatColor.translateAlternateColorCodes((char)'&', (String)buffer.toString());
+        return translateAmpersandCodes(buffer.toString());
+    }
+
+    private static String translateAmpersandCodes(String input) {
+        char[] chars = input.toCharArray();
+        StringBuilder sb = new StringBuilder(chars.length);
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == '&' && i + 1 < chars.length) {
+                char code = Character.toLowerCase(chars[i + 1]);
+                if ("0123456789abcdefklmnorx".indexOf(code) >= 0) {
+                    sb.append('\u00a7').append(code);
+                    i++;
+                    continue;
+                }
+            }
+            sb.append(chars[i]);
+        }
+        return sb.toString();
     }
 
     public static String stripColor(String s) {
-        return ChatColor.stripColor((String)s);
+        if (s == null) return null;
+        return s.replaceAll("\u00a7[0-9a-fA-Fk-oK-OrRxX]", "");
+    }
+
+    public static String stripColor(Component component) {
+        if (component == null) return "";
+        return stripColor(LegacyComponentSerializer.legacySection().serialize(component));
+    }
+
+    public static Component toComponent(String text) {
+        if (text == null) return Component.empty();
+        return LegacyComponentSerializer.legacySection().deserialize(formatColors(text));
+    }
+
+    public static List<Component> toComponents(List<String> lines) {
+        return lines.stream().map(Utils::toComponent).collect(Collectors.toList());
     }
 
     public static List<String> formatColors(List<String> lines) {
@@ -142,7 +175,7 @@ public final class Utils {
         for (int i = 0; i < 4; ++i) {
             String raw = (String)lines.get(i);
             String colored = Utils.formatColors(raw);
-            String stripped = ChatColor.stripColor((String)colored);
+            String stripped = Utils.stripColor(colored);
             plainLines[i] = stripped == null ? "" : stripped;
         }
         SIGN_LOCATIONS.put(uuid, signLoc);
@@ -341,7 +374,8 @@ public final class Utils {
             }
             int lineIndex = SIGN_INPUT_LINE.getOrDefault(uuid, 0);
             try {
-                raw = event.getLine(lineIndex);
+                net.kyori.adventure.text.Component lineComp = event.line(lineIndex);
+                raw = lineComp != null ? LegacyComponentSerializer.legacySection().serialize(lineComp) : "";
             }
             catch (Throwable ex) {
                 raw = "";
@@ -349,7 +383,7 @@ public final class Utils {
             if (raw == null) {
                 raw = "";
             }
-            String value = ChatColor.stripColor((String)raw).trim();
+            String value = Utils.stripColor(raw).trim();
             Utils.finishSignInput(player, value);
         }
 

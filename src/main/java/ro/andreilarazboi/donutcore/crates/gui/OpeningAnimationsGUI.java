@@ -4,6 +4,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -36,7 +37,7 @@ public class OpeningAnimationsGUI {
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             filler.setItemMeta(fm);
         }
         for (int i = 0; i < inv.getSize(); ++i) {
@@ -103,13 +104,13 @@ public class OpeningAnimationsGUI {
         ItemStack it = new ItemStack(mat);
         ItemMeta im = it.getItemMeta();
         if (im != null) {
-            im.setDisplayName(Utils.formatColors(name));
+            im.displayName(Utils.toComponent(name));
             if (lore != null) {
-                ArrayList<String> out = new ArrayList<String>();
+                ArrayList<Component> out = new ArrayList<Component>();
                 for (String s : lore) {
-                    out.add(Utils.formatColors(s));
+                    out.add(Utils.toComponent(s));
                 }
-                im.setLore(out);
+                im.lore(out);
             }
             if (hiddenId != null) {
                 im.getPersistentDataContainer().set(this.animKey, PersistentDataType.STRING, hiddenId.toUpperCase(Locale.ROOT));

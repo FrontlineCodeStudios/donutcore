@@ -70,7 +70,7 @@ implements Listener {
                 this.plugin.cfg.saves.set(base + ".item", (Object)newItem);
                 this.plugin.cfg.saves.set(base + ".material", (Object)newItem.getType().name());
                 if (newItem.hasItemMeta() && newItem.getItemMeta().hasDisplayName()) {
-                    this.plugin.cfg.saves.set(base + ".displayname", (Object)Utils.stripColor(newItem.getItemMeta().getDisplayName()));
+                    this.plugin.cfg.saves.set(base + ".displayname", (Object)Utils.stripColor(newItem.getItemMeta().displayName()));
                 }
                 this.plugin.cfg.saveAll();
                 this.plugin.msg(p, "&#0fe30fUpdated key item for key &f" + keyId);
@@ -124,7 +124,7 @@ implements Listener {
                 display.setAmount(1);
                 ItemMeta im = display.getItemMeta();
                 if (im != null) {
-                    im.setDisplayName(Utils.formatColors("&#d61111" + keyId));
+                    im.displayName(Utils.toComponent("&#d61111" + keyId));
                     display.setItemMeta(im);
                 }
                 p.openInventory(this.plugin.guiDeleteConfirm.build(p, display));

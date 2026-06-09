@@ -4,6 +4,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -44,7 +45,7 @@ public class HologramGUI {
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
-        fm.setDisplayName(" ");
+        fm.displayName(Utils.toComponent(" "));
         filler.setItemMeta(fm);
         for (int i = 0; i < inv.getSize(); ++i) {
             inv.setItem(i, filler);
@@ -81,13 +82,13 @@ public class HologramGUI {
     private ItemStack item(Material mat, String name, String ... loreLines) {
         ItemStack i = new ItemStack(mat);
         ItemMeta im = i.getItemMeta();
-        im.setDisplayName(Utils.formatColors(name));
+        im.displayName(Utils.toComponent(name));
         if (loreLines.length > 0) {
-            ArrayList<String> lore = new ArrayList<String>();
+            ArrayList<Component> lore = new ArrayList<Component>();
             for (String s : loreLines) {
-                lore.add(Utils.formatColors(s));
+                lore.add(Utils.toComponent(s));
             }
-            im.setLore(lore);
+            im.lore(lore);
         }
         i.setItemMeta(im);
         return i;

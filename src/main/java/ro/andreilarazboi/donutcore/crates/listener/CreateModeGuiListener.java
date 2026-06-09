@@ -1,6 +1,8 @@
 
 package ro.andreilarazboi.donutcore.crates.listener;
 
+import java.time.Duration;
+import net.kyori.adventure.title.Title;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -61,7 +63,7 @@ implements Listener {
         this.plugin.pendingCreateRandom.put(p.getUniqueId(), random);
         GuiUtil.playClick(this.plugin, p);
         p.closeInventory();
-        p.sendTitle("\u00a7d[Creating crate]", "\u00a77Left-click a block to create a crate!", 10, 60, 10);
+        p.showTitle(Title.title(Utils.toComponent("\u00a7d[Creating crate]"), Utils.toComponent("\u00a77Left-click a block to create a crate!"), Title.Times.times(Duration.ofMillis(500L), Duration.ofMillis(3000L), Duration.ofMillis(500L))));
     }
 }
 

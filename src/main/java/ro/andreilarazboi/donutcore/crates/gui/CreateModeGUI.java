@@ -2,31 +2,29 @@
 package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class CreateModeGUI {
-    private final DonutCrates plugin;
 
     public CreateModeGUI(DonutCrates plugin) {
-        this.plugin = plugin;
     }
 
     public Inventory build() {
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)27, (String)Utils.formatColors("&#444444Create Crate Mode"));
+        Inventory inv = Bukkit.createInventory(holder, 27, Utils.toComponent("&#444444Create Crate Mode"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             filler.setItemMeta(fm);
         }
         for (int i = 0; i < inv.getSize(); ++i) {
@@ -42,12 +40,12 @@ public class CreateModeGUI {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(Utils.formatColors(name));
-            ArrayList<String> lore = new ArrayList<String>();
+            meta.displayName(Utils.toComponent(name));
+            ArrayList<Component> lore = new ArrayList<Component>();
             for (String line : loreLines) {
-                lore.add(Utils.formatColors(line));
+                lore.add(Utils.toComponent(line));
             }
-            meta.setLore(lore);
+            meta.lore(lore);
             item.setItemMeta(meta);
         }
         return item;

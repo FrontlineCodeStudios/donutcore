@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -193,10 +195,10 @@ public class CrateManager {
         if (meta != null) {
             ArmorMeta am;
             if (meta.hasDisplayName()) {
-                this.plugin.cfg.crates.set(base + ".displayname", (Object)meta.getDisplayName());
+                this.plugin.cfg.crates.set(base + ".displayname", (Object)LegacyComponentSerializer.legacySection().serialize(meta.displayName()));
             }
-            if (meta.hasLore()) {
-                this.plugin.cfg.crates.set(base + ".lore", (Object)meta.getLore());
+            if (meta.hasLore() && meta.lore() != null) {
+                this.plugin.cfg.crates.set(base + ".lore", meta.lore().stream().map(c -> LegacyComponentSerializer.legacySection().serialize(c)).collect(Collectors.toList()));
             }
             if (meta.isUnbreakable()) {
                 this.plugin.cfg.crates.set(base + ".unbreakable", (Object)true);
@@ -237,7 +239,10 @@ public class CrateManager {
                 }
                 if (this.idx >= players.size()) {
                     String rawAll = allTpl.replace("%players%", String.valueOf(players.size())).replace("%amount%", String.valueOf(amt)).replace("%crate%", crate);
-                    Bukkit.broadcastMessage((String)Utils.formatColors(CrateManager.this.plugin.getPrefix() + rawAll));
+                    net.kyori.adventure.text.Component broadcastMsg = Utils.toComponent(CrateManager.this.plugin.getPrefix() + rawAll);
+                    for (Player onlineP : Bukkit.getOnlinePlayers()) {
+                        onlineP.sendMessage(broadcastMsg);
+                    }
                     if (sender != null) {
                         CrateManager.this.plugin.msg(sender, "&#0fe30fKeyall complete. &7(Players: " + players.size() + ")");
                     }
@@ -377,7 +382,7 @@ public class CrateManager {
                         continue;
                     }
                     String line = rawLine.replace("{player}", p.getName()).replace("{crate}", crate).replace("{item-name}", itemName).replace("{item-chance}", chanceStr);
-                    online.sendMessage(Utils.formatColors(this.plugin.getPrefix() + line));
+                    online.sendMessage(Utils.toComponent(this.plugin.getPrefix() + line));
                 }
             }
         }

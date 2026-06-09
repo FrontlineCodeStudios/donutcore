@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
@@ -109,17 +109,17 @@ public class SellGui {
             double pct = this.computePct(next, p, catKey);
             String bar = this.buildBar(pct);
             if (is != null) {
-                meta.setDisplayName(Utils.formatColors(is.getString("displayname", catKey)));
-                ArrayList<String> lore = new ArrayList<>();
+                meta.displayName(Utils.toComponent(is.getString("displayname", catKey)));
+                ArrayList<Component> lore = new ArrayList<>();
                 for (String line : is.getStringList("lore")) {
-                    lore.add(Utils.formatColors(line
+                    lore.add(Utils.toComponent(line
                             .replace("%next-multi%", String.format("%.1f", next.multi))
                             .replace("%progress%", String.format("%.1f", pct))
                             .replace("%progress-bar%", bar)));
                 }
-                meta.setLore(lore);
+                meta.lore(lore);
             } else {
-                meta.setDisplayName(Utils.formatColors("&e" + catKey.toLowerCase(Locale.ROOT)));
+                meta.displayName(Utils.toComponent("&e" + catKey.toLowerCase(Locale.ROOT)));
             }
             button.setItemMeta(meta);
             inv.setItem(slot, button);
@@ -159,7 +159,7 @@ public class SellGui {
     }
 
     public boolean matchesTitle(String openTitle) {
-        return ChatColor.stripColor(openTitle).equals(ChatColor.stripColor(this.title));
+        return Utils.stripColor(openTitle).equals(Utils.stripColor(this.title));
     }
 
     public int getSize() {

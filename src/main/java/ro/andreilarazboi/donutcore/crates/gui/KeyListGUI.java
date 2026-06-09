@@ -3,6 +3,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -40,7 +41,7 @@ public class KeyListGUI {
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             filler.setItemMeta(fm);
         }
         for (int i = 0; i < inv.getSize(); ++i) {
@@ -49,10 +50,10 @@ public class KeyListGUI {
         ItemStack back = new ItemStack(Material.ARROW);
         ItemMeta bm = back.getItemMeta();
         if (bm != null) {
-            bm.setDisplayName(Utils.formatColors("&#f5f5f5\u00ab Back"));
-            ArrayList<String> bl = new ArrayList<String>();
-            bl.add(Utils.formatColors("&#bfbfbfReturn to the &#0fe30fCrates Editor&#bfbfbf."));
-            bm.setLore(bl);
+            bm.displayName(Utils.toComponent("&#f5f5f5\u00ab Back"));
+            ArrayList<Component> bl = new ArrayList<Component>();
+            bl.add(Utils.toComponent("&#bfbfbfReturn to the &#0fe30fCrates Editor&#bfbfbf."));
+            bm.lore(bl);
             back.setItemMeta(bm);
         }
         inv.setItem(45, back);
@@ -70,11 +71,11 @@ public class KeyListGUI {
             ItemStack icon = this.plugin.buildKeyItemById(keyId, 1);
             ItemMeta im = icon.getItemMeta();
             if (im == null) continue;
-            im.setDisplayName(Utils.formatColors("&#0fe30fKey: &f" + keyId));
-            ArrayList<String> lore = new ArrayList<String>();
-            lore.add(Utils.formatColors("&#bfbfbfClick to edit this key."));
-            lore.add(Utils.formatColors("&#bfbfbfUsed by crates: &f" + this.plugin.countCratesUsingKey(keyId)));
-            im.setLore(lore);
+            im.displayName(Utils.toComponent("&#0fe30fKey: &f" + keyId));
+            ArrayList<Component> lore = new ArrayList<Component>();
+            lore.add(Utils.toComponent("&#bfbfbfClick to edit this key."));
+            lore.add(Utils.toComponent("&#bfbfbfUsed by crates: &f" + this.plugin.countCratesUsingKey(keyId)));
+            im.lore(lore);
             im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
             im.getPersistentDataContainer().set(this.keyIdTag, PersistentDataType.STRING, keyId.toLowerCase(Locale.ROOT));
             icon.setItemMeta(im);
@@ -87,13 +88,13 @@ public class KeyListGUI {
         ItemStack i = new ItemStack(mat);
         ItemMeta im = i.getItemMeta();
         if (im != null) {
-            im.setDisplayName(Utils.formatColors(name));
+            im.displayName(Utils.toComponent(name));
             if (loreLines.length > 0) {
-                ArrayList<String> lore = new ArrayList<String>();
+                ArrayList<Component> lore = new ArrayList<Component>();
                 for (String s : loreLines) {
-                    lore.add(Utils.formatColors(s));
+                    lore.add(Utils.toComponent(s));
                 }
-                im.setLore(lore);
+                im.lore(lore);
             }
             i.setItemMeta(im);
         }

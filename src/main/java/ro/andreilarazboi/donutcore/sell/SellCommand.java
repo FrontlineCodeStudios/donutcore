@@ -26,22 +26,22 @@ public class SellCommand implements CommandExecutor, TabCompleter {
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Utils.formatColors("&cOnly players may use /sell."));
+            sender.sendMessage(Utils.toComponent("&cOnly players may use /sell."));
             return true;
         }
         if (this.plugin.getEconomy() == null) {
-            sender.sendMessage(Utils.formatColors("&cVault economy is not set up. Please install Vault + an economy plugin."));
+            sender.sendMessage(Utils.toComponent("&cVault economy is not set up. Please install Vault + an economy plugin."));
             return true;
         }
         Player p = (Player) sender;
         if (args.length == 1 && args[0].equalsIgnoreCase("hand")) {
             if (!this.plugin.getConfig().getBoolean("sell-command.hand-enabled", true)) {
-                p.sendMessage(Utils.formatColors("&c/sell hand is disabled."));
+                p.sendMessage(Utils.toComponent("&c/sell hand is disabled."));
                 return true;
             }
             ItemStack hand = p.getInventory().getItemInMainHand();
             if (!this.plugin.isSellable(hand)) {
-                p.sendMessage(Utils.formatColors(this.plugin.getMessagesConfig().getString("messages.cannot-sell", "&cThat item is not sellable.")));
+                p.sendMessage(Utils.toComponent(this.plugin.getMessagesConfig().getString("messages.cannot-sell", "&cThat item is not sellable.")));
                 return true;
             }
             double worth = this.plugin.calculateItemWorth(hand);
@@ -58,7 +58,7 @@ public class SellCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 1 && args[0].equalsIgnoreCase("inventory")) {
             if (!this.plugin.getConfig().getBoolean("sell-command.inventory-enabled", false)) {
-                p.sendMessage(Utils.formatColors("&c/sell inventory is disabled."));
+                p.sendMessage(Utils.toComponent("&c/sell inventory is disabled."));
                 return true;
             }
             HashMap<String, DonutSell.Stats> sold = new HashMap<>();

@@ -61,7 +61,7 @@ implements Listener {
         if (!clicked.hasItemMeta() || clicked.getType() == Material.BLACK_STAINED_GLASS_PANE) {
             return;
         }
-        String name = Utils.stripColor(clicked.getItemMeta().getDisplayName());
+        String name = Utils.stripColor(clicked.getItemMeta().displayName());
         if (!name.startsWith("Template: ")) {
             return;
         }

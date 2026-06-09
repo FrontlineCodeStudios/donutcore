@@ -5,9 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,7 +26,7 @@ public class WorthCommand implements CommandExecutor, TabCompleter {
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use /worth.");
+            sender.sendMessage(Utils.toComponent("&cOnly players can use /worth."));
             return true;
         }
         Player p = (Player) sender;
@@ -42,7 +39,7 @@ public class WorthCommand implements CommandExecutor, TabCompleter {
         String joined = String.join("_", args).toUpperCase();
         Material mat = Material.matchMaterial(joined);
         if (mat == null || !mat.isItem()) {
-            p.sendMessage(Utils.formatColors(this.plugin.getMessagesConfig().getString("messages.worth-invalid", "&cUnknown item: %input%").replace("%input%", String.join(" ", args))));
+            p.sendMessage(Utils.toComponent(this.plugin.getMessagesConfig().getString("messages.worth-invalid", "&cUnknown item: %input%").replace("%input%", String.join(" ", args))));
             return true;
         }
         ItemStack lookup = new ItemStack(mat);
@@ -58,8 +55,8 @@ public class WorthCommand implements CommandExecutor, TabCompleter {
         String amount = Utils.abbreviateNumber(finalValue);
         String template = this.plugin.getMessagesConfig().getString("messages.worth", "&e1 %item% is worth %amount%");
         String msg = Utils.formatColors(template.replace("%item%", pretty).replace("%amount%", amount).replace("%mult%", String.valueOf(multiplier)));
-        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
-        p.sendMessage(msg);
+        p.sendActionBar(Utils.toComponent(msg));
+        p.sendMessage(Utils.toComponent(msg));
         return true;
     }
 

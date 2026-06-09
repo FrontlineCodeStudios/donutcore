@@ -3,6 +3,8 @@ package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -40,7 +42,7 @@ public class KeySelectGUI {
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             filler.setItemMeta(fm);
         }
         for (int i = 0; i < inv.getSize(); ++i) {
@@ -66,27 +68,26 @@ public class KeySelectGUI {
             ItemStack icon = this.plugin.buildKeyItemById(keyId, 1);
             ItemMeta im = icon.getItemMeta();
             if (im == null) continue;
-            im.setDisplayName(Utils.formatColors("&#0fe30fKey: &f" + keyId));
-            ArrayList<String> lore = im.hasLore() ? new ArrayList<String>(im.getLore()) : new ArrayList<>();
-            lore.removeIf(s -> {
+            im.displayName(Utils.toComponent("&#0fe30fKey: &f" + keyId));
+            ArrayList<Component> lore = im.hasLore() && im.lore() != null ? new ArrayList<>(im.lore()) : new ArrayList<>();
+            lore.removeIf(c -> {
+                String s = LegacyComponentSerializer.legacySection().serialize(c);
                 String t = Utils.stripColor(s);
-                if (t == null) {
-                    return false;
-                }
+                if (t == null) return false;
                 return (t = t.toLowerCase(Locale.ROOT)).contains("currently selected") || t.contains("click to select");
             });
-            lore.add("");
+            lore.add(Utils.toComponent(""));
             if (isSelected) {
-                lore.add(Utils.formatColors("&#0fe30f\u2714 Currently selected"));
-                lore.add(Utils.formatColors("&#bfbfbfThis key will open &f" + crate));
+                lore.add(Utils.toComponent("&#0fe30f\u2714 Currently selected"));
+                lore.add(Utils.toComponent("&#bfbfbfThis key will open &f" + crate));
                 im.addEnchant(Enchantment.UNBREAKING, 1, true);
                 im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
             } else {
-                lore.add(Utils.formatColors("&#bfbfbfClick to select this key."));
+                lore.add(Utils.toComponent("&#bfbfbfClick to select this key."));
             }
             im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
             im.getPersistentDataContainer().set(this.keyIdTag, PersistentDataType.STRING, keyId.toLowerCase(Locale.ROOT));
-            im.setLore(lore);
+            im.lore(lore);
             icon.setItemMeta(im);
             inv.setItem(KEY_SLOTS[idx++], icon);
         }
@@ -97,13 +98,13 @@ public class KeySelectGUI {
         ItemStack i = new ItemStack(mat);
         ItemMeta im = i.getItemMeta();
         if (im != null) {
-            im.setDisplayName(Utils.formatColors(name));
+            im.displayName(Utils.toComponent(name));
             if (loreLines.length > 0) {
-                ArrayList<String> lore = new ArrayList<String>();
+                ArrayList<Component> lore = new ArrayList<Component>();
                 for (String s : loreLines) {
-                    lore.add(Utils.formatColors(s));
+                    lore.add(Utils.toComponent(s));
                 }
-                im.setLore(lore);
+                im.lore(lore);
             }
             i.setItemMeta(im);
         }

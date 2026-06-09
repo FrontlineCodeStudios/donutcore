@@ -25,19 +25,19 @@ public class ClearEnderChestCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.hasPermission("enderchest.clear")) {
-            sender.sendMessage(plugin.msg("no-permission"));
+            sender.sendMessage(plugin.msgComponent("no-permission"));
             return true;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(plugin.formatColors("&cUsage: /" + label + " <player>"));
+            sender.sendMessage(plugin.formatComponent("&cUsage: /" + label + " <player>"));
             return true;
         }
 
         String targetName = args[0];
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         if (!target.hasPlayedBefore() && target.getPlayer() == null) {
-            sender.sendMessage(plugin.msg("player-not-found").replace("<player>", targetName));
+            sender.sendMessage(plugin.formatComponent(plugin.msg("player-not-found").replace("<player>", targetName)));
             return true;
         }
 
@@ -59,7 +59,7 @@ public class ClearEnderChestCommand implements CommandExecutor, TabCompleter {
             plugin.getDataManager().clearItems(target.getUniqueId());
             plugin.allowSave(target.getUniqueId());
             plugin.runSync(() ->
-                    sender.sendMessage(plugin.msg("enderchest-cleared").replace("<player>", displayName)));
+                    sender.sendMessage(plugin.formatComponent(plugin.msg("enderchest-cleared").replace("<player>", displayName))));
         });
 
         return true;

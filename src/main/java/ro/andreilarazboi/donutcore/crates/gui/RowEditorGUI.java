@@ -2,6 +2,7 @@
 package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -25,7 +26,7 @@ public class RowEditorGUI {
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
-        fm.setDisplayName(" ");
+        fm.displayName(Utils.toComponent(" "));
         filler.setItemMeta(fm);
         for (int i = 0; i < inv.getSize(); ++i) {
             inv.setItem(i, filler);
@@ -36,19 +37,19 @@ public class RowEditorGUI {
             int slot = 9 + (i - 1);
             ItemStack it = new ItemStack(Material.CHEST);
             ItemMeta im = it.getItemMeta();
-            im.setDisplayName(Utils.formatColors("&#f5f5f5" + i + " Rows"));
-            ArrayList<String> lore = new ArrayList<String>();
-            lore.add(Utils.formatColors((String)(i == current ? "&#0fe30fCurrently selected." : "&#bfbfbfClick to use &f" + i + "&#bfbfbf rows.")));
-            im.setLore(lore);
+            im.displayName(Utils.toComponent("&#f5f5f5" + i + " Rows"));
+            ArrayList<Component> lore = new ArrayList<Component>();
+            lore.add(Utils.toComponent(i == current ? "&#0fe30fCurrently selected." : "&#bfbfbfClick to use &f" + i + "&#bfbfbf rows."));
+            im.lore(lore);
             it.setItemMeta(im);
             inv.setItem(slot, it);
         }
         ItemStack back = new ItemStack(Material.ARROW);
         ItemMeta bm = back.getItemMeta();
-        bm.setDisplayName(Utils.formatColors("&#f5f5f5\u00ab Back"));
-        ArrayList<String> bl = new ArrayList<String>();
-        bl.add(Utils.formatColors("&#bfbfbfReturn to crate settings."));
-        bm.setLore(bl);
+        bm.displayName(Utils.toComponent("&#f5f5f5\u00ab Back"));
+        ArrayList<Component> bl = new ArrayList<Component>();
+        bl.add(Utils.toComponent("&#bfbfbfReturn to crate settings."));
+        bm.lore(bl);
         back.setItemMeta(bm);
         inv.setItem(18, back);
         return inv;

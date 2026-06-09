@@ -18,7 +18,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
@@ -63,7 +64,7 @@ public final class SellPacketListener {
     public void loadConfigData() {
         this.loreTemplate = this.plugin.getConfig().getStringList("lore");
         this.lorePlainPrefixes = this.loreTemplate.stream()
-                .map(line -> ChatColor.stripColor(Utils.formatColors(line.replace("%amount%", "")))
+                .map(line -> Utils.stripColor(Utils.formatColors(line.replace("%amount%", "")))
                         .toLowerCase(Locale.ROOT).trim())
                 .collect(Collectors.toList());
         this.displayWorthLore = this.plugin.getConfig().getBoolean("display-worth-lore", true);
@@ -138,7 +139,7 @@ public final class SellPacketListener {
     public boolean isNoWorthInventory(InventoryView view) {
         if (view == null) return false;
         if (view.getTopInventory() == null || view.getTopInventory().getType() == InventoryType.PLAYER) return false;
-        String title = ChatColor.stripColor(view.getTitle());
+        String title = Utils.stripColor(view.getTitle());
         if (title == null) return false;
         String lower = title.toLowerCase(Locale.ROOT);
         return this.worthLoreGuiWhitelist.stream().noneMatch(lower::contains);
@@ -210,14 +211,15 @@ public final class SellPacketListener {
         if (bukkit == null || bukkit.getType() == Material.AIR || bukkit.getAmount() <= 0) return nmsItem;
         ItemMeta meta = bukkit.getItemMeta();
         if (meta == null || !meta.hasLore()) return nmsItem;
-        ArrayList<String> filtered = new ArrayList<>();
-        for (String line : meta.getLore()) {
-            String plain = ChatColor.stripColor(line).toLowerCase(Locale.ROOT).trim();
+        List<Component> origLore = meta.lore() != null ? meta.lore() : new ArrayList<>();
+        ArrayList<Component> filtered = new ArrayList<>();
+        for (Component comp : origLore) {
+            String plain = Utils.stripColor(comp).toLowerCase(Locale.ROOT).trim();
             if (this.lorePlainPrefixes.stream().noneMatch(plain::startsWith)) {
-                filtered.add(line);
+                filtered.add(comp);
             }
         }
-        meta.setLore(filtered.isEmpty() ? null : filtered);
+        meta.lore(filtered.isEmpty() ? null : filtered);
         bukkit.setItemMeta(meta);
         Object rebuilt = this.reflectionBridge.toNmsCopy(bukkit);
         return rebuilt == null ? nmsItem : rebuilt;
@@ -280,18 +282,21 @@ public final class SellPacketListener {
             valueToShow = this.worthLorePerItem ? unitRaw * mult : unitRaw * bukkit.getAmount() * mult;
         }
         String display = Utils.abbreviateNumber(valueToShow);
-        List<String> newLines = this.loreTemplate.stream()
-                .map(line -> Utils.formatColors(line.replace("%amount%", display)))
+        List<Component> newComponents = this.loreTemplate.stream()
+                .map(line -> Utils.toComponent(line.replace("%amount%", display)))
                 .collect(Collectors.toList());
-        ArrayList<String> existing = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
-        existing.removeIf(line -> {
-            String plain = ChatColor.stripColor(line).toLowerCase(Locale.ROOT).trim();
+        List<Component> existing = meta.hasLore() && meta.lore() != null ? new ArrayList<>(meta.lore()) : new ArrayList<>();
+        existing.removeIf(comp -> {
+            String plain = Utils.stripColor(comp).toLowerCase(Locale.ROOT).trim();
             return this.lorePlainPrefixes.stream().anyMatch(plain::startsWith);
         });
-        for (String nl : newLines) {
-            if (!existing.contains(nl)) existing.add(nl);
+        for (Component nc : newComponents) {
+            String ncSer = LegacyComponentSerializer.legacySection().serialize(nc);
+            if (existing.stream().noneMatch(c -> LegacyComponentSerializer.legacySection().serialize(c).equals(ncSer))) {
+                existing.add(nc);
+            }
         }
-        meta.setLore(existing.isEmpty() ? null : existing);
+        meta.lore(existing.isEmpty() ? null : existing);
         bukkit.setItemMeta(meta);
         Object rebuilt = this.reflectionBridge.toNmsCopy(bukkit);
         return rebuilt == null ? nmsItem : rebuilt;

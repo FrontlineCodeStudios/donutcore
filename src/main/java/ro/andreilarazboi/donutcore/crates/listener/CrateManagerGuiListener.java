@@ -60,7 +60,7 @@ implements Listener {
             p.openInventory(this.plugin.guiCreateMode.build());
             return;
         }
-        if (clicked.hasItemMeta() && clicked.getItemMeta().hasDisplayName() && this.plugin.crateMgr.crateExists(crate = Utils.stripColor(clicked.getItemMeta().getDisplayName()))) {
+        if (clicked.hasItemMeta() && clicked.getItemMeta().hasDisplayName() && this.plugin.crateMgr.crateExists(crate = Utils.stripColor(clicked.getItemMeta().displayName()))) {
             GuiUtil.playClick(this.plugin, p);
             p.openInventory(this.plugin.guiCrateSettings.build(crate));
         }

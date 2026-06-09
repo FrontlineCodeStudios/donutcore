@@ -3,6 +3,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -30,31 +31,31 @@ public class HologramTemplateGUI {
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
-        fm.setDisplayName(" ");
+        fm.displayName(Utils.toComponent(" "));
         filler.setItemMeta(fm);
         for (int i = 0; i < inv.getSize(); ++i) {
             inv.setItem(i, filler);
         }
         ItemStack back = new ItemStack(Material.ARROW);
         ItemMeta bm = back.getItemMeta();
-        bm.setDisplayName(Utils.formatColors("&#f5f5f5\u00ab Back"));
-        ArrayList<String> bl = new ArrayList<String>();
-        bl.add(Utils.formatColors("&#bfbfbfReturn to the hologram editor."));
-        bm.setLore(bl);
+        bm.displayName(Utils.toComponent("&#f5f5f5\u00ab Back"));
+        ArrayList<Component> bl = new ArrayList<Component>();
+        bl.add(Utils.toComponent("&#bfbfbfReturn to the hologram editor."));
+        bm.lore(bl);
         back.setItemMeta(bm);
         inv.setItem(45, back);
         ItemStack header = new ItemStack(Material.BOOK);
         ItemMeta hm = header.getItemMeta();
-        hm.setDisplayName(Utils.formatColors("&#0f99e3Select a Hologram Template"));
-        ArrayList<String> hl = new ArrayList<String>();
-        hl.add(Utils.formatColors("&#bfbfbfClick a template below to"));
-        hl.add(Utils.formatColors("&#bfbfbfchange how this crate's"));
-        hl.add(Utils.formatColors("&#bfbfbfhologram text looks."));
-        hl.add("");
-        hl.add(Utils.formatColors("&#bfbfbfYou can edit and add templates"));
-        hl.add(Utils.formatColors("&#bfbfbfin &fconfig.yml &#bfbfbfunder"));
-        hl.add(Utils.formatColors("&f'hologram-templates'&#bfbfbf."));
-        hm.setLore(hl);
+        hm.displayName(Utils.toComponent("&#0f99e3Select a Hologram Template"));
+        ArrayList<Component> hl = new ArrayList<Component>();
+        hl.add(Utils.toComponent("&#bfbfbfClick a template below to"));
+        hl.add(Utils.toComponent("&#bfbfbfchange how this crate's"));
+        hl.add(Utils.toComponent("&#bfbfbfhologram text looks."));
+        hl.add(Utils.toComponent(""));
+        hl.add(Utils.toComponent("&#bfbfbfYou can edit and add templates"));
+        hl.add(Utils.toComponent("&#bfbfbfin &fconfig.yml &#bfbfbfunder"));
+        hl.add(Utils.toComponent("&f'hologram-templates'&#bfbfbf."));
+        hm.lore(hl);
         header.setItemMeta(hm);
         inv.setItem(4, header);
         ConfigurationSection root = this.plugin.cfg.config.getConfigurationSection("hologram-templates");
@@ -65,11 +66,11 @@ public class HologramTemplateGUI {
         if (root == null || root.getKeys(false).isEmpty()) {
             ItemStack none = new ItemStack(Material.BARRIER);
             ItemMeta nm = none.getItemMeta();
-            nm.setDisplayName(Utils.formatColors("&#d61111No Templates Defined"));
-            ArrayList<String> nl = new ArrayList<String>();
-            nl.add(Utils.formatColors("&#bfbfbfAdd templates under &f'hologram-templates'"));
-            nl.add(Utils.formatColors("&#bfbfbfin &fconfig.yml &7to use this menu."));
-            nm.setLore(nl);
+            nm.displayName(Utils.toComponent("&#d61111No Templates Defined"));
+            ArrayList<Component> nl = new ArrayList<Component>();
+            nl.add(Utils.toComponent("&#bfbfbfAdd templates under &f'hologram-templates'"));
+            nl.add(Utils.toComponent("&#bfbfbfin &fconfig.yml &7to use this menu."));
+            nm.lore(nl);
             none.setItemMeta(nm);
             inv.setItem(22, none);
             return inv;
@@ -81,29 +82,29 @@ public class HologramTemplateGUI {
             ConfigurationSection sec = root.getConfigurationSection(id);
             if (sec == null) continue;
             Material mat = Material.ENDER_EYE;
-            ArrayList<String> lore = new ArrayList<String>();
+            ArrayList<Component> lore = new ArrayList<Component>();
             boolean bl2 = isSelected = currentTemplate != null && currentTemplate.equalsIgnoreCase(id);
             if (isSelected) {
-                lore.add(Utils.formatColors("&#0fe30f\u2714 Currently selected"));
+                lore.add(Utils.toComponent("&#0fe30f\u2714 Currently selected"));
             } else {
-                lore.add(Utils.formatColors("&#bfbfbfClick to use this template."));
+                lore.add(Utils.toComponent("&#bfbfbfClick to use this template."));
             }
             List templateLines = sec.getStringList("lines");
             if (!templateLines.isEmpty()) {
-                lore.add(Utils.formatColors(""));
-                lore.add(Utils.formatColors("&#bfbfbfPreview:"));
+                lore.add(Utils.toComponent(""));
+                lore.add(Utils.toComponent("&#bfbfbfPreview:"));
                 int shown = Math.min(3, templateLines.size());
                 for (int i2 = 0; i2 < shown; ++i2) {
-                    lore.add(Utils.formatColors("&7\u2022 &f" + (String)templateLines.get(i2)));
+                    lore.add(Utils.toComponent("&7\u2022 &f" + (String)templateLines.get(i2)));
                 }
                 if (templateLines.size() > 3) {
-                    lore.add(Utils.formatColors("&7..."));
+                    lore.add(Utils.toComponent("&7..."));
                 }
             }
             ItemStack icon = new ItemStack(mat);
             ItemMeta im = icon.getItemMeta();
-            im.setDisplayName(Utils.formatColors("&#0fe30fTemplate: &f" + id));
-            im.setLore(lore);
+            im.displayName(Utils.toComponent("&#0fe30fTemplate: &f" + id));
+            im.lore(lore);
             if (isSelected) {
                 im.addEnchant(Enchantment.UNBREAKING, 1, true);
                 im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});

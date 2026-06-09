@@ -3,6 +3,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.List;
 import java.util.Map;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -33,16 +34,16 @@ public class KeysEditorGUI {
             ItemStack keyIcon = new ItemStack(Material.TRIPWIRE_HOOK);
             ItemMeta im = keyIcon.getItemMeta();
             if (im != null) {
-                im.setDisplayName(Utils.formatColors("&#0f99e3" + crate + " Key"));
-                im.setLore(Utils.formatColors(List.of("&#aaaaaaClick to open the key editor.")));
+                im.displayName(Utils.toComponent("&#0f99e3" + crate + " Key"));
+                im.lore(List.of(Utils.toComponent("&#aaaaaaClick to open the key editor.")));
                 keyIcon.setItemMeta(im);
             }
             if (idx >= inv.getSize()) break;
             inv.setItem(idx++, keyIcon);
         }
         if ((bm = (back = new ItemStack(Material.ARROW)).getItemMeta()) != null) {
-            bm.setDisplayName(Utils.formatColors("&#f5c542Back"));
-            bm.setLore(Utils.formatColors(List.of("&#aaaaaaClick to go back to the Editor Menu.")));
+            bm.displayName(Utils.toComponent("&#f5c542Back"));
+            bm.lore(List.of(Utils.toComponent("&#aaaaaaClick to go back to the Editor Menu.")));
             back.setItemMeta(bm);
         }
         inv.setItem(53, back);

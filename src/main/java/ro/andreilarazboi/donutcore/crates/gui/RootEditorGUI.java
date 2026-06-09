@@ -25,7 +25,7 @@ public class RootEditorGUI {
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
-        fm.setDisplayName(" ");
+        fm.displayName(Utils.toComponent(" "));
         filler.setItemMeta(fm);
         for (int i = 0; i < inv.getSize(); ++i) {
             inv.setItem(i, filler);
@@ -38,9 +38,9 @@ public class RootEditorGUI {
     private ItemStack item(Material mat, String name, String ... loreLines) {
         ItemStack i = new ItemStack(mat);
         ItemMeta im = i.getItemMeta();
-        im.setDisplayName(Utils.formatColors(name));
+        im.displayName(Utils.toComponent(name));
         if (loreLines.length > 0) {
-            im.setLore(Utils.formatColors(List.of(loreLines)));
+            im.lore(Utils.toComponents(List.of(loreLines)));
         }
         i.setItemMeta(im);
         return i;

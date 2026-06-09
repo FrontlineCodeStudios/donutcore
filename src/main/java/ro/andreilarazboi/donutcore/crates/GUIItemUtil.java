@@ -33,11 +33,11 @@ public class GUIItemUtil {
             if (im != null) {
                 String name = it.getString("displayname", null);
                 if (name != null) {
-                    im.setDisplayName(Utils.formatColors(name));
+                    im.displayName(Utils.toComponent(name));
                 }
                 List<String> lore = it.getStringList("lore");
                 if (!lore.isEmpty()) {
-                    im.setLore(Utils.formatColors(lore));
+                    im.lore(Utils.toComponents(lore));
                 }
                 for (String ench : it.getStringList("enchantments")) {
                     String[] p = ench.split(";");

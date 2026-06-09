@@ -3,6 +3,7 @@ package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -23,12 +24,12 @@ public class CrateRewardsGUI {
 
     public Inventory build(String crateName) {
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)54, (String)(crateName + " Rewards"));
+        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, 54, Utils.toComponent(crateName + " Rewards"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
         if (fm != null) {
-            fm.setDisplayName(" ");
+            fm.displayName(Utils.toComponent(" "));
             filler.setItemMeta(fm);
         }
         for (int i = 0; i < inv.getSize(); ++i) {
@@ -43,11 +44,11 @@ public class CrateRewardsGUI {
                 ItemStack reward = this.plugin.guiItemUtil.buildItemFromSection(it);
                 ItemMeta rewardMeta = reward.getItemMeta();
                 if (rewardMeta != null) {
-                    ArrayList<String> lore = rewardMeta.hasLore() ? new ArrayList<String>(rewardMeta.getLore()) : new ArrayList<>();
-                    lore.add("");
-                    lore.add(Utils.formatColors("&#bfbfbfShift + Right-click to move right"));
-                    lore.add(Utils.formatColors("&#bfbfbfShift + Left-click to move left"));
-                    rewardMeta.setLore(lore);
+                    ArrayList<Component> lore = rewardMeta.hasLore() && rewardMeta.lore() != null ? new ArrayList<>(rewardMeta.lore()) : new ArrayList<>();
+                    lore.add(Utils.toComponent(""));
+                    lore.add(Utils.toComponent("&#bfbfbfShift + Right-click to move right"));
+                    lore.add(Utils.toComponent("&#bfbfbfShift + Left-click to move left"));
+                    rewardMeta.lore(lore);
                     reward.setItemMeta(rewardMeta);
                 }
                 inv.setItem(slot, reward);
@@ -58,16 +59,16 @@ public class CrateRewardsGUI {
         ItemStack back = new ItemStack(Material.ARROW);
         ItemMeta bm = back.getItemMeta();
         if (bm != null) {
-            bm.setDisplayName(Utils.formatColors("&#0f99e3Back to Crate Settings"));
-            bm.setLore(List.of(Utils.formatColors("&#777777Click to go back to this crate's settings.")));
+            bm.displayName(Utils.toComponent("&#0f99e3Back to Crate Settings"));
+            bm.lore(List.of(Utils.toComponent("&#777777Click to go back to this crate's settings.")));
             back.setItemMeta(bm);
         }
         inv.setItem(backSlot, back);
         ItemStack add = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
         ItemMeta am = add.getItemMeta();
         if (am != null) {
-            am.setDisplayName(Utils.formatColors("&#0fe30fAdd Reward"));
-            am.setLore(List.of(Utils.formatColors("&#777777Drag an item here from your inventory"), Utils.formatColors("&#777777to add it as a new crate reward.")));
+            am.displayName(Utils.toComponent("&#0fe30fAdd Reward"));
+            am.lore(List.of(Utils.toComponent("&#777777Drag an item here from your inventory"), Utils.toComponent("&#777777to add it as a new crate reward.")));
             add.setItemMeta(am);
         }
         inv.setItem(addSlot, add);

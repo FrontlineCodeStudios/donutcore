@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import ro.andreilarazboi.donutcore.crates.CrateHolder;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import ro.andreilarazboi.donutcore.crates.Utils;
 import ro.andreilarazboi.donutcore.crates.opening.OpeningAnimationService;
 import ro.andreilarazboi.donutcore.crates.opening.OpeningAnimationType;
@@ -285,11 +286,11 @@ public class CrateOpenService {
                 for (String line : lines) {
                     if (line == null) continue;
                     if (line.isEmpty()) {
-                        online.sendMessage("");
+                        online.sendMessage(Utils.toComponent(""));
                         continue;
                     }
                     String out = line.replace("{player}", p.getName()).replace("{crate}", "&r" + crateDisplayRaw).replace("{item-name}", "&r" + po.rewardName).replace("{item-chance}", chanceText);
-                    online.sendMessage(Utils.formatColors(out));
+                    online.sendMessage(Utils.toComponent(out));
                 }
             }
         }
@@ -318,8 +319,8 @@ public class CrateOpenService {
     private String getRewardNameForChat(ItemStack reward, String fallbackKey) {
         if (reward != null) {
             ItemMeta meta = reward.getItemMeta();
-            if (meta != null && meta.hasDisplayName()) {
-                return meta.getDisplayName();
+            if (meta != null && meta.hasDisplayName() && meta.displayName() != null) {
+                return LegacyComponentSerializer.legacySection().serialize(meta.displayName());
             }
             Object pretty = reward.getType().name().toLowerCase(Locale.ROOT).replace("_", " ");
             pretty = !((String)pretty).isEmpty() ? Character.toUpperCase(((String)pretty).charAt(0)) + ((String)pretty).substring(1) : "Item";
