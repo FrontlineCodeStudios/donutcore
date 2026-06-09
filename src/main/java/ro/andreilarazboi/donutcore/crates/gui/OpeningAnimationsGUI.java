@@ -14,7 +14,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -32,7 +31,7 @@ public class OpeningAnimationsGUI {
 
     public Inventory build(String crateName) {
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)54, (String)Utils.formatColors("&#444444" + crateName + " Opening Animations"));
+        Inventory inv = Bukkit.createInventory(holder, 54, Utils.toComponent("&#444444" + crateName + " Opening Animations"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();

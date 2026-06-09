@@ -37,7 +37,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String title = Utils.stripColor(e.getView().getTitle());
+        String title = Utils.stripColor(e.getView().title());
         if (title == null || !title.endsWith(" Display Name")) {
             return;
         }

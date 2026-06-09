@@ -8,20 +8,17 @@ import ro.andreilarazboi.donutcore.crates.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class RootEditorGUI {
-    private final DonutCrates plugin;
 
     public RootEditorGUI(DonutCrates plugin) {
-        this.plugin = plugin;
     }
 
     public Inventory build() {
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)27, (String)Utils.formatColors("&#444444Crates Editor"));
+        Inventory inv = Bukkit.createInventory(holder, 27, Utils.toComponent("&#444444Crates Editor"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();

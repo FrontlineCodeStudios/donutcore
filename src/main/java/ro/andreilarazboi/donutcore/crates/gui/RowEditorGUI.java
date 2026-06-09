@@ -9,7 +9,6 @@ import ro.andreilarazboi.donutcore.crates.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -22,7 +21,7 @@ public class RowEditorGUI {
 
     public Inventory build(String crate) {
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)27, (String)Utils.formatColors("&#444444" + crate + " Rows"));
+        Inventory inv = Bukkit.createInventory(holder, 27, Utils.toComponent("&#444444" + crate + " Rows"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();

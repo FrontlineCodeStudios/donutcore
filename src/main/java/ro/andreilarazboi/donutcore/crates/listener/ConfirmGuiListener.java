@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class ConfirmGuiListener
 implements Listener {
@@ -29,7 +30,7 @@ implements Listener {
             return;
         }
         Player p = (Player)humanEntity;
-        String title = e.getView().getTitle();
+        String title = LegacyComponentSerializer.legacySection().serialize(e.getView().title());
         ConfigurationSection confirm = this.plugin.cfg.config.getConfigurationSection("confirm-menu");
         if (confirm == null) {
             return;
