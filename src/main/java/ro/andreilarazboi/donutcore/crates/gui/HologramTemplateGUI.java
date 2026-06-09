@@ -12,7 +12,6 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -27,7 +26,7 @@ public class HologramTemplateGUI {
 
     public Inventory build(String crate) {
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)54, (String)Utils.formatColors("&#444444" + crate + " Hologram Templates"));
+        Inventory inv = Bukkit.createInventory(null, 54, Utils.toComponent("&#444444" + crate + " Hologram Templates"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
@@ -83,13 +82,13 @@ public class HologramTemplateGUI {
             if (sec == null) continue;
             Material mat = Material.ENDER_EYE;
             ArrayList<Component> lore = new ArrayList<Component>();
-            boolean bl2 = isSelected = currentTemplate != null && currentTemplate.equalsIgnoreCase(id);
+            isSelected = currentTemplate != null && currentTemplate.equalsIgnoreCase(id);
             if (isSelected) {
                 lore.add(Utils.toComponent("&#0fe30f\u2714 Currently selected"));
             } else {
                 lore.add(Utils.toComponent("&#bfbfbfClick to use this template."));
             }
-            List templateLines = sec.getStringList("lines");
+            List<String> templateLines = sec.getStringList("lines");
             if (!templateLines.isEmpty()) {
                 lore.add(Utils.toComponent(""));
                 lore.add(Utils.toComponent("&#bfbfbfPreview:"));

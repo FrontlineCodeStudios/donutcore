@@ -3,7 +3,6 @@ package ro.andreilarazboi.donutcore.crates.gui;
 
 import java.util.List;
 import java.util.Map;
-import net.kyori.adventure.text.Component;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
 import ro.andreilarazboi.donutcore.crates.EditorHolder;
 import ro.andreilarazboi.donutcore.crates.Utils;
@@ -11,7 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -26,7 +24,7 @@ public class KeysEditorGUI {
         ItemStack back;
         ItemMeta bm;
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)54, (String)Utils.formatColors("&#444444Keys Editor"));
+        Inventory inv = Bukkit.createInventory(holder, 54, Utils.toComponent("&#444444Keys Editor"));
         holder.setInventory(inv);
         int idx = 0;
         for (Map.Entry<String, Block> entry : this.plugin.crateMgr.crateBlocks.entrySet()) {

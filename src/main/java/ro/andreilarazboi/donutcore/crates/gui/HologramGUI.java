@@ -12,7 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -31,17 +30,17 @@ public class HologramGUI {
         }
         boolean enabled = h.getBoolean("enabled", false);
         double offsetY = h.getDouble("offsetY", 1.5);
-        List lines = h.getStringList("lines");
+        List<String> lines = h.getStringList("lines");
         String templateId = h.getString("template", null);
         boolean shadow = h.getBoolean("shadow", true);
         String bgId = h.getString("bgColor", null);
         boolean legacyTransparent = h.getBoolean("background-transparent", true);
         if (bgId == null) {
-            String string = bgId = legacyTransparent ? "TRANSPARENT" : "DARK";
+            bgId = legacyTransparent ? "TRANSPARENT" : "DARK";
         }
         Object templateLabel = templateId != null && this.plugin.cfg.config.isConfigurationSection("hologram-templates." + templateId) ? templateId : (templateId != null ? templateId + " (missing)" : "Custom");
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)36, (String)Utils.formatColors("&#444444" + crate + " Hologram"));
+        Inventory inv = Bukkit.createInventory(null, 36, Utils.toComponent("&#444444" + crate + " Hologram"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();

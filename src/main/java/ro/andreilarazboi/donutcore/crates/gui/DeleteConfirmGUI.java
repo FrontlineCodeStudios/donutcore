@@ -27,7 +27,7 @@ public class DeleteConfirmGUI {
         int size = DeleteConfirmGUI.clamp9(DeleteConfirmGUI.getInt(c, "rows", 3));
         boolean fill = DeleteConfirmGUI.getBool(c, "fillerEnabled", true);
         Material filler = DeleteConfirmGUI.safeMat(DeleteConfirmGUI.getString(c, "fillerMaterial", "BLACK_STAINED_GLASS_PANE"), Material.BLACK_STAINED_GLASS_PANE);
-        Inventory inv = Bukkit.createInventory(null, (int)size, (String)title);
+        Inventory inv = Bukkit.createInventory(null, size, Utils.toComponent(title));
         if (fill) {
             ItemStack f = new ItemStack(filler);
             ItemMeta fm = f.getItemMeta();
