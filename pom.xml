@@ -6,7 +6,7 @@
 
     <groupId>ro.andreilarazboi</groupId>
     <artifactId>DonutCore</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <packaging>jar</packaging>
 
     <name>DonutCore</name>
@@ -64,7 +64,7 @@
                         <configuration>
                             <target>
                                 <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                      todir="C:\Users\drake\Documents\Plugins\testserver\plugins"
+                                      todir="C:\Visual Studio Code\Lifesteal\plugins"
                                       overwrite="true"/>
                             </target>
                         </configuration>
