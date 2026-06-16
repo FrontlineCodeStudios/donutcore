@@ -1,0 +1,9 @@
+# ============================================================
+#  DonutCore — Arenas Module Config
+#  Zone data is stored in arenas.yml (same folder).
+#  Edit zone settings in-game with /donutarena
+# ============================================================
+
+# How often (in seconds) the plugin checks player positions.
+# Lower = more precise enter/exit detection, Higher = better performance.
+location-check-interval: 1

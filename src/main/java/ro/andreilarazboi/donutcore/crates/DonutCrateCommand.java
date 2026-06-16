@@ -1,19 +1,23 @@
 
 package ro.andreilarazboi.donutcore.crates;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.StringUtil;
+import ro.andreilarazboi.donutcore.DonutCore;
 
 public class DonutCrateCommand
 implements CommandExecutor,
@@ -25,6 +29,19 @@ TabCompleter {
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // /crate alias: defer to another plugin that registered /crate first
+        if (label.equalsIgnoreCase("crate")) {
+            Command other = findOtherCrateCommand();
+            if (other != null) {
+                return other.execute(sender, label, args);
+            }
+        }
+        if (!DonutCore.getInstance().getCratesModule().isActive()) {
+            if (sender.hasPermission("donutcore.admin") || sender.isOp()) {
+                sender.sendMessage("§cThe Crates module is currently disabled.");
+            }
+            return true;
+        }
         if (args.length == 0) {
             this.sendHelp(sender);
             return true;
@@ -329,6 +346,25 @@ TabCompleter {
         this.plugin.msg(payer, this.plugin.cfg.config.getString("messages.key-pay-sent", "&#0fe30fYou paid &f%amount% %crate% keys &#0fe30fto &f%target%&#0fe30f.").replace("%amount%", String.valueOf(amount)).replace("%crate%", crate).replace("%target%", target.getName()));
         this.plugin.msg(target, this.plugin.cfg.config.getString("messages.key-pay-received", "&#0fe30fYou received &f%amount% %crate% keys &#0fe30ffrom &f%player%&#0fe30f.").replace("%amount%", String.valueOf(amount)).replace("%crate%", crate).replace("%player%", payer.getName()));
         return true;
+    }
+
+    private Command findOtherCrateCommand() {
+        try {
+            Field f = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            f.setAccessible(true);
+            SimpleCommandMap map = (SimpleCommandMap) f.get(Bukkit.getServer());
+            Field kf = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            kf.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Map<String, Command> known = (Map<String, Command>) kf.get(map);
+            for (Map.Entry<String, Command> e : known.entrySet()) {
+                String key = e.getKey();
+                if (key.endsWith(":crate") && !key.startsWith("donutcore:")) {
+                    return e.getValue();
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
     }
 
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {

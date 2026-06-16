@@ -8,8 +8,14 @@ description: DonutCore - Modular plugin with DonutSMP like modules.
 softdepend:
   - PlaceholderAPI
   - Vault
+  - WorldGuard
+  - WorldEdit
 
 commands:
+  donutcore:
+    description: DonutCore admin command
+    usage: /donutcore module <crates|sell|enderchest> <enable|disable>
+    permission: donutcore.admin
   sell:
     description: Open the sell menu
     usage: /sell
@@ -49,6 +55,18 @@ commands:
     usage: /clearechest <player>
     aliases: [clearenderchest]
     permission: enderchest.clear
+  donutarena:
+    description: Manage arena zones (requires WorldGuard)
+    usage: /donutarena
+    permission: donutcore.arenas.admin
+  spawnstash:
+    description: Mark a container as a stash trap
+    usage: /spawnstash <name>
+    permission: donutcore.admin.stash
+  unspawnstash:
+    description: Remove stash trap mark from a container
+    usage: /unspawnstash
+    permission: donutcore.admin.stash
 
 permissions:
   donutcore.crate.use:
@@ -83,6 +101,12 @@ permissions:
     default: op
   enderchest.clear:
     description: Clear a player's ender chest
+    default: op
+  donutcore.arenas.admin:
+    description: Manage arenas
+    default: op
+  donutcore.admin.stash:
+    description: Use spawn/unspawn stash commands
     default: op
   enderchest.size.1:
     description: Ender chest with 9 slots (1 row)

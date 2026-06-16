@@ -62,7 +62,7 @@ public class EnderChestManager {
                 if (!viewer.isOnline()) return;
                 String title = getTitle(rows, ownerName);
                 EnderChestHolder holder = new EnderChestHolder(ownerUUID, viewer.getUniqueId(), readOnly, rows, fullItems);
-                Inventory inv = Bukkit.createInventory(holder, rows * 9, title);
+                Inventory inv = Bukkit.createInventory(holder, rows * 9, plugin.formatComponent(title));
                 holder.setInventory(inv);
                 for (Map.Entry<Integer, ItemStack> entry : fullItems.entrySet()) {
                     if (entry.getKey() < rows * 9) inv.setItem(entry.getKey(), entry.getValue());

@@ -30,6 +30,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.time.Duration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.plugin.Plugin;
+import ro.andreilarazboi.donutcore.DonutCore;
 import ro.andreilarazboi.donutcore.crates.opening.OpeningAnimationService;
 import ro.andreilarazboi.donutcore.crates.opening.OpeningAnimationType;
 
@@ -48,6 +49,7 @@ implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
+        if (!DonutCore.getInstance().getCratesModule().isActive()) return;
         Action action = e.getAction();
         Player p = e.getPlayer();
         Block b = e.getClickedBlock();

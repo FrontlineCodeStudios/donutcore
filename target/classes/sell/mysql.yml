@@ -1,0 +1,10 @@
+# DonutSell - MySQL Configuration
+# Only used when storage.type is set to MYSQL in sell-config.yml
+mysql:
+  host: localhost
+  port: 3306
+  database: minecraft
+  user: root
+  password: ''
+  use-ssl: false
+  table-prefix: sell_

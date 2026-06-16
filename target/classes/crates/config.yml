@@ -1,0 +1,111 @@
+# DonutCore Configuration
+# Author: Andreilarazboi
+
+prefix: '&#0fe30f[DonutCore]&r '
+
+enable-key-pay: true
+
+crate-open-cooldown-seconds: 2
+
+fillerMaterial: BLACK_STAINED_GLASS_PANE
+
+# CLOSE -> close the GUI
+# STAY_OPEN -> keep the confirm GUI open if player still has keys else close
+# BACK_TO_CRATE_UI -> reopen the crate UI so the player can choose again
+after-reward-collect: "CLOSE"
+
+hologram-update-seconds: 5
+
+hologram-player-view-distance: 48.0
+
+sounds:
+  no-key: ENTITY_VILLAGER_NO
+  claim: ENTITY_EXPERIENCE_ORB_PICKUP
+  click: UI_BUTTON_CLICK
+
+keygiveall:
+  batch-size: 100
+  ticks-per-batch: 1
+
+confirm-menu:
+  title: '&#444444ᴄᴏɴꜰɪʀᴍ'
+  fillerEnabled: false
+  fillerMaterial: GRAY_STAINED_GLASS_PANE
+  rows: 3
+  Confirm:
+    material: LIME_STAINED_GLASS_PANE
+    slot: 15
+    displayname: '&#0fe30fᴄᴏɴꜰɪʀᴍ'
+    lore:
+    action: confirm
+  ClickedItem:
+    slot: 13
+    displayname: '%ClickedItemName%'
+  Decline:
+    material: RED_STAINED_GLASS_PANE
+    slot: 11
+    displayname: '&#d61111ᴅᴇᴄʟɪɴᴇ'
+    lore:
+    action: decline
+
+delete-confirm-menu:
+  title: '&#8b0000ᴅᴇʟᴇᴛᴇ ᴄᴏɴꜰɪʀᴍ'
+  fillerEnabled: true
+  fillerMaterial: BLACK_STAINED_GLASS_PANE
+  rows: 3
+  ClickedItem:
+    slot: 13
+    displayname: '%ClickedItemName%'
+    lore:
+      - '&7You are about to delete this.'
+      - '&cThis action cannot be undone!'
+  Confirm:
+    material: LIME_STAINED_GLASS_PANE
+    slot: 15
+    displayname: '&#0fe30fCONFIRM DELETE'
+    lore:
+      - '&fClick to confirm'
+  Decline:
+    material: RED_STAINED_GLASS_PANE
+    slot: 11
+    displayname: '&#d61111CANCEL'
+    lore:
+      - '&fClick to go back'
+
+messages:
+  actionbar-enabled: false
+  no-permission: '&#ff5555You lack permission to use this.'
+  keyall: '&#0f99e3A %crate% keyall has been given to %players% players'
+  cooldown: '&#d61111You must wait &f%seconds%s &#d61111before opening this crate again.'
+  no-keys: "&#ff5555You don't have any keys for this crate!"
+  inventory-full: "&#ff5555Your inventory is full!"
+  keyreceive: "&#0fe30fYou received %amount% %crate% keys!"
+  reward-self: "&#0fe30fYou opened &f{crate} &#0fe30fand received &f{item-name}&7!"
+  cannot-place-key: "&#ff5555You cannot place crate keys!"
+  key-pay-disabled: "&#ff5555Key paying is disabled on this server."
+  key-pay-not-enough: "&#ff5555You do not have &f%amount% &#ff5555keys for crate &f%crate%&#ff5555."
+  key-pay-virtual-only: "&#ff5555Key paying only works for virtual keys for this crate."
+  key-pay-sent: "&#0fe30fYou paid &f%amount% %crate% keys &#0fe30fto &f%target%&#0fe30f."
+  key-pay-received: "&#0fe30fYou received &f%amount% %crate% keys &#0fe30ffrom &f%player%&#0fe30f."
+
+broadcast-message:
+  - ''
+  - '&#0fe30f{player} &#bfbfbfopened &f{item-name} &#bfbfbfwith a chance of &#0f99e3{item-chance}&#bfbfbf!'
+  - ''
+
+hologram-templates:
+  default:
+    lines:
+      - "&e%crate%"
+      - "&7You have &f%player_keys% &7keys."
+  common:
+    lines:
+      - "&#0fe30f%crate%"
+      - "&#bfbfbfKeys: &f%player_keys%"
+      - "&7Good luck!"
+
+storage:
+  sqlite:
+    enabled: true
+    path: "donutcrates.db"
+    keep-yaml-backup: true

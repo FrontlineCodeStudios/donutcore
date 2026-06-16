@@ -1,0 +1,71 @@
+# ############################################################
+# #                                                          #
+# #   #####    ####   ##  ##  ##  ##  ######   ####         #
+# #   ##  ##  ##  ##  ### ##  ##  ##    ##    ##            #
+# #   ##  ##  ##  ##  ######  ##  ##    ##    ##            #
+# #   ##  ##  ##  ##  ## ###  ##  ##    ##    ##  ##        #
+# #   #####    ####   ##  ##   ####     ##     ####         #
+# #                                                          #
+# #    ####    ####   #####   ######                        #
+# #   ##  ##  ##  ##  ##  ##  ##                            #
+# #   ##      ##  ##  #####   #####                         #
+# #   ##  ##  ##  ##  ## ##   ##                            #
+# #    ####    ####   ##  ##  ######                        #
+# #                                                          #
+# #   Author  : Andreilarazboi                              #
+# #   Version : ${project.version}                          #
+# #   Modules : Sell, Crates, EnderChest,                   #
+# #             Arenas, FastCrystals, Stash                 #
+# #                                                          #
+# ############################################################
+
+# ============================================================
+#  MODULE TOGGLES
+#  Enable or disable each module independently.
+#  Use /donutcore module <name> <enable|disable> in-game.
+# ============================================================
+modules:
+  crates: true
+  sell: true
+  enderchest: true
+  arenas: false
+  fastcrystals: false
+  stash: false
+
+# ============================================================
+#  ARENAS MODULE
+#  Requires WorldGuard to be installed on the server.
+#  Create arenas in-game: /arena create <name> <wg-region>
+#  Arena data is saved in  plugins/DonutCore/arenas.yml
+#
+#  Per-arena config (set with /arena set* commands):
+#    interval  —  reward interval  (e.g. 1m | 30s | 2m30s)
+#    command   —  console command  — use {player} placeholder
+#    display   —  actionbar | title | text | all
+#
+#  Text placeholders:
+#    {time}  — countdown to next reward  (e.g. "1m 45s")
+# ============================================================
+arenas:
+  location-check-interval: 1
+
+# ============================================================
+#  FAST CRYSTALS MODULE
+#  Grants players a brief immunity window against their own
+#  end crystal explosions, enabling fast-crystal PvP style.
+# ============================================================
+fastcrystals:
+  self-damage-immunity-ms: 500
+
+# ============================================================
+#  STASH MODULE  —  Admin anti-cheat utility
+#  Mark any container as a hidden stash trap.
+#  When a non-staff player opens it, all online staff with
+#  donutcore.admin.stash receive a chat alert + console log.
+#
+#  Commands:
+#    /spawnstash <name>   — mark the container you look at
+#    /unspawnstash        — remove mark from looked-at container
+# ============================================================
+stash:
+  enabled: true

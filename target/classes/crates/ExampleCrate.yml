@@ -1,0 +1,59 @@
+ExampleCrate:
+  type: CHOOSE
+  displayName: '&6Example Crate'
+  rows: 3
+  fillerEnabled: true
+  fillerMaterial: GRAY_STAINED_GLASS_PANE
+  guiTitle: '&8&lChoose 1 item'
+  keepOpenAfterClaim: false
+  location:
+    world: ''
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  hologram:
+    enabled: true
+    lines:
+      - '&6&lExample Crate'
+      - '&7Keys: &e%donutcrate_key_ExampleCrate%'
+    backgroundColorR: 0
+    backgroundColorG: 0
+    backgroundColorB: 0
+    backgroundAlpha: 0
+    textShadow: false
+    updateInterval: 40
+    templateName: ''
+  physicalKey:
+    material: TRIPWIRE_HOOK
+    displayName: '&6Example Crate &fKey'
+    lore:
+      - '&7Use this key to open'
+      - '&7the &6Example Crate&7!'
+    customModelData: 0
+  items:
+    Item1:
+      material: STONE_SWORD
+      displayName: '&aCool Sword'
+      slot: 10
+      lore:
+        - '&7Example Line 1'
+        - '&7Example Line 2'
+      enchantments:
+        - UNBREAKING;3
+        - MENDING;1
+      command: ''
+      chance: 50.0
+      broadcastOnWin: false
+      broadcastMessage: '&e{player} &awon a &aCool Sword &afrom the &6Example Crate&a!'
+    Item2:
+      material: STONE_PICKAXE
+      displayName: '&aCool Pickaxe'
+      slot: 11
+      lore:
+        - '&7Example Line 1'
+        - '&7Example Line 2'
+      enchantments: []
+      command: 'give {player} diamond 1'
+      chance: 50.0
+      broadcastOnWin: false
+      broadcastMessage: '&e{player} &awon a &aCool Pickaxe &afrom the &6Example Crate&a!'

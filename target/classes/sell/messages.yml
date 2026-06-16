@@ -1,0 +1,7 @@
+# DonutCore Sell Messages
+messages:
+  cannot-sell: '&c[DonutCore] You cannot sell that item!'
+  no-permission: '&c[DonutCore] You do not have permission to do that.'
+  player-only: '&c[DonutCore] Only players can use this command.'
+  worth-enabled: '&a[DonutCore] Worth lore has been &aenabled&a.'
+  worth-disabled: '&c[DonutCore] Worth lore has been &cdisabled&c.'

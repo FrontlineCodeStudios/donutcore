@@ -30,6 +30,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import ro.andreilarazboi.donutcore.DonutCore;
 
 public class SellAxeCommand implements CommandExecutor, TabCompleter {
     private final DonutSell plugin;
@@ -46,6 +47,12 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!DonutCore.getInstance().getSellModule().isActive()) {
+            if (sender.hasPermission("donutcore.admin") || sender.isOp()) {
+                sender.sendMessage(Utils.toComponent("&cThe Sell module is currently disabled."));
+            }
+            return true;
+        }
         if (!sender.hasPermission("sell.admin")) {
             sender.sendMessage(Utils.toComponent("&cYou do not have permission."));
             return true;

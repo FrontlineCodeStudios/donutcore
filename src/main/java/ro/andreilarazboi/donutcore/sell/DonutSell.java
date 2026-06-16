@@ -59,6 +59,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitTask;
+import ro.andreilarazboi.donutcore.DonutCore;
 
 public final class DonutSell implements Listener {
     private final JavaPlugin parent;
@@ -706,6 +707,7 @@ public final class DonutSell implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
+        if (!DonutCore.getInstance().getSellModule().isActive()) return;
         Player p = (Player) event.getPlayer();
         String openTitle = event.getView().getTitle();
         String classicTitle = Utils.formatColors(this.getMenusConfig().getString("sell-menu.title", "&aSell Items"));

@@ -14,6 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import ro.andreilarazboi.donutcore.DonutCore;
 
 public class SellCommand implements CommandExecutor, TabCompleter {
     private final DonutSell plugin;
@@ -25,6 +26,12 @@ public class SellCommand implements CommandExecutor, TabCompleter {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!DonutCore.getInstance().getSellModule().isActive()) {
+            if (sender.hasPermission("donutcore.admin") || sender.isOp()) {
+                sender.sendMessage(Utils.toComponent("&cThe Sell module is currently disabled."));
+            }
+            return true;
+        }
         if (!(sender instanceof Player)) {
             sender.sendMessage(Utils.toComponent("&cOnly players may use /sell."));
             return true;

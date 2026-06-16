@@ -1,0 +1,36 @@
+# DonutCore EnderChest Configuration
+
+# Default number of rows when a player has no enderchest.size.X permission.
+# Set to 0 to give no enderchest by default.
+default-rows: 6
+
+storage:
+  sqlite:
+    enabled: true
+    path: 'enderchest.db'
+
+# Inventory title shown when opening the chest.
+# Use <player> to insert the chest owner's name.
+enderchest-names:
+  1-rows: "&7<player>'s Enderchest"
+  2-rows: "&7<player>'s Enderchest"
+  3-rows: "&7<player>'s Enderchest"
+  4-rows: "&7<player>'s Enderchest"
+  5-rows: "&7<player>'s Enderchest"
+  6-rows: "&7<player>'s Enderchest"
+
+# Message shown when a player tries to place a blacklisted item.
+blacklisted-message: '&4You cannot put that item into an ender chest.'
+
+# Bukkit material names that cannot be placed in an enderchest.
+blacklisted-items: []
+#  - 'COMMAND_BLOCK'
+#  - 'BARRIER'
+
+messages:
+  no-permission: '&cYou do not have permission to use this command.'
+  player-not-found: '&cPlayer &f<player> &cwas not found.'
+  no-enderchest: '&cYou do not have access to an ender chest.'
+  viewing-others: '&7Viewing &f<player>&7''s ender chest.'
+  cannot-modify: '&cYou cannot modify this player''s ender chest.'
+  enderchest-cleared: '&aCleared the ender chest of &f<player>&a.'

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="maven-antrun-" default="main">
+  <target name="main">
+    <copy file="C:\Visual Studio Code\donutcore\target/DonutCore-1.0.6.jar" todir="C:\Visual Studio Code\Lifesteal\plugins" overwrite="true" />
+  </target>
+</project>
