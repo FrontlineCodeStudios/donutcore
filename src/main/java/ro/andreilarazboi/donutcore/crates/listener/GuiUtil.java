@@ -12,21 +12,11 @@ public final class GuiUtil {
     }
 
     public static void playClick(DonutCrates plugin, Player p) {
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf((String)plugin.cfg.config.getString("sounds.click", "UI_BUTTON_CLICK")), 1.0f, 1.0f);
-        }
-        catch (IllegalArgumentException illegalArgumentException) {
-            // empty catch block
-        }
+        p.playSound(p.getLocation(), Utils.resolveSound(plugin.cfg.config.getString("sounds.click", "UI_BUTTON_CLICK"), Sound.UI_BUTTON_CLICK), 1.0f, 1.0f);
     }
 
     public static void playNoKeySound(DonutCrates plugin, Player p) {
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf((String)plugin.cfg.config.getString("sounds.no-key", "ENTITY_VILLAGER_NO")), 1.0f, 1.0f);
-        }
-        catch (IllegalArgumentException illegalArgumentException) {
-            // empty catch block
-        }
+        p.playSound(p.getLocation(), Utils.resolveSound(plugin.cfg.config.getString("sounds.no-key", "ENTITY_VILLAGER_NO"), Sound.ENTITY_VILLAGER_NO), 1.0f, 1.0f);
     }
 
     public static void sendNoKeysMessage(DonutCrates plugin, Player p, String crate) {

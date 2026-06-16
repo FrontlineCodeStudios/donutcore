@@ -114,12 +114,7 @@ public class OpeningAnimationService {
     }
 
     private Sound safeSound(String name, Sound fallback) {
-        try {
-            return Sound.valueOf((String)name);
-        }
-        catch (Throwable ignored) {
-            return fallback;
-        }
+        return Utils.resolveSound(name, fallback);
     }
 }
 

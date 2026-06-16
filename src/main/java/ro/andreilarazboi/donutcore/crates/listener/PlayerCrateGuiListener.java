@@ -45,7 +45,7 @@ implements Listener {
         }
         ClickType ct = e.getClick();
         InventoryAction act = e.getAction();
-        if (ct.isShiftClick() || act == InventoryAction.MOVE_TO_OTHER_INVENTORY || act == InventoryAction.HOTBAR_MOVE_AND_READD || act == InventoryAction.HOTBAR_SWAP || act == InventoryAction.COLLECT_TO_CURSOR) {
+        if (ct.isShiftClick() || act == InventoryAction.MOVE_TO_OTHER_INVENTORY || act == InventoryAction.HOTBAR_SWAP || act == InventoryAction.COLLECT_TO_CURSOR) {
             e.setCancelled(true);
         }
     }

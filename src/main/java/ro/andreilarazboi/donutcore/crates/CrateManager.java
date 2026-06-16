@@ -154,6 +154,7 @@ public class CrateManager {
         }
     }
 
+    @SuppressWarnings("removal")
     public void addItemFromStack(String crate, ItemStack original, Player p) {
         if (original == null || original.getType().isAir()) {
             if (p != null) {
@@ -203,12 +204,14 @@ public class CrateManager {
             if (meta.isUnbreakable()) {
                 this.plugin.cfg.crates.set(base + ".unbreakable", (Object)true);
             }
-            List<String> enchants = item.getEnchantments().entrySet().stream().map(e -> ((Enchantment)e.getKey()).getName() + ";" + String.valueOf(e.getValue())).toList();
+            List<String> enchants = item.getEnchantments().entrySet().stream().map(e -> ((Enchantment)e.getKey()).getKey().getKey() + ";" + String.valueOf(e.getValue())).toList();
             this.plugin.cfg.crates.set(base + ".enchantments", enchants);
             if (meta instanceof ArmorMeta && (am = (ArmorMeta)meta).hasTrim()) {
                 ArmorTrim t = am.getTrim();
-                this.plugin.cfg.crates.set(base + ".trim.material", (Object)t.getMaterial().getKey().toString());
-                this.plugin.cfg.crates.set(base + ".trim.pattern", (Object)t.getPattern().getKey().toString());
+                String trimMat = t.getMaterial().getKey().toString();
+                String trimPat = t.getPattern().getKey().toString();
+                this.plugin.cfg.crates.set(base + ".trim.material", (Object)trimMat);
+                this.plugin.cfg.crates.set(base + ".trim.pattern", (Object)trimPat);
             }
         }
         this.plugin.cfg.crates.set(base + ".chance", (Object)0.0);
@@ -291,12 +294,7 @@ public class CrateManager {
         if (keys <= 0) {
             String raw = this.plugin.cfg.config.getString("messages.no-keys", "&#ff5555You don't have any keys for this crate!").replace("%crate%", crate);
             this.plugin.msg(p, raw);
-            try {
-                p.playSound(p.getLocation(), Sound.valueOf((String)this.plugin.cfg.config.getString("sounds.no-key", "ENTITY_VILLAGER_NO")), 1.0f, 1.0f);
-            }
-            catch (IllegalArgumentException illegalArgumentException) {
-                // empty catch block
-            }
+            p.playSound(p.getLocation(), Utils.resolveSound(this.plugin.cfg.config.getString("sounds.no-key", "ENTITY_VILLAGER_NO"), Sound.ENTITY_VILLAGER_NO), 1.0f, 1.0f);
             return;
         }
         ConfigurationSection sec = this.plugin.cfg.crates.getConfigurationSection("Crates." + crate);
@@ -352,12 +350,7 @@ public class CrateManager {
         if (give && !this.canFit((Inventory)p.getInventory(), reward)) {
             String raw = this.plugin.cfg.config.getString("messages.inventory-full", "&#ff5555Your inventory is full!");
             this.plugin.msg(p, raw);
-            try {
-                p.playSound(p.getLocation(), Sound.valueOf((String)this.plugin.cfg.config.getString("sounds.no-key", "ENTITY_VILLAGER_NO")), 1.0f, 1.0f);
-            }
-            catch (IllegalArgumentException illegalArgumentException) {
-                // empty catch block
-            }
+            p.playSound(p.getLocation(), Utils.resolveSound(this.plugin.cfg.config.getString("sounds.no-key", "ENTITY_VILLAGER_NO"), Sound.ENTITY_VILLAGER_NO), 1.0f, 1.0f);
             return;
         }
         this.plugin.dataMgr.modifyKeys(p, crate, -1);
@@ -386,12 +379,7 @@ public class CrateManager {
                 }
             }
         }
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf((String)this.plugin.cfg.config.getString("sounds.claim", "ENTITY_PLAYER_LEVELUP")), 1.0f, 1.0f);
-        }
-        catch (IllegalArgumentException illegalArgumentException) {
-            // empty catch block
-        }
+        p.playSound(p.getLocation(), Utils.resolveSound(this.plugin.cfg.config.getString("sounds.claim", "ENTITY_PLAYER_LEVELUP"), Sound.ENTITY_PLAYER_LEVELUP), 1.0f, 1.0f);
     }
 
     private boolean canFit(Inventory inv, ItemStack stack) {

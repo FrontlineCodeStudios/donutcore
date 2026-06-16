@@ -148,7 +148,7 @@ public class SellAxe implements Listener {
         payout += uncategorized;
         this.plugin.getEconomy().depositPlayer((OfflinePlayer) player, payout);
         player.playSound(player.getLocation(),
-                Sound.valueOf(this.plugin.getMenusConfig().getString("sell-menu.sound-on-close", "ENTITY_EXPERIENCE_ORB_PICKUP")),
+                Utils.resolveSound(this.plugin.getMenusConfig().getString("sell-menu.sound-on-close", "ENTITY_EXPERIENCE_ORB_PICKUP"), Sound.ENTITY_EXPERIENCE_ORB_PICKUP),
                 1.0f, 1.0f);
         String actionbar = Utils.formatColors(this.plugin.getMenusConfig().getString("sell-menu.actionbar-message", "&aSold $%amount%"))
                 .replace("%amount%", Utils.abbreviateNumber(payout));

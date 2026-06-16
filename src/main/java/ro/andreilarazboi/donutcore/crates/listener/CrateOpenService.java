@@ -294,12 +294,7 @@ public class CrateOpenService {
                 }
             }
         }
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf((String)this.plugin.cfg.config.getString("sounds.claim", "ENTITY_PLAYER_LEVELUP")), 1.0f, 1.0f);
-        }
-        catch (IllegalArgumentException itemsSec) {
-            // empty catch block
-        }
+        p.playSound(p.getLocation(), Utils.resolveSound(this.plugin.cfg.config.getString("sounds.claim", "ENTITY_PLAYER_LEVELUP"), Sound.ENTITY_PLAYER_LEVELUP), 1.0f, 1.0f);
         String behavior = this.plugin.cfg.config.getString("after-reward-collect", "CLOSE").toUpperCase(Locale.ROOT);
         if ("BACK_TO_CRATE_UI".equals(behavior)) {
             p.openInventory(this.plugin.guiCrate.build(po.crate, false));
