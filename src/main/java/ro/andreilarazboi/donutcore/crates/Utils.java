@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,6 +13,9 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -101,6 +105,20 @@ public final class Utils {
 
     public static List<String> formatColors(List<String> lines) {
         return lines.stream().map(Utils::formatColors).collect(Collectors.toList());
+    }
+
+    public static Sound resolveSound(String name, Sound fallback) {
+        if (name == null || name.isEmpty()) return fallback;
+        String lower = name.toLowerCase(Locale.ROOT);
+        Sound s = Registry.SOUNDS.get(NamespacedKey.minecraft(lower));
+        if (s != null) return s;
+        String dotted = lower.replace('_', '.');
+        s = Registry.SOUNDS.get(NamespacedKey.minecraft(dotted));
+        if (s != null) return s;
+        for (Sound sound : Registry.SOUNDS) {
+            if (sound.getKey().getKey().replace('.', '_').equals(lower)) return sound;
+        }
+        return fallback;
     }
 
     public static boolean canFit(PlayerInventory inv, ItemStack stack) {
