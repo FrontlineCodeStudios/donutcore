@@ -222,12 +222,7 @@ public class CategoryGui {
         if (this.nextMat != null) inv.setItem(this.nextSlot, this.buildButton(this.nextMat, this.nextName, this.nextLore));
         if (this.backMat != null) inv.setItem(this.backSlot, this.buildButton(this.backMat, this.backName, this.backLore));
         p.openInventory(inv);
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf(this.pageSwitchSoundName), 1.0f, 1.0f);
-        } catch (IllegalArgumentException ex) {
-            this.plugin.getPlugin().getLogger().warning("Invalid sound '" + this.pageSwitchSoundName + "', defaulting to ITEM_BOOK_PAGE_TURN");
-            p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f);
-        }
+        p.playSound(p.getLocation(), Utils.resolveSound(this.pageSwitchSoundName, Sound.UI_BUTTON_CLICK), 1.0f, 1.0f);
     }
 
     private void applyDisplayAndLore(ItemStack stk, String entryKey, double price, String customName) {

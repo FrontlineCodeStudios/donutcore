@@ -46,7 +46,7 @@ public class SellMenuClickListener implements Listener {
             if (slot >= 0 && slot < topSize) {
                 if (buttonSlots.contains(slot)) {
                     e.setCancelled(true);
-                    p.playSound(p.getLocation(), Sound.valueOf(this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK").toUpperCase()), 1.0f, 1.0f);
+                    p.playSound(p.getLocation(), Utils.resolveSound(this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"), Sound.UI_BUTTON_CLICK), 1.0f, 1.0f);
                     for (String cat : this.plugin.getMenusConfig().getConfigurationSection("new-sell-menu.item-settings").getKeys(false)) {
                         int s = this.plugin.getMenusConfig().getInt("new-sell-menu.item-settings." + cat + ".slot", -1);
                         if (s != slot) continue;
@@ -63,7 +63,7 @@ public class SellMenuClickListener implements Listener {
             if (e.getClick().isKeyboardClick()) { e.setCancelled(true); return; }
             InventoryAction a = e.getAction();
             if (a == InventoryAction.MOVE_TO_OTHER_INVENTORY || a == InventoryAction.HOTBAR_SWAP
-                    || a == InventoryAction.HOTBAR_MOVE_AND_READD || a == InventoryAction.COLLECT_TO_CURSOR) {
+                    || a == InventoryAction.COLLECT_TO_CURSOR) {
                 e.setCancelled(true);
             }
             return;
@@ -77,7 +77,7 @@ public class SellMenuClickListener implements Listener {
         int bottomStart = topSize - 9;
         if (slot < 0 || slot < bottomStart || slot >= bottomStart + 9) return;
         e.setCancelled(true);
-        p.playSound(p.getLocation(), Sound.valueOf(this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK").toUpperCase()), 1.0f, 1.0f);
+        p.playSound(p.getLocation(), Utils.resolveSound(this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"), Sound.UI_BUTTON_CLICK), 1.0f, 1.0f);
         List<String> items = this.plugin.getMenusConfig().getStringList("sell-menu.items");
         int idx = slot - bottomStart;
         if (idx >= 0 && idx < items.size()) {
