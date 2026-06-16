@@ -1,11 +1,15 @@
 package ro.andreilarazboi.donutcore.sell;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.Sound;
 
 public final class Utils {
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
@@ -69,6 +73,20 @@ public final class Utils {
     public static String stripColor(Component component) {
         if (component == null) return "";
         return stripColor(LegacyComponentSerializer.legacySection().serialize(component));
+    }
+
+    public static Sound resolveSound(String name, Sound fallback) {
+        if (name == null || name.isEmpty()) return fallback;
+        String lower = name.toLowerCase(Locale.ROOT);
+        Sound s = Registry.SOUNDS.get(NamespacedKey.minecraft(lower));
+        if (s != null) return s;
+        String dotted = lower.replace('_', '.');
+        s = Registry.SOUNDS.get(NamespacedKey.minecraft(dotted));
+        if (s != null) return s;
+        for (Sound sound : Registry.SOUNDS) {
+            if (sound.getKey().getKey().replace('.', '_').equals(lower)) return sound;
+        }
+        return fallback;
     }
 
     public static String abbreviateNumber(double number) {
