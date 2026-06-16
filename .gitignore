@@ -1,0 +1,5 @@
+target/
+C:/
+*.class
+*.jar
+!src/**/*.jar
