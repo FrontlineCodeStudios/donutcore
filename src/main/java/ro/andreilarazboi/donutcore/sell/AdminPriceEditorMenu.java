@@ -458,11 +458,7 @@ public class AdminPriceEditorMenu implements Listener {
 
     private void playClick(Player p) {
         String raw = this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK");
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf(raw.toUpperCase(Locale.ROOT)), 1.0f, 1.0f);
-        } catch (Exception ex) {
-            p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
-        }
+        p.playSound(p.getLocation(), Utils.resolveSound(raw, Sound.UI_BUTTON_CLICK), 1.0f, 1.0f);
     }
 
     private enum SortMode {

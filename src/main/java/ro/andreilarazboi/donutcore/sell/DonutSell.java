@@ -716,7 +716,7 @@ public final class DonutSell implements Listener {
         boolean excludeBottomRow = !useNewFlag && this.isUseMultipliers();
         int sellableSlots = inv.getSize() - (excludeBottomRow ? 9 : 0);
         Set<String> disabledSet = this.disabledItemsUpper;
-        Sound declineSound = Sound.valueOf(this.getConfig().getString("sounds.declined", "ENTITY_VILLAGER_NO"));
+        Sound declineSound = Utils.resolveSound(this.getConfig().getString("sounds.declined", "ENTITY_VILLAGER_NO"), Sound.ENTITY_VILLAGER_NO);
         String declineMsg = Utils.formatColors(this.getMessagesConfig().getString("messages.cannot-sell", "&cYou cannot sell that item!"));
         HashMap<String, Stats> sold = new HashMap<>();
         HashMap<String, Double> revCats = new HashMap<>();
@@ -853,7 +853,7 @@ public final class DonutSell implements Listener {
             payout = sold.values().stream().mapToDouble(s -> s.revenue).sum();
         }
         this.getEconomy().depositPlayer((OfflinePlayer) p, payout);
-        Sound soundOnClose = Sound.valueOf(this.getMenusConfig().getString("sell-menu.sound-on-close", "ENTITY_EXPERIENCE_ORB_PICKUP"));
+        Sound soundOnClose = Utils.resolveSound(this.getMenusConfig().getString("sell-menu.sound-on-close", "ENTITY_EXPERIENCE_ORB_PICKUP"), Sound.ENTITY_EXPERIENCE_ORB_PICKUP);
         p.playSound(p.getLocation(), soundOnClose, 1.0f, 1.0f);
         long itemsSold = Math.round(sold.values().stream().mapToDouble(s -> s.count).sum());
         this.notifySale(p, payout, itemsSold);

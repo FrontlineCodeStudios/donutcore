@@ -36,7 +36,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
 public class ItemPricesMenu implements Listener {
@@ -184,9 +183,15 @@ public class ItemPricesMenu implements Listener {
             if (pmMeta == null) continue;
             PotionType type = this.resolvePotionType(effectName);
             if (type != null) {
-                pmMeta.setBasePotionData(new PotionData(type, extended, upgraded));
+                PotionType effectiveType = type;
+                if (extended) {
+                    try { effectiveType = PotionType.valueOf("LONG_" + type.name()); } catch (IllegalArgumentException ignored) {}
+                } else if (upgraded) {
+                    try { effectiveType = PotionType.valueOf("STRONG_" + type.name()); } catch (IllegalArgumentException ignored) {}
+                }
+                pmMeta.setBasePotionType(effectiveType);
             } else {
-                pmMeta.setBasePotionData(new PotionData(PotionType.AWKWARD, false, false));
+                pmMeta.setBasePotionType(PotionType.AWKWARD);
                 pmMeta.displayName(Utils.toComponent(this.prettify(effectName) + " Potion"));
             }
             pmMeta.getPersistentDataContainer().set(this.PDC_CATEGORY, PersistentDataType.STRING, "brewing_stand");
@@ -350,11 +355,7 @@ public class ItemPricesMenu implements Listener {
         }
         player.openInventory(inv);
         vt.setPage(player.getUniqueId(), page);
-        try {
-            player.playSound(player.getLocation(), Sound.valueOf(this.pageSwitchSoundName), 1.0f, 1.0f);
-        } catch (IllegalArgumentException ex) {
-            player.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f);
-        }
+        player.playSound(player.getLocation(), Utils.resolveSound(this.pageSwitchSoundName, Sound.UI_BUTTON_CLICK), 1.0f, 1.0f);
     }
 
     private void place(Inventory inv, Material mat, int slot, String name, List<String> lore) {

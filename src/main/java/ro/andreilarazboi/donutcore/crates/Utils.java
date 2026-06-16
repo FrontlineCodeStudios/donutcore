@@ -115,9 +115,6 @@ public final class Utils {
         String dotted = lower.replace('_', '.');
         s = Registry.SOUNDS.get(NamespacedKey.minecraft(dotted));
         if (s != null) return s;
-        for (Sound sound : Registry.SOUNDS) {
-            if (sound.getKey().getKey().replace('.', '_').equals(lower)) return sound;
-        }
         return fallback;
     }
 

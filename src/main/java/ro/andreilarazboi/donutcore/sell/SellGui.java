@@ -37,11 +37,7 @@ public class SellGui {
         this.closeSound = null;
         ConfigurationSection sounds = cfg.getConfigurationSection("sounds");
         if (sounds != null) {
-            try {
-                this.closeSound = Sound.valueOf(sounds.getString("close-sound", "ENTITY_EXPERIENCE_ORB_PICKUP").toUpperCase(Locale.ROOT));
-            } catch (IllegalArgumentException ex) {
-                this.plugin.getPlugin().getLogger().warning("Invalid close-sound in " + section + ": " + sounds.getString("close-sound"));
-            }
+            this.closeSound = Utils.resolveSound(sounds.getString("close-sound", "ENTITY_EXPERIENCE_ORB_PICKUP"), Sound.ENTITY_EXPERIENCE_ORB_PICKUP);
         }
     }
 
