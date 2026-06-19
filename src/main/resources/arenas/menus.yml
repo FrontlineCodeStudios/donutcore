@@ -1,0 +1,95 @@
+# ============================================================
+#  DonutCore — Arenas GUI Configuration
+#  Reskin the /donutarena admin menus from here: titles,
+#  filler glass, and the main structural buttons.
+#  (The dynamic settings buttons inside a zone keep their
+#   layout in code since their content changes per-setting.)
+# ============================================================
+
+prefix: '&#0fe30f[Arena]&r '
+
+filler: GRAY_STAINED_GLASS_PANE
+
+list-menu:
+  title: '&8&lZone Manager'
+  title-icon:
+    material: BEACON
+    displayname: '&8&lZone Manager'
+    lore:
+      - '&7Manage all WorldGuard-based arena zones'
+      - '&8Click a zone to edit its settings'
+  zone-item:
+    material: GRASS_BLOCK
+  create-button:
+    material: LIME_DYE
+    displayname: '&a&l+ Create Zone'
+    lore:
+      - '&7Click to create a new arena zone'
+      - '&7You will need an existing WorldGuard region'
+  prev-button:
+    material: ARROW
+    displayname: '&7← Previous'
+  next-button:
+    material: ARROW
+    displayname: '&7Next →'
+
+detail-menu:
+  title: '&8Zone: &e%zone%'
+  back-button:
+    material: ARROW
+    displayname: '&7← Back'
+  delete-button:
+    material: RED_WOOL
+    displayname: '&c&lDelete Zone'
+    lore:
+      - '&7Click to permanently delete this zone'
+  triggers-button:
+    material: COMPASS
+    displayname: '&b&lTriggers &7(%count%)'
+    lore:
+      - '&7Sub-regions that run a command and/or'
+      - '&7teleport players when they are entered'
+      - ''
+      - '&8Click to manage'
+  autosave-note:
+    material: GREEN_DYE
+    displayname: '&aAuto-Save'
+    lore:
+      - '&7All changes are saved automatically'
+
+trigger-list-menu:
+  title: '&8Triggers: &e%zone%'
+  title-icon:
+    material: COMPASS
+    displayname: '&b&lTrigger Manager'
+    lore:
+      - '&7Sub-regions inside or near &e%zone%'
+      - '&8Click a trigger to edit its settings'
+  trigger-item:
+    material: COMPASS
+  create-button:
+    material: LIME_DYE
+    displayname: '&a&l+ Create Trigger'
+    lore:
+      - '&7Click to create a new trigger'
+      - '&7You will need an existing WorldGuard region'
+  back-button:
+    material: ARROW
+    displayname: '&7← Back to Zone'
+
+trigger-detail-menu:
+  title: '&8Trigger: &e%trigger%'
+  back-button:
+    material: ARROW
+    displayname: '&7← Back to Triggers'
+  delete-button:
+    material: RED_WOOL
+    displayname: '&c&lDelete Trigger'
+    lore:
+      - '&7Click to permanently delete this trigger'
+  set-location-button:
+    material: ENDER_PEARL
+    displayname: '&d&lSet Teleport Location'
+    lore:
+      - '&7Click to set the teleport target'
+      - '&7to your current position'

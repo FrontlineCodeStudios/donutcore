@@ -104,9 +104,8 @@ public final class DonutCore extends JavaPlugin {
         applyPerm("enderchest",  ecOn ? "enderchest.command"        : "donutcore.admin", !ecOn);
         applyPerm("clearechest", ecOn ? "enderchest.clear"          : "donutcore.admin", !ecOn);
 
-        applyPerm("donutarena",   arenaOn ? "donutcore.arenas.admin" : "donutcore.admin", !arenaOn);
-        applyPerm("spawnstash",   stashOn ? "donutcore.admin.stash"  : "donutcore.admin", !stashOn);
-        applyPerm("unspawnstash", stashOn ? "donutcore.admin.stash"  : "donutcore.admin", !stashOn);
+        applyPerm("donutarena", arenaOn ? "donutcore.arenas.admin" : "donutcore.admin", !arenaOn);
+        applyPerm("donutstash", stashOn ? "donutcore.admin.stash"  : "donutcore.admin", !stashOn);
 
         getServer().getOnlinePlayers().forEach(Player::updateCommands);
     }

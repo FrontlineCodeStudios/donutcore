@@ -33,8 +33,8 @@ public class CommandVisibilityListener implements Listener {
     );
 
     private static final Set<String> STASH_CMDS = Set.of(
-        "spawnstash", "unspawnstash",
-        "donutcore:spawnstash", "donutcore:unspawnstash"
+        "donutstash", "stash",
+        "donutcore:donutstash", "donutcore:stash"
     );
 
     public CommandVisibilityListener(DonutCore plugin) {

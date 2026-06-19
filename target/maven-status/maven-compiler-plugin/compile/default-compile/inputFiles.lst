@@ -3,6 +3,9 @@ C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\arenas
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\arenas\ArenasCommand.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\arenas\ArenasModule.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\arenas\ArenaTracker.java
+C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\arenas\gui\ArenaGuiHolder.java
+C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\arenas\gui\ArenaGUIListener.java
+C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\arenas\Trigger.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\CommandVisibilityListener.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\crates\BlockListener.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\crates\ChatInputListener.java
@@ -137,3 +140,4 @@ C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\stash\
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\stash\StashListener.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\stash\StashManager.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\stash\StashModule.java
+C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\stash\StashSchematicManager.java

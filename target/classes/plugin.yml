@@ -48,7 +48,7 @@ commands:
   enderchest:
     description: Open your ender chest
     usage: /enderchest [player]
-    aliases: [echest]
+    aliases: [ec, echest]
     permission: enderchest.command
   clearechest:
     description: Clear a player's ender chest
@@ -59,13 +59,10 @@ commands:
     description: Manage arena zones (requires WorldGuard)
     usage: /donutarena
     permission: donutcore.arenas.admin
-  spawnstash:
-    description: Mark a container as a stash trap
-    usage: /spawnstash <name>
-    permission: donutcore.admin.stash
-  unspawnstash:
-    description: Remove stash trap mark from a container
-    usage: /unspawnstash
+  donutstash:
+    description: Manage stash traps (WorldEdit schematics + manual marking)
+    usage: /donutstash <save|spawn|remove|list|mark|unmark>
+    aliases: [stash]
     permission: donutcore.admin.stash
 
 permissions:

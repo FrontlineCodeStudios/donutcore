@@ -1,10 +1,15 @@
 package ro.andreilarazboi.donutcore.arenas;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class Arena {
 
     private final String name;
     private String region;
     private String worldName;
+    private final Map<String, Trigger> triggers = new LinkedHashMap<>();
 
     // ── AFK Timer ─────────────────────────────────────────────────────────────
     private boolean afkEnabled         = false;
@@ -90,4 +95,10 @@ public class Arena {
     public void    setExitTitle(String t)               { this.exitTitle = t; }
     public String  getExitSubtitle()                    { return exitSubtitle; }
     public void    setExitSubtitle(String t)            { this.exitSubtitle = t; }
+
+    // ── Triggers (sub-region enter actions) ──────────────────────────────────────
+    public void addTrigger(Trigger trigger)        { triggers.put(trigger.getName().toLowerCase(), trigger); }
+    public void removeTrigger(String name)          { triggers.remove(name == null ? null : name.toLowerCase()); }
+    public Trigger getTrigger(String name)          { return name == null ? null : triggers.get(name.toLowerCase()); }
+    public Collection<Trigger> getTriggers()        { return triggers.values(); }
 }

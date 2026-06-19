@@ -59,13 +59,23 @@ fastcrystals:
 
 # ============================================================
 #  STASH MODULE  —  Admin anti-cheat utility
-#  Mark any container as a hidden stash trap.
-#  When a non-staff player opens it, all online staff with
-#  donutcore.admin.stash receive a chat alert + console log.
+#  Requires WorldEdit. Build a bait stash anywhere (e.g. a
+#  loaded chest floating in the void), select it with WorldEdit,
+#  then save and redeploy it anywhere as a schematic. Every
+#  container inside is auto-marked as a trap: when a non-staff
+#  player opens one, all online staff with donutcore.admin.stash
+#  get a chat alert + console log — go spectator/vanish and
+#  watch who's looting it before banning them.
 #
-#  Commands:
-#    /spawnstash <name>   — mark the container you look at
-#    /unspawnstash        — remove mark from looked-at container
+#  Commands (/donutstash, alias /stash):
+#    save <name>    — save your current WorldEdit selection
+#                     (air blocks are skipped automatically)
+#    spawn <name>   — paste it at your location, auto-marks
+#                     every container inside as a trap
+#    remove <name>  — delete a saved schematic
+#    list           — list saved schematics
+#    mark <name>    — manually mark the container you look at
+#    unmark         — remove the mark from the looked-at container
 # ============================================================
 stash:
   enabled: true

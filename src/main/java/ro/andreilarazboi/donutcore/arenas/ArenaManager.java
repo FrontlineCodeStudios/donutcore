@@ -24,6 +24,7 @@ public class ArenaManager {
     private final Plugin plugin;
     private final File   dataFile;
     private FileConfiguration cfg;
+    private FileConfiguration menus;
     private final Map<String, Arena> arenas = new HashMap<>();
 
     public ArenaManager(Plugin plugin) {
@@ -32,12 +33,17 @@ public class ArenaManager {
         File dir = new File(plugin.getDataFolder(), "arenas");
         dir.mkdirs();
 
-        // Copy default arenas/config.yml if absent
+        // Copy default arenas/config.yml and arenas/menus.yml if absent
         plugin.saveResource("arenas/config.yml", false);
+        plugin.saveResource("arenas/menus.yml", false);
+
+        this.menus = YamlConfiguration.loadConfiguration(new File(dir, "menus.yml"));
 
         this.dataFile = new File(dir, "arenas.yml");
         load();
     }
+
+    public FileConfiguration getMenusConfig() { return menus; }
 
     public void load() {
         if (!dataFile.exists()) {
@@ -80,6 +86,31 @@ public class ArenaManager {
             a.setExitTitle(sec.getString(name + ".exit.message.title", "&7{zone}"));
             a.setExitSubtitle(sec.getString(name + ".exit.message.subtitle", "&7Goodbye!"));
 
+            // Triggers
+            ConfigurationSection trigSec = sec.getConfigurationSection(name + ".triggers");
+            if (trigSec != null) {
+                for (String trigName : trigSec.getKeys(false)) {
+                    String tk     = name + ".triggers." + trigName;
+                    String region2 = sec.getString(tk + ".region", "");
+                    Trigger t = new Trigger(trigName, region2);
+                    t.setEnabled(sec.getBoolean(tk + ".enabled", true));
+                    t.setCommandEnabled(sec.getBoolean(tk + ".command-enabled", false));
+                    t.setCommand(sec.getString(tk + ".command", ""));
+                    t.setTeleportEnabled(sec.getBoolean(tk + ".teleport-enabled", false));
+                    t.setTeleportWorld(sec.getString(tk + ".teleport.world", ""));
+                    t.setTeleportX(sec.getDouble(tk + ".teleport.x", 0.0));
+                    t.setTeleportY(sec.getDouble(tk + ".teleport.y", 0.0));
+                    t.setTeleportZ(sec.getDouble(tk + ".teleport.z", 0.0));
+                    t.setTeleportYaw((float) sec.getDouble(tk + ".teleport.yaw", 0.0));
+                    t.setTeleportPitch((float) sec.getDouble(tk + ".teleport.pitch", 0.0));
+                    t.setMessageType(sec.getString(tk + ".message.type", "none"));
+                    t.setMessage(sec.getString(tk + ".message.text", ""));
+                    t.setTitle(sec.getString(tk + ".message.title", ""));
+                    t.setSubtitle(sec.getString(tk + ".message.subtitle", ""));
+                    a.addTrigger(t);
+                }
+            }
+
             arenas.put(name.toLowerCase(), a);
         }
     }
@@ -116,6 +147,27 @@ public class ArenaManager {
             cfg.set(k + ".exit.message.text",          a.getExitMessage());
             cfg.set(k + ".exit.message.title",         a.getExitTitle());
             cfg.set(k + ".exit.message.subtitle",      a.getExitSubtitle());
+
+            // Triggers — every field is always written, even when the action is unused,
+            // so the zone file can be hand-edited with all options visible.
+            for (Trigger t : a.getTriggers()) {
+                String tk = k + ".triggers." + t.getName();
+                cfg.set(tk + ".region",             t.getRegion());
+                cfg.set(tk + ".enabled",             t.isEnabled());
+                cfg.set(tk + ".command-enabled",     t.isCommandEnabled());
+                cfg.set(tk + ".command",             t.getCommand());
+                cfg.set(tk + ".teleport-enabled",    t.isTeleportEnabled());
+                cfg.set(tk + ".teleport.world",       t.getTeleportWorld());
+                cfg.set(tk + ".teleport.x",           t.getTeleportX());
+                cfg.set(tk + ".teleport.y",           t.getTeleportY());
+                cfg.set(tk + ".teleport.z",           t.getTeleportZ());
+                cfg.set(tk + ".teleport.yaw",         (double) t.getTeleportYaw());
+                cfg.set(tk + ".teleport.pitch",       (double) t.getTeleportPitch());
+                cfg.set(tk + ".message.type",         t.getMessageType());
+                cfg.set(tk + ".message.text",         t.getMessage());
+                cfg.set(tk + ".message.title",        t.getTitle());
+                cfg.set(tk + ".message.subtitle",     t.getSubtitle());
+            }
         }
         try { cfg.save(dataFile); } catch (IOException e) {
             plugin.getLogger().warning("Failed to save arenas.yml: " + e.getMessage());
@@ -128,13 +180,17 @@ public class ArenaManager {
     public Collection<Arena> getArenas() { return arenas.values(); }
 
     public boolean isPlayerInArena(Player player, Arena arena) {
-        if (!player.getWorld().getName().equals(arena.getWorldName())) return false;
+        return isPlayerInRegion(player, arena.getWorldName(), arena.getRegion());
+    }
+
+    public boolean isPlayerInRegion(Player player, String worldName, String regionName) {
+        if (!player.getWorld().getName().equals(worldName)) return false;
         try {
             RegionManager rm = WorldGuard.getInstance()
                 .getPlatform().getRegionContainer()
                 .get(BukkitAdapter.adapt(player.getWorld()));
             if (rm == null) return false;
-            ProtectedRegion region = rm.getRegion(arena.getRegion());
+            ProtectedRegion region = rm.getRegion(regionName);
             if (region == null) return false;
             Location loc = player.getLocation();
             return region.contains(BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));

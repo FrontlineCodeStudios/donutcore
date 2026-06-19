@@ -3,6 +3,7 @@ package ro.andreilarazboi.donutcore.stash;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,11 +44,14 @@ public class StashListener implements Listener {
     }
 
     private Block resolveBlock(InventoryHolder holder) {
-        if (holder instanceof Chest chest) return chest.getBlock();
         if (holder instanceof DoubleChest dc) {
             if (dc.getLeftSide() instanceof Chest l && manager.isStash(l.getBlock())) return l.getBlock();
             if (dc.getRightSide() instanceof Chest r && manager.isStash(r.getBlock())) return r.getBlock();
+            return null;
         }
+        // Covers chests, barrels, shulker boxes, dispensers, droppers, hoppers,
+        // furnaces, brewing stands — anything WorldEdit could have pasted in.
+        if (holder instanceof Container container) return container.getBlock();
         return null;
     }
 }

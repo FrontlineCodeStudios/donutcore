@@ -2,6 +2,8 @@ package ro.andreilarazboi.donutcore.arenas;
 
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import ro.andreilarazboi.donutcore.sell.Utils;
@@ -16,6 +18,8 @@ public class ArenaTracker extends BukkitRunnable {
     private final Map<UUID, Set<String>>    playerZones = new HashMap<>();
     // player → (arenaName → elapsed AFK seconds)
     private final Map<UUID, Map<String, Integer>> afkTimers = new HashMap<>();
+    // player → set of "arenaName::triggerName" they are currently inside
+    private final Map<UUID, Set<String>>    playerTriggers = new HashMap<>();
 
     public ArenaTracker(ArenaManager manager) {
         this.manager = manager;
@@ -63,10 +67,65 @@ public class ArenaTracker extends BukkitRunnable {
             }
 
             playerZones.put(uid, curr);
+
+            // Trigger sub-regions: independent of the main zone region, checked for every arena
+            Set<String> prevTrig = playerTriggers.getOrDefault(uid, new HashSet<>());
+            Set<String> currTrig = new HashSet<>();
+            for (Arena arena : snapshot) {
+                for (Trigger trigger : arena.getTriggers()) {
+                    if (!trigger.isEnabled()) continue;
+                    if (manager.isPlayerInRegion(player, arena.getWorldName(), trigger.getRegion())) {
+                        currTrig.add(arena.getName() + "::" + trigger.getName());
+                    }
+                }
+            }
+            for (String key : currTrig) {
+                if (!prevTrig.contains(key)) {
+                    String[] parts  = key.split("::", 2);
+                    Arena    arena  = manager.getArena(parts[0]);
+                    Trigger  trig   = arena == null ? null : arena.getTrigger(parts[1]);
+                    if (arena != null && trig != null) handleTriggerEnter(player, arena, trig);
+                }
+            }
+            playerTriggers.put(uid, currTrig);
         }
 
         playerZones.keySet().removeIf(uid -> Bukkit.getPlayer(uid) == null);
         afkTimers.keySet().removeIf(uid -> Bukkit.getPlayer(uid) == null);
+        playerTriggers.keySet().removeIf(uid -> Bukkit.getPlayer(uid) == null);
+    }
+
+    private void handleTriggerEnter(Player player, Arena arena, Trigger trigger) {
+        if (trigger.isCommandEnabled() && !trigger.getCommand().isBlank()) {
+            String cmd = trigger.getCommand()
+                .replace("{player}", player.getName())
+                .replace("{zone}", arena.getName())
+                .replace("{trigger}", trigger.getName());
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        }
+        if (trigger.isTeleportEnabled() && trigger.hasTeleportLocation()) {
+            World world = Bukkit.getWorld(trigger.getTeleportWorld());
+            if (world != null) {
+                player.teleport(new Location(world,
+                    trigger.getTeleportX(), trigger.getTeleportY(), trigger.getTeleportZ(),
+                    trigger.getTeleportYaw(), trigger.getTeleportPitch()));
+            }
+        }
+        String type = trigger.getMessageType();
+        if (!type.equals("none")) {
+            sendMessage(player, type,
+                replaceTrigger(trigger.getMessage(),  player, arena, trigger),
+                replaceTrigger(trigger.getTitle(),    player, arena, trigger),
+                replaceTrigger(trigger.getSubtitle(), player, arena, trigger),
+                3000);
+        }
+    }
+
+    private String replaceTrigger(String text, Player player, Arena arena, Trigger trigger) {
+        if (text == null) return "";
+        return text.replace("{player}", player.getName())
+                    .replace("{zone}", arena.getName())
+                    .replace("{trigger}", trigger.getName());
     }
 
     private void handleEnter(Player player, Arena arena) {
@@ -181,5 +240,6 @@ public class ArenaTracker extends BukkitRunnable {
     public void clearPlayer(UUID uid) {
         playerZones.remove(uid);
         afkTimers.remove(uid);
+        playerTriggers.remove(uid);
     }
 }
