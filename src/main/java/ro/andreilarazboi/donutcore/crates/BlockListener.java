@@ -352,12 +352,7 @@ implements Listener {
                 }
             }
         }
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf((String)this.plugin.cfg.config.getString("sounds.claim", "ENTITY_PLAYER_LEVELUP")), 1.0f, 1.0f);
-        }
-        catch (IllegalArgumentException illegalArgumentException) {
-            // empty catch block
-        }
+        p.playSound(p.getLocation(), Utils.resolveSound(this.plugin.cfg.config.getString("sounds.claim", "ENTITY_PLAYER_LEVELUP"), Sound.ENTITY_PLAYER_LEVELUP), 1.0f, 1.0f);
         this.pendingOpens.remove(po.player);
     }
 
@@ -377,12 +372,7 @@ implements Listener {
     }
 
     private void playNoKeySound(Player p) {
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf((String)this.plugin.cfg.config.getString("sounds.no-key", "ENTITY_VILLAGER_NO")), 1.0f, 1.0f);
-        }
-        catch (IllegalArgumentException illegalArgumentException) {
-            // empty catch block
-        }
+        p.playSound(p.getLocation(), Utils.resolveSound(this.plugin.cfg.config.getString("sounds.no-key", "ENTITY_VILLAGER_NO"), Sound.ENTITY_VILLAGER_NO), 1.0f, 1.0f);
     }
 
     private boolean isAnyKeyItem(ItemStack item) {

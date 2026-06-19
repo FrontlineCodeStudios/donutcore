@@ -281,24 +281,17 @@ public class AdminPriceEditorMenu implements Listener {
         }
         String targetPath = "categories." + category;
         List<Map<?, ?>> targetRaw = this.plugin.getWorthConfig().getMapList(targetPath);
-        ArrayList<Map<String, Object>> target = new ArrayList<>();
-        boolean replaced = false;
+        ArrayList<Map<String, Object>> target = new ArrayList<>(targetRaw.size() + 1);
         for (Map<?, ?> map : targetRaw) {
             HashMap<String, Object> copy = new HashMap<>();
             for (Map.Entry<?, ?> en : map.entrySet()) {
                 copy.put(String.valueOf(en.getKey()), en.getValue());
             }
-            if (copy.containsKey(key)) {
-                copy.put(key, price);
-                replaced = true;
-            }
             target.add(copy);
         }
-        if (!replaced) {
-            HashMap<String, Object> add = new HashMap<>();
-            add.put(key, price);
-            target.add(add);
-        }
+        HashMap<String, Object> add = new HashMap<>();
+        add.put(key, price);
+        target.add(add);
         this.plugin.getWorthConfig().set(targetPath, target);
         this.plugin.saveWorthConfig();
         this.viewCache.clear();
@@ -465,11 +458,7 @@ public class AdminPriceEditorMenu implements Listener {
 
     private void playClick(Player p) {
         String raw = this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK");
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf(raw.toUpperCase(Locale.ROOT)), 1.0f, 1.0f);
-        } catch (Exception ex) {
-            p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
-        }
+        p.playSound(p.getLocation(), Utils.resolveSound(raw, Sound.UI_BUTTON_CLICK), 1.0f, 1.0f);
     }
 
     private enum SortMode {

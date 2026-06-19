@@ -31,7 +31,7 @@ public class HistoryClickListener implements Listener {
         int slot = e.getRawSlot();
         int page = tracker.getPage(p.getUniqueId());
         if (e.getCurrentItem() != null && !e.getCurrentItem().getType().isAir()) {
-            Sound clickSound = Sound.valueOf(this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"));
+            Sound clickSound = Utils.resolveSound(this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"), Sound.UI_BUTTON_CLICK);
             p.playSound(p.getLocation(), clickSound, 1.0f, 1.0f);
         }
         if (slot == gui.getSortSlot()) {

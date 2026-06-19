@@ -130,9 +130,7 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
                 Map.Entry<Enchantment, Integer> e = esm.getStoredEnchants().entrySet().iterator().next();
                 entryKey = e.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + e.getValue() + "-value";
             } else if (handMeta instanceof PotionMeta pm) {
-                String base = pm.getBasePotionData().getType().name().toLowerCase(Locale.ROOT);
-                if (pm.getBasePotionData().isExtended()) base = "long_" + base;
-                if (pm.getBasePotionData().isUpgraded()) base = "strong_" + base;
+                String base = pm.getBasePotionType().getKey().getKey();
                 if (hand.getType() == Material.SPLASH_POTION) base = "splash_" + base;
                 else if (hand.getType() == Material.LINGERING_POTION) base = "lingering_" + base;
                 entryKey = base + "-value";
