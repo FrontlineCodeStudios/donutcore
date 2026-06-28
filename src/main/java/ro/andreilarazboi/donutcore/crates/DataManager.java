@@ -103,7 +103,7 @@ public class DataManager {
                 String uuid = rs.getString("uuid");
                 String crate = this.normalizeKeyName(rs.getString("crate"));
                 int amount = Math.max(0, rs.getInt("amount"));
-                this.playerKeys.computeIfAbsent(uuid, ignored -> new ConcurrentHashMap()).put(crate, amount);
+                this.playerKeys.computeIfAbsent(uuid, ignored -> new ConcurrentHashMap<>()).put(crate, amount);
             }
         }
         catch (SQLException e) {
@@ -298,52 +298,23 @@ public class DataManager {
         this.upsertStatsRow(uid, crateKey, total + 1, rewards, items);
     }
 
-    /*
-     * Enabled aggressive exception aggregation
-     */
     private StatsRow getStatsRowSqlite(String uuid, String crate) {
         if (this.sqliteConnection == null) {
             return null;
         }
         String sql = "SELECT total_opened, recent_rewards, recent_items FROM donutcrate_stats WHERE uuid=? AND crate=?";
-        try (PreparedStatement ps = this.sqliteConnection.prepareStatement(sql);){
-            StatsRow statsRow;
-            block19: {
-                ResultSet rs;
-                block17: {
-                    StatsRow statsRow2;
-                    block18: {
-                        ps.setString(1, uuid);
-                        ps.setString(2, crate);
-                        rs = ps.executeQuery();
-                        try {
-                            if (rs.next()) break block17;
-                            statsRow2 = null;
-                            if (rs == null) break block18;
-                        }
-                        catch (Throwable throwable) {
-                            if (rs != null) {
-                                try {
-                                    rs.close();
-                                }
-                                catch (Throwable throwable2) {
-                                    throwable.addSuppressed(throwable2);
-                                }
-                            }
-                            throw throwable;
-                        }
-                        rs.close();
-                    }
-                    return statsRow2;
+        try (PreparedStatement ps = this.sqliteConnection.prepareStatement(sql)) {
+            ps.setString(1, uuid);
+            ps.setString(2, crate);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
                 }
                 int total = Math.max(0, rs.getInt("total_opened"));
                 List<String> rewards = this.decodeStringList(rs.getString("recent_rewards"));
                 List<ItemStack> items = this.decodeItemList(rs.getString("recent_items"));
-                statsRow = new StatsRow(total, rewards, items);
-                if (rs == null) break block19;
-                rs.close();
+                return new StatsRow(total, rewards, items);
             }
-            return statsRow;
         }
         catch (SQLException e) {
             this.plugin.getLogger().log(Level.WARNING, "[DonutCrates] Failed to read SQLite stats row", e);

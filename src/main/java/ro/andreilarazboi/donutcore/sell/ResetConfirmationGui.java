@@ -20,9 +20,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.profile.PlayerProfile;
 
-public class ResetConfirmationGui implements Listener {
+public final class ResetConfirmationGui implements Listener {
     private final DonutSell plugin;
     private final Map<UUID, UUID> pendingReset = new HashMap<>();
     private static final String GUI_TITLE_PREFIX = "Confirm Reset: ";
@@ -35,12 +34,12 @@ public class ResetConfirmationGui implements Listener {
     public void open(Player admin, OfflinePlayer target) {
         this.pendingReset.put(admin.getUniqueId(), target.getUniqueId());
         String title = GUI_TITLE_PREFIX + target.getName();
-        Inventory inv = Bukkit.createInventory(null, 36, title);
+        Inventory inv = Bukkit.createInventory(null, 36, Utils.toComponent(title));
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
         if (skullMeta != null) {
-            PlayerProfile profile = Bukkit.createPlayerProfile(target.getUniqueId());
-            skullMeta.setOwnerProfile(profile);
+            com.destroystokyo.paper.profile.PlayerProfile profile = Bukkit.createProfile(target.getUniqueId());
+            skullMeta.setPlayerProfile(profile);
             skullMeta.displayName(Utils.toComponent("§e" + target.getName()));
             ArrayList<Component> lore = new ArrayList<>();
             String totalStr = this.plugin.getFormattedTotalSold(target.getUniqueId());
@@ -103,8 +102,8 @@ public class ResetConfirmationGui implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        String title = e.getView().getTitle();
-        if (title == null || !title.startsWith(GUI_TITLE_PREFIX)) return;
+        String title = Utils.stripColor(e.getView().title());
+        if (!title.startsWith(GUI_TITLE_PREFIX)) return;
         e.setCancelled(true);
         if (!(e.getWhoClicked() instanceof Player admin)) return;
         UUID adminUUID = admin.getUniqueId();

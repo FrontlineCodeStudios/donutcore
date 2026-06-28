@@ -17,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-public class SellHistoryGui {
+public final class SellHistoryGui {
     private final DonutSell plugin;
     private int rows;
     private int size;
@@ -108,7 +108,7 @@ public class SellHistoryGui {
         int from = (page - 1) * perPage;
         int to = Math.min(from + perPage, all.size());
         Inventory inv = Bukkit.createInventory(null, this.size,
-                this.titleTemplate.replace("%history-page%", String.valueOf(page)));
+                Utils.toComponent(this.titleTemplate.replace("%history-page%", String.valueOf(page))));
         for (int i = from; i < to; i++) {
             Map.Entry<String, DonutSell.Stats> e = all.get(i);
             String key = e.getKey();

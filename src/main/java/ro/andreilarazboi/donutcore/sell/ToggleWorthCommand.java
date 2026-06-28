@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ro.andreilarazboi.donutcore.DonutCore;
 
-public class ToggleWorthCommand implements CommandExecutor {
+public final class ToggleWorthCommand implements CommandExecutor {
     private final DonutSell plugin;
 
     public ToggleWorthCommand(DonutSell plugin) {

@@ -16,7 +16,7 @@ extends PlaceholderExpansion {
     }
 
     public String getVersion() {
-        return DonutCrates.instance.getPlugin().getDescription().getVersion();
+        return DonutCrates.instance.getPlugin().getPluginMeta().getVersion();
     }
 
     public boolean persist() {

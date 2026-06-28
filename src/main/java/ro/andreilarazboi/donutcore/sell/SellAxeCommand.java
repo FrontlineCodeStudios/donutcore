@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -32,7 +34,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import ro.andreilarazboi.donutcore.DonutCore;
 
-public class SellAxeCommand implements CommandExecutor, TabCompleter {
+public final class SellAxeCommand implements CommandExecutor, TabCompleter {
     private final DonutSell plugin;
     private final NamespacedKey sellAxeKey;
     private final NamespacedKey expiryKey;
@@ -201,7 +203,8 @@ public class SellAxeCommand implements CommandExecutor, TabCompleter {
                 String[] parts = enchEntry.split(":");
                 if (parts.length != 2) continue;
                 try {
-                    Enchantment ench = Enchantment.getByName(parts[0].toUpperCase().trim());
+                    Enchantment ench = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT)
+                            .get(NamespacedKey.minecraft(parts[0].toLowerCase(Locale.ROOT).trim()));
                     if (ench == null) continue;
                     meta.addEnchant(ench, Integer.parseInt(parts[1].trim()), true);
                 } catch (NumberFormatException ignored) {}

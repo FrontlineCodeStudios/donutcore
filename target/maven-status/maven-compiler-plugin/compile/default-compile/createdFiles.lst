@@ -60,6 +60,7 @@ ro\andreilarazboi\donutcore\crates\InventoryCloseListener.class
 ro\andreilarazboi\donutcore\sell\HistoryTracker.class
 ro\andreilarazboi\donutcore\crates\opening\anim\impl\FlickerLockAnimation.class
 ro\andreilarazboi\donutcore\sell\DonutSell$Stats.class
+ro\andreilarazboi\donutcore\stash\StashSchematicManager.class
 ro\andreilarazboi\donutcore\crates\ChatInputListener$5.class
 ro\andreilarazboi\donutcore\sell\HistoryClickListener.class
 ro\andreilarazboi\donutcore\sell\ItemPricesMenu.class
@@ -96,6 +97,8 @@ ro\andreilarazboi\donutcore\enderchest\EnderChestHolder.class
 ro\andreilarazboi\donutcore\arenas\ArenaManager.class
 ro\andreilarazboi\donutcore\sell\WorthCommand.class
 ro\andreilarazboi\donutcore\stash\StashListener.class
+ro\andreilarazboi\donutcore\arenas\Trigger.class
+ro\andreilarazboi\donutcore\stash\StashSchematicManager$PasteResult.class
 ro\andreilarazboi\donutcore\crates\opening\anim\impl\CircleSpinEatAnimation.class
 ro\andreilarazboi\donutcore\sell\GuiClickListener.class
 ro\andreilarazboi\donutcore\crates\listener\HologramGuiListener.class

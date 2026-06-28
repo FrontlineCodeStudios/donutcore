@@ -31,7 +31,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String rawTitle = Utils.stripColor(e.getView().getTitle());
+        String rawTitle = Utils.stripColor(e.getView().title());
         if (!rawTitle.endsWith(" Hologram")) {
             return;
         }
@@ -65,7 +65,7 @@ implements Listener {
                     String activeTemplate;
                     String defaultTemplateId;
                     ConfigurationSection templates = this.plugin.cfg.config.getConfigurationSection("hologram-templates");
-                    String string = defaultTemplateId = templates != null && templates.isConfigurationSection("default") ? "default" : null;
+                    defaultTemplateId = templates != null && templates.isConfigurationSection("default") ? "default" : null;
                     if (defaultTemplateId != null && ((activeTemplate = h.getString("template", null)) == null || activeTemplate.isBlank())) {
                         ConfigurationSection defaultTemplate = templates.getConfigurationSection(defaultTemplateId);
                         h.set("template", defaultTemplateId);

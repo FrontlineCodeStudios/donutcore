@@ -24,6 +24,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -176,7 +177,7 @@ public final class Utils {
             }
             return;
         }
-        List lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<String>();
         if (rawLines != null) {
             lines.addAll(rawLines);
         }
@@ -188,7 +189,7 @@ public final class Utils {
         }
         String[] plainLines = new String[4];
         for (int i = 0; i < 4; ++i) {
-            String raw = (String)lines.get(i);
+            String raw = lines.get(i);
             String colored = Utils.formatColors(raw);
             String stripped = Utils.stripColor(colored);
             plainLines[i] = stripped == null ? "" : stripped;
@@ -229,15 +230,7 @@ public final class Utils {
                 // empty catch block
             }
             if (!usedSideApi) {
-                for (int i = 0; i < 4; ++i) {
-                    try {
-                        sign.setLine(i, finalLines[i]);
-                        continue;
-                    }
-                    catch (Throwable throwable) {
-                        // empty catch block
-                    }
-                }
+                Utils.setLinesLegacy(sign, finalLines);
             }
             try {
                 Method wax = sign.getClass().getMethod("setWaxed", Boolean.TYPE);
@@ -272,13 +265,25 @@ public final class Utils {
                     return;
                 }
                 try {
-                    player.openSign((Sign)current.getState());
+                    player.openSign((Sign)current.getState(), Side.FRONT);
                 }
                 catch (Throwable t) {
                     Utils.finishSignInput(player, null);
                 }
             }, 1L);
         });
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void setLinesLegacy(Sign sign, String[] lines) {
+        for (int i = 0; i < 4; ++i) {
+            try {
+                sign.setLine(i, lines[i]);
+            }
+            catch (Throwable ignored) {
+                // empty catch block
+            }
+        }
     }
 
     public static void cancelSignInput(Player player) {

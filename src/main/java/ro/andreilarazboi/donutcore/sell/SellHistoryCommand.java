@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ro.andreilarazboi.donutcore.DonutCore;
 
-public class SellHistoryCommand implements CommandExecutor {
+public final class SellHistoryCommand implements CommandExecutor {
     private final DonutSell plugin;
 
     public SellHistoryCommand(DonutSell plugin) {

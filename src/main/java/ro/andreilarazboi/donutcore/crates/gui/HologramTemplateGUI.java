@@ -26,7 +26,7 @@ public class HologramTemplateGUI {
 
     public Inventory build(String crate) {
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory(null, 54, Utils.toComponent("&#444444" + crate + " Hologram Templates"));
+        Inventory inv = Bukkit.createInventory(holder, 54, Utils.toComponent("&#444444" + crate + " Hologram Templates"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();
@@ -94,7 +94,7 @@ public class HologramTemplateGUI {
                 lore.add(Utils.toComponent("&#bfbfbfPreview:"));
                 int shown = Math.min(3, templateLines.size());
                 for (int i2 = 0; i2 < shown; ++i2) {
-                    lore.add(Utils.toComponent("&7\u2022 &f" + (String)templateLines.get(i2)));
+                    lore.add(Utils.toComponent("&7\u2022 &f" + templateLines.get(i2)));
                 }
                 if (templateLines.size() > 3) {
                     lore.add(Utils.toComponent("&7..."));

@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ArenaManager {
+public final class ArenaManager {
 
     private final Plugin plugin;
     private final File   dataFile;

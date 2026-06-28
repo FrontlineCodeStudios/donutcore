@@ -14,7 +14,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -68,7 +67,7 @@ public class OpeningAnimationService {
             return;
         }
         OpeningAnimationHolder holder = new OpeningAnimationHolder(crate);
-        Inventory inv = Bukkit.createInventory((InventoryHolder)holder, (int)anim.inventorySize(), (String)Utils.formatColors("&#444444" + crate + " Opening..."));
+        Inventory inv = Bukkit.createInventory(holder, anim.inventorySize(), Utils.toComponent("&#444444" + crate + " Opening..."));
         holder.setInventory(inv);
         ItemStack filler = this.pane(Material.BLACK_STAINED_GLASS_PANE);
         for (int i = 0; i < inv.getSize(); ++i) {

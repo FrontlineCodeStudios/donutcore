@@ -12,6 +12,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,14 +20,13 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.persistence.PersistentDataType;
 
-public class HologramManager {
+public final class HologramManager {
     private final DonutCrates plugin;
     private final Map<String, Map<UUID, List<UUID>>> activePersonal = new HashMap<String, Map<UUID, List<UUID>>>();
-    private static final double LINE_SPACING = 0.25;
+    private final NamespacedKey holoKey;
+    private final NamespacedKey holoCrateKey;
     private static final String META_KEY = "donut-holo";
     private static final String META_CRATE = "crate";
     private static final String TAG_ANY = "donutcrates";
@@ -34,6 +34,8 @@ public class HologramManager {
 
     public HologramManager(DonutCrates plugin) {
         this.plugin = plugin;
+        this.holoKey = new NamespacedKey(plugin.getPlugin(), META_KEY);
+        this.holoCrateKey = new NamespacedKey(plugin.getPlugin(), META_CRATE);
     }
 
     public void startupVacuum() {
@@ -44,7 +46,7 @@ public class HologramManager {
         for (Map<UUID, List<UUID>> per : this.activePersonal.values()) {
             for (List<UUID> uuids : per.values()) {
                 for (UUID id : uuids) {
-                    Entity e = Bukkit.getEntity((UUID)id);
+                    Entity e = Bukkit.getEntity(id);
                     if (e == null) continue;
                     e.remove();
                 }
@@ -58,7 +60,7 @@ public class HologramManager {
         Map<UUID, List<UUID>> per = this.activePersonal.remove(crate);
         if (per != null) {
             per.values().forEach(list -> list.forEach(id -> {
-                Entity e = Bukkit.getEntity((UUID)id);
+                Entity e = Bukkit.getEntity(id);
                 if (e != null) {
                     e.remove();
                 }
@@ -77,7 +79,7 @@ public class HologramManager {
         }
         String templateId = sec.getString("template", null);
         ConfigurationSection templateSec = templateId == null ? null : this.plugin.cfg.config.getConfigurationSection("hologram-templates." + templateId);
-        ArrayList<String> arrayList = rawLines = templateSec != null ? new ArrayList<String>(templateSec.getStringList("lines")) : new ArrayList(sec.getStringList("lines"));
+        rawLines = templateSec != null ? new ArrayList<String>(templateSec.getStringList("lines")) : new ArrayList<String>(sec.getStringList("lines"));
         if (rawLines.isEmpty()) {
             return;
         }
@@ -86,7 +88,7 @@ public class HologramManager {
         String bgId = sec.getString("bgColor", null);
         if (bgId == null) {
             boolean oldTransparent = sec.getBoolean("background-transparent", true);
-            String string = bgId = oldTransparent ? "TRANSPARENT" : "BLACK";
+            bgId = oldTransparent ? "TRANSPARENT" : "BLACK";
         }
         if ((block = this.plugin.crateMgr.crateBlocks.get(crate)) == null) {
             return;
@@ -102,9 +104,9 @@ public class HologramManager {
             List<UUID> spawned = this.spawnLineStack(crateLoc, offset, resolved, crate, shadow, bgId);
             perMap.put(viewer.getUniqueId(), spawned);
             for (UUID id : spawned) {
-                Entity ent = Bukkit.getEntity((UUID)id);
+                Entity ent = Bukkit.getEntity(id);
                 if (ent == null) continue;
-                viewer.showEntity((Plugin)this.plugin.getPlugin(), ent);
+                viewer.showEntity(this.plugin.getPlugin(), ent);
             }
         }
         this.activePersonal.put(crate, perMap);
@@ -116,14 +118,14 @@ public class HologramManager {
             Block block;
             String templateId;
             ConfigurationSection templateSec;
-            List lines;
+            List<String> lines;
             ConfigurationSection sec = this.plugin.cfg.crates.getConfigurationSection("Crates." + crate + ".Hologram");
             if (sec == null || !sec.getBoolean("enabled", false) || (lines = (templateSec = (templateId = sec.getString("template", null)) == null ? null : this.plugin.cfg.config.getConfigurationSection("hologram-templates." + templateId)) != null ? templateSec.getStringList("lines") : sec.getStringList("lines")).isEmpty() || (block = this.plugin.crateMgr.crateBlocks.get(crate)) == null || !this.isChunkLoaded(crateLoc = block.getLocation()) || !this.isViewerEligible(p, crateLoc)) continue;
-            Map per = this.activePersonal.computeIfAbsent(crate, k -> new HashMap());
-            List old = (List)per.remove(p.getUniqueId());
+            Map<UUID, List<UUID>> per = this.activePersonal.computeIfAbsent(crate, k -> new HashMap<>());
+            List<UUID> old = per.remove(p.getUniqueId());
             if (old != null) {
                 old.forEach(id -> {
-                    Entity e = Bukkit.getEntity((UUID)id);
+                    Entity e = Bukkit.getEntity(id);
                     if (e != null) {
                         e.remove();
                     }
@@ -140,9 +142,9 @@ public class HologramManager {
             List<UUID> spawned = this.spawnLineStack(crateLoc, offset, resolved, crate, shadow, bgId);
             per.put(p.getUniqueId(), spawned);
             for (UUID id2 : spawned) {
-                Entity ent = Bukkit.getEntity((UUID)id2);
+                Entity ent = Bukkit.getEntity(id2);
                 if (ent == null) continue;
-                p.showEntity((Plugin)this.plugin.getPlugin(), ent);
+                p.showEntity(this.plugin.getPlugin(), ent);
             }
         }
     }
@@ -152,7 +154,7 @@ public class HologramManager {
             List<UUID> list = per.remove(p.getUniqueId());
             if (list == null) continue;
             list.forEach(id -> {
-                Entity e = Bukkit.getEntity((UUID)id);
+                Entity e = Bukkit.getEntity(id);
                 if (e != null) {
                     e.remove();
                 }
@@ -164,20 +166,20 @@ public class HologramManager {
         String crateTag = crateOrNull == null ? null : TAG_CRATE_PREFIX + crateOrNull.toLowerCase(Locale.ROOT);
         for (World w : Bukkit.getWorlds()) {
             for (TextDisplay e : w.getEntitiesByClass(TextDisplay.class)) {
-                boolean remove;
-                Set tags = e.getScoreboardTags();
+                Set<String> tags = e.getScoreboardTags();
                 boolean taggedOurs = tags.contains(TAG_ANY) || crateTag != null && tags.contains(crateTag);
                 boolean metaOurs = false;
                 boolean metaCrateMatch = false;
-                if (e.hasMetadata(META_KEY)) {
+                if (e.getPersistentDataContainer().has(this.holoKey, PersistentDataType.BOOLEAN)) {
                     metaOurs = true;
                     if (crateOrNull == null) {
                         metaCrateMatch = true;
-                    } else if (e.hasMetadata(META_CRATE)) {
-                        metaCrateMatch = e.getMetadata(META_CRATE).stream().anyMatch(vm -> String.valueOf(vm.value()).equalsIgnoreCase(crateOrNull));
+                    } else {
+                        String storedCrate = e.getPersistentDataContainer().get(this.holoCrateKey, PersistentDataType.STRING);
+                        metaCrateMatch = storedCrate != null && storedCrate.equalsIgnoreCase(crateOrNull);
                     }
                 }
-                if (!(remove = crateOrNull == null && (taggedOurs || metaOurs) || crateOrNull != null && (crateTag != null && tags.contains(crateTag) || metaCrateMatch))) continue;
+                if (!(crateOrNull == null && (taggedOurs || metaOurs) || crateOrNull != null && (crateTag != null && tags.contains(crateTag) || metaCrateMatch))) continue;
                 e.remove();
             }
         }
@@ -193,8 +195,8 @@ public class HologramManager {
         for (int i = 0; i < lines.size(); ++i) {
             String line = lines.get(i);
             Location base = crateLoc.clone().add(0.5, offsetY + (double)(lines.size() - 1 - i) * 0.25, 0.5);
-            TextDisplay display = (TextDisplay)crateLoc.getWorld().spawn(base, TextDisplay.class, ent -> {
-                ent.setText(Utils.formatColors(line));
+            TextDisplay display = crateLoc.getWorld().spawn(base, TextDisplay.class, ent -> {
+                ent.text(Utils.toComponent(line));
                 ent.setBillboard(Display.Billboard.CENTER);
                 ent.setShadowed(shadow);
                 ent.setSeeThrough(false);
@@ -202,8 +204,8 @@ public class HologramManager {
                 ent.setLineWidth(200);
                 ent.setViewRange(32.0f);
                 ent.setVisibleByDefault(false);
-                ent.setMetadata(META_KEY, (MetadataValue)new FixedMetadataValue((Plugin)this.plugin.getPlugin(), (Object)true));
-                ent.setMetadata(META_CRATE, (MetadataValue)new FixedMetadataValue((Plugin)this.plugin.getPlugin(), (Object)crate));
+                ent.getPersistentDataContainer().set(this.holoKey, PersistentDataType.BOOLEAN, true);
+                ent.getPersistentDataContainer().set(this.holoCrateKey, PersistentDataType.STRING, crate);
                 ent.addScoreboardTag(TAG_ANY);
                 ent.addScoreboardTag(crateTag);
             });
@@ -214,11 +216,11 @@ public class HologramManager {
 
     private Color resolveBackgroundColor(String raw) {
         if (raw == null) {
-            return Color.fromARGB((int)0, (int)0, (int)0, (int)0);
+            return Color.fromARGB(0, 0, 0, 0);
         }
         String s = raw.trim().toUpperCase(Locale.ROOT);
         if (s.isEmpty() || s.equals("TRANSPARENT") || s.equals("NONE")) {
-            return Color.fromARGB((int)0, (int)0, (int)0, (int)0);
+            return Color.fromARGB(0, 0, 0, 0);
         }
         int r = 0;
         int g = 0;
@@ -334,13 +336,13 @@ public class HologramManager {
                         break;
                     }
                     catch (NumberFormatException ignored) {
-                        return Color.fromARGB((int)160, (int)0, (int)0, (int)0);
+                        return Color.fromARGB(160, 0, 0, 0);
                     }
                 }
-                return Color.fromARGB((int)160, (int)0, (int)0, (int)0);
+                return Color.fromARGB(160, 0, 0, 0);
             }
         }
-        return Color.fromARGB((int)160, (int)r, (int)g, (int)b);
+        return Color.fromARGB(160, r, g, b);
     }
 
     private List<String> resolveForPlayer(List<String> lines, String crate, Player viewer) {
@@ -351,7 +353,7 @@ public class HologramManager {
             String t = s.replace("%crate%", crateDisplayRaw).replace("%crate_id%", crate).replace("%player_keys%", String.valueOf(playerKeys)).replace("%total_keys%", String.valueOf(playerKeys));
             if (this.plugin.hasPapi && t.contains("%")) {
                 try {
-                    t = PlaceholderAPI.setPlaceholders((Player)viewer, (String)t);
+                    t = PlaceholderAPI.setPlaceholders(viewer, t);
                 }
                 catch (Throwable throwable) {
                     // empty catch block

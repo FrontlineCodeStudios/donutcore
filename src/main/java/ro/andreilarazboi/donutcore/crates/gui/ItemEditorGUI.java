@@ -29,7 +29,7 @@ public class ItemEditorGUI {
         }
         boolean randomEnabled = this.plugin.cfg.crates.getBoolean("Crates." + crate + ".random.enabled", false);
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory(null, 27, Utils.toComponent("&#444444" + crate + " Item Editor"));
+        Inventory inv = Bukkit.createInventory(holder, 27, Utils.toComponent("&#444444" + crate + " Item Editor"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();

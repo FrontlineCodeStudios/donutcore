@@ -27,8 +27,8 @@ public final class GuiUtil {
 
     public static boolean isDeleteConfirmTitle(DonutCrates plugin, String title) {
         ConfigurationSection c = plugin.cfg.config.getConfigurationSection("delete-confirm-menu");
-        String expected = Utils.formatColors(c != null ? c.getString("title", "&#8b0000\u1d05\u1d07\u029f\u1d07\u1d1b\u1d07 \u1d04\u1d0f\u0274\ua730\u026a\u0280\u1d0d") : "&#8b0000\u1d05\u1d07\u029f\u1d07\u1d1b\u1d07 \u1d04\u1d0f\u0274\ua730\u026a\u0280\u1d0d");
-        return title.equals(expected);
+        String expected = c != null ? c.getString("title", "&#8b0000\u1d05\u1d07\u029f\u1d07\u1d1b\u1d07 \u1d04\u1d0f\u0274\ua730\u026a\u0280\u1d0d") : "&#8b0000\u1d05\u1d07\u029f\u1d07\u1d1b\u1d07 \u1d04\u1d0f\u0274\ua730\u026a\u0280\u1d0d";
+        return Utils.stripColor(title).equals(Utils.stripColor(Utils.formatColors(expected)));
     }
 }
 

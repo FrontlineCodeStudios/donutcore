@@ -7,11 +7,7 @@ import org.bukkit.Material;
 public class RowSpinAnimation
 extends BaseAnimation {
     private final int[] strip = new int[]{10, 11, 12, 13, 14, 15, 16};
-    private final int winSlot = 13;
-    private final int topMarker = 4;
-    private final int bottomMarker = 22;
     private int frame = 0;
-    private final int totalFrames = 56;
 
     @Override
     public int inventorySize() {

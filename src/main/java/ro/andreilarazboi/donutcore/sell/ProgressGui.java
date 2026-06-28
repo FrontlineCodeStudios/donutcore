@@ -14,7 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class ProgressGui {
+public final class ProgressGui {
     private final DonutSell plugin;
     private String defaultTitle;
     private final Map<String, String> customTitles = new HashMap<>();
@@ -119,7 +119,7 @@ public class ProgressGui {
         String key = categoryKey.toLowerCase();
         String raw = this.customTitles.getOrDefault(key, this.defaultTitle);
         String title = raw.replace("%item%", this.capitalize(key));
-        Inventory inv = Bukkit.createInventory(new GuiHolder(key, -1), this.size, title);
+        Inventory inv = Bukkit.createInventory(new GuiHolder(key, -1), this.size, Utils.toComponent(title));
         double sold = this.plugin.getRawTotalSold(p.getUniqueId(), key);
         int workingIndex = 0;
         while (workingIndex < this.levels.size() && sold >= this.levels.get(workingIndex).amountNeeded) {

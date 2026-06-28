@@ -55,7 +55,7 @@ public class HologramBackgroundGUI {
 
     public Inventory build(String crate) {
         EditorHolder holder = new EditorHolder();
-        Inventory inv= Bukkit.createInventory(null, 54, Utils.toComponent("&#444444" + crate + " Hologram Background"));
+        Inventory inv= Bukkit.createInventory(holder, 54, Utils.toComponent("&#444444" + crate + " Hologram Background"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();

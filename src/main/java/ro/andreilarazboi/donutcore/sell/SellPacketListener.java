@@ -139,8 +139,7 @@ public final class SellPacketListener {
     public boolean isNoWorthInventory(InventoryView view) {
         if (view == null) return false;
         if (view.getTopInventory() == null || view.getTopInventory().getType() == InventoryType.PLAYER) return false;
-        String title = Utils.stripColor(view.getTitle());
-        if (title == null) return false;
+        String title = Utils.stripColor(view.title());
         String lower = title.toLowerCase(Locale.ROOT);
         return this.worthLoreGuiWhitelist.stream().noneMatch(lower::contains);
     }

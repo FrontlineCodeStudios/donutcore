@@ -34,7 +34,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String rawTitle = Utils.stripColor(e.getView().getTitle());
+        String rawTitle = Utils.stripColor(e.getView().title());
         if (!rawTitle.endsWith(" Rewards")) {
             return;
         }
@@ -74,7 +74,7 @@ implements Listener {
             }
             GuiUtil.playClick(this.plugin, p);
             boolean moveLeft = ct == ClickType.SHIFT_LEFT;
-            int n = targetSlot = moveLeft ? slot - 1 : slot + 1;
+            targetSlot = moveLeft ? slot - 1 : slot + 1;
             if (targetSlot < 0 || targetSlot >= 45) {
                 return;
             }

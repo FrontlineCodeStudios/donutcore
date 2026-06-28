@@ -23,7 +23,7 @@ public class ConfirmGUI {
         ConfigurationSection c = this.plugin.cfg.config.getConfigurationSection("confirm-menu");
         int rows = c.getInt("rows", 3);
         boolean fill = c.getBoolean("fillerEnabled", false);
-        Material filler = Material.valueOf((String)c.getString("fillerMaterial", "GRAY_STAINED_GLASS_PANE"));
+        Material filler = Material.valueOf(c.getString("fillerMaterial", "GRAY_STAINED_GLASS_PANE"));
         Inventory inv = Bukkit.createInventory(null, rows * 9, Utils.toComponent(c.getString("title")));
         if (fill) {
             ItemStack f = new ItemStack(filler);
@@ -43,13 +43,13 @@ public class ConfirmGUI {
         cm.displayName(Utils.toComponent(c.getString("ClickedItem.displayname", "%ClickedItemName%").replace("%ClickedItemName%", clickedName)));
         copy.setItemMeta(cm);
         inv.setItem(c.getInt("ClickedItem.slot", 13), copy);
-        ItemStack con = new ItemStack(Material.valueOf((String)c.getString("Confirm.material", "LIME_STAINED_GLASS_PANE")));
+        ItemStack con = new ItemStack(Material.valueOf(c.getString("Confirm.material", "LIME_STAINED_GLASS_PANE")));
         ItemMeta cmeta = con.getItemMeta();
         cmeta.displayName(Utils.toComponent(c.getString("Confirm.displayname", "&aConfirm")));
         cmeta.lore(Utils.toComponents(c.getStringList("Confirm.lore")));
         con.setItemMeta(cmeta);
         inv.setItem(c.getInt("Confirm.slot", 15), con);
-        ItemStack dec = new ItemStack(Material.valueOf((String)c.getString("Decline.material", "RED_STAINED_GLASS_PANE")));
+        ItemStack dec = new ItemStack(Material.valueOf(c.getString("Decline.material", "RED_STAINED_GLASS_PANE")));
         ItemMeta dmeta = dec.getItemMeta();
         dmeta.displayName(Utils.toComponent(c.getString("Decline.displayname", "&cDecline")));
         dmeta.lore(Utils.toComponents(c.getStringList("Decline.lore")));

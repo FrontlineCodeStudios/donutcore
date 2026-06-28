@@ -8,11 +8,7 @@ public class DoubleSpinMatchAnimation
 extends BaseAnimation {
     private final int[] top = new int[]{10, 11, 12, 13, 14, 15, 16};
     private final int[] bottom = new int[]{37, 38, 39, 40, 41, 42, 43};
-    private final int centerBlack = 22;
-    private final int topCenter = 13;
-    private final int bottomCenter = 40;
     private int frame = 0;
-    private final int total = 56;
 
     @Override
     public int inventorySize() {

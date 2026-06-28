@@ -40,7 +40,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String rawTitle = Utils.stripColor(e.getView().getTitle());
+        String rawTitle = Utils.stripColor(e.getView().title());
         if (!rawTitle.endsWith(" Hologram Background")) {
             return;
         }
@@ -67,7 +67,7 @@ implements Listener {
             return;
         }
         ItemMeta meta = clicked.getItemMeta();
-        String id = (String)meta.getPersistentDataContainer().get(this.bgColorTag, PersistentDataType.STRING);
+        String id = meta.getPersistentDataContainer().get(this.bgColorTag, PersistentDataType.STRING);
         if (id == null || id.isEmpty()) {
             return;
         }

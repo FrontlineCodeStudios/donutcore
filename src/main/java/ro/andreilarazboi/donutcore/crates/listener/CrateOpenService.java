@@ -17,7 +17,6 @@ import ro.andreilarazboi.donutcore.crates.opening.OpeningAnimationService;
 import ro.andreilarazboi.donutcore.crates.opening.OpeningAnimationType;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -235,7 +234,7 @@ public class CrateOpenService {
             return;
         }
         po.completed = true;
-        Player p = Bukkit.getPlayer((UUID)po.player);
+        Player p = Bukkit.getPlayer(po.player);
         if (p == null) {
             this.pendingOpens.remove(po.player);
             return;
@@ -246,7 +245,7 @@ public class CrateOpenService {
             p.getInventory().addItem(new ItemStack[]{po.reward.clone()});
         }
         if (po.cmd != null && !po.cmd.isBlank()) {
-            Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)po.cmd.replace("%player%", p.getName()));
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), po.cmd.replace("%player%", p.getName()));
         }
         this.plugin.dataMgr.recordCrateOpen(p.getUniqueId(), po.crate, po.rewardName, po.reward);
         String crateDisplayRaw = this.getCrateDisplayRaw(po.crate);

@@ -40,7 +40,7 @@ public class HologramGUI {
         }
         Object templateLabel = templateId != null && this.plugin.cfg.config.isConfigurationSection("hologram-templates." + templateId) ? templateId : (templateId != null ? templateId + " (missing)" : "Custom");
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory(null, 36, Utils.toComponent("&#444444" + crate + " Hologram"));
+        Inventory inv = Bukkit.createInventory(holder, 36, Utils.toComponent("&#444444" + crate + " Hologram"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();

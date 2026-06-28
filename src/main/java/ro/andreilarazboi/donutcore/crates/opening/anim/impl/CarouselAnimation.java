@@ -8,7 +8,6 @@ public class CarouselAnimation
 extends BaseAnimation {
     private final int[] strip = new int[]{11, 12, 13, 14, 15};
     private int frame = 0;
-    private final int totalFrames = 48;
 
     @Override
     public int inventorySize() {

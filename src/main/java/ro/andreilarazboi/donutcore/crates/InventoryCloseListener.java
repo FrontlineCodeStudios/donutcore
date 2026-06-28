@@ -1,7 +1,6 @@
 
 package ro.andreilarazboi.donutcore.crates;
 
-import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -21,16 +20,14 @@ implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent e) {
-        UUID uid;
         String crate;
-        CrateHolder ch;
         HumanEntity humanEntity = e.getPlayer();
         if (!(humanEntity instanceof Player)) {
             return;
         }
         Player p = (Player)humanEntity;
         InventoryHolder inventoryHolder = e.getInventory().getHolder();
-        if (inventoryHolder instanceof CrateHolder && (ch = (CrateHolder)inventoryHolder).isPreview() && (crate = this.plugin.previewReturnCrate.remove(uid = p.getUniqueId())) != null) {
+        if (inventoryHolder instanceof CrateHolder ch && ch.isPreview() && (crate = this.plugin.previewReturnCrate.remove(p.getUniqueId())) != null) {
             Bukkit.getScheduler().runTask((Plugin)this.plugin.getPlugin(), () -> p.openInventory(this.plugin.guiCrateSettings.build(crate)));
         }
     }

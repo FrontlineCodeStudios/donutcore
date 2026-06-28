@@ -35,7 +35,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String rawTitle = Utils.stripColor(e.getView().getTitle());
+        String rawTitle = Utils.stripColor(e.getView().title());
         if (!rawTitle.endsWith(" Hologram Templates")) {
             return;
         }
@@ -81,7 +81,7 @@ implements Listener {
             p.openInventory(this.plugin.guiHologram.build(crate));
             return;
         }
-        List lines = tmpl.getStringList("lines");
+        List<String> lines = tmpl.getStringList("lines");
         double offsetY = tmpl.getDouble("offset-y", 1.5);
         String base = "Crates." + crate + ".Hologram";
         ConfigurationSection h = this.plugin.cfg.crates.getConfigurationSection(base);
@@ -90,7 +90,7 @@ implements Listener {
         }
         h.set("template", templateId);
         if (lines != null) {
-            h.set("lines", new ArrayList(lines));
+            h.set("lines", new ArrayList<>(lines));
         }
         h.set("offsetY", offsetY);
         this.plugin.cfg.saveAll();

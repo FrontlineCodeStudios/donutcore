@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class ConfigManager {
+public final class ConfigManager {
     public FileConfiguration config;
     public FileConfiguration crates;
     public FileConfiguration saves;
@@ -32,9 +32,9 @@ public class ConfigManager {
 
     public void reloadAll() {
         this.plugin.getLogger().info("[DonutCrates][ConfigIO] Reloading config files from disk...");
-        this.config = YamlConfiguration.loadConfiguration((File)this.cfgFile);
-        this.crates = YamlConfiguration.loadConfiguration((File)this.cratesFile);
-        this.saves = YamlConfiguration.loadConfiguration((File)this.savesFile);
+        this.config = YamlConfiguration.loadConfiguration(this.cfgFile);
+        this.crates = YamlConfiguration.loadConfiguration(this.cratesFile);
+        this.saves = YamlConfiguration.loadConfiguration(this.savesFile);
     }
 
     public void saveAll() {

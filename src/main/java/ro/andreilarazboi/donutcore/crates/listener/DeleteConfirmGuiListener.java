@@ -3,6 +3,7 @@ package ro.andreilarazboi.donutcore.crates.listener;
 
 import java.util.UUID;
 import ro.andreilarazboi.donutcore.crates.DonutCrates;
+import ro.andreilarazboi.donutcore.crates.Utils;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.HumanEntity;
@@ -27,7 +28,7 @@ implements Listener {
             return;
         }
         Player p = (Player)humanEntity;
-        String title = e.getView().getTitle();
+        String title = Utils.stripColor(e.getView().title());
         if (!GuiUtil.isDeleteConfirmTitle(this.plugin, title)) {
             return;
         }

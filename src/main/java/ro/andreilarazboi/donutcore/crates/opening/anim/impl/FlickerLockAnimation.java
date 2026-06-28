@@ -7,8 +7,6 @@ import org.bukkit.Material;
 public class FlickerLockAnimation
 extends BaseAnimation {
     private int frame = 0;
-    private final int total = 40;
-    private final int win = 13;
 
     @Override
     public int inventorySize() {

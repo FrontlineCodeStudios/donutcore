@@ -15,7 +15,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -39,7 +38,7 @@ public class CrateManager {
                 if (coord == null) continue;
                 String[] p = coord.split(",");
                 Bukkit.getScheduler().runTaskLater((Plugin)this.plugin.getPlugin(), () -> {
-                    World w = Bukkit.getWorld((String)p[0]);
+                    World w = Bukkit.getWorld(p[0]);
                     if (w == null) {
                         this.plugin.getLogger().warning("[DonutCrates] Skipping crate '" + name + "': world '" + p[0] + "' not found.");
                         return;
@@ -204,7 +203,7 @@ public class CrateManager {
             if (meta.isUnbreakable()) {
                 this.plugin.cfg.crates.set(base + ".unbreakable", (Object)true);
             }
-            List<String> enchants = item.getEnchantments().entrySet().stream().map(e -> ((Enchantment)e.getKey()).getKey().getKey() + ";" + String.valueOf(e.getValue())).toList();
+            List<String> enchants = item.getEnchantments().entrySet().stream().map(e -> e.getKey().getKey().getKey() + ";" + String.valueOf(e.getValue())).toList();
             this.plugin.cfg.crates.set(base + ".enchantments", enchants);
             if (meta instanceof ArmorMeta && (am = (ArmorMeta)meta).hasTrim()) {
                 ArmorTrim t = am.getTrim();
@@ -223,7 +222,7 @@ public class CrateManager {
     }
 
     public void keyGiveAll(final String crate, final int amt, final CommandSender sender) {
-        final ArrayList players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        final ArrayList<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         final int batch = this.plugin.cfg.config.getInt("keygiveall.batch-size", 100);
         int period = this.plugin.cfg.config.getInt("keygiveall.ticks-per-batch", 1);
         final String perTpl = this.plugin.cfg.config.getString("messages.keyreceive", "&#0fe30fYou received %amount% %crate% keys!");
@@ -234,7 +233,7 @@ public class CrateManager {
             public void run() {
                 int end = Math.min(this.idx + batch, players.size());
                 while (this.idx < end) {
-                    Player p = (Player)players.get(this.idx);
+                    Player p = players.get(this.idx);
                     CrateManager.this.plugin.dataMgr.modifyKeys(p, crate, amt);
                     String raw = perTpl.replace("%amount%", String.valueOf(amt)).replace("%crate%", crate);
                     CrateManager.this.plugin.msg(p, raw);
@@ -260,7 +259,7 @@ public class CrateManager {
     }
 
     public String getCrateByBlock(Block b) {
-        return this.crateBlocks.entrySet().stream().filter(e -> e.getValue() != null && ((Block)e.getValue()).equals((Object)b)).map(Map.Entry::getKey).findFirst().orElse(null);
+        return this.crateBlocks.entrySet().stream().filter(e -> e.getValue() != null && e.getValue().equals(b)).map(Map.Entry::getKey).findFirst().orElse(null);
     }
 
     public boolean isRandomMode(String crate) {
@@ -333,16 +332,16 @@ public class CrateManager {
         double r = Math.random() * total;
         ConfigurationSection chosen = null;
         for (int i = 0; i < sections.size(); ++i) {
-            double w = (Double)weights.get(i);
+            double w = weights.get(i);
             if (w <= 0.0) continue;
             if (r < w) {
-                chosen = (ConfigurationSection)sections.get(i);
+                chosen = sections.get(i);
                 break;
             }
             r -= w;
         }
         if (chosen == null) {
-            chosen = (ConfigurationSection)sections.get(sections.size() - 1);
+            chosen = sections.get(sections.size() - 1);
         }
         boolean give = chosen.getBoolean("giveitem", true);
         ItemStack reward = this.plugin.guiItemUtil.buildItemFromSection(chosen);
@@ -358,7 +357,7 @@ public class CrateManager {
             p.getInventory().addItem(new ItemStack[]{reward.clone()});
         }
         if (cmd != null && !cmd.isBlank()) {
-            Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)cmd.replace("%player%", p.getName()));
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", p.getName()));
         }
         String itemName = this.plugin.getRewardDisplayNameForChat(reward);
         double chanceVal = chosen.getDouble("chance", 0.0);

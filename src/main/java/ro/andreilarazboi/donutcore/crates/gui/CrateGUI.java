@@ -27,7 +27,7 @@ public class CrateGUI {
         String title = Utils.formatColors(sec.getString("title", crateName).replace("%crate%", crateName));
         int rows = sec.getInt("rows", 3);
         boolean fill = sec.getBoolean("fillerEnabled", false);
-        Material filler = Material.valueOf((String)sec.getString("fillerMaterial", "GRAY_STAINED_GLASS_PANE"));
+        Material filler = Material.valueOf(sec.getString("fillerMaterial", "GRAY_STAINED_GLASS_PANE"));
         CrateHolder holder = new CrateHolder(crateName, preview);
         Inventory inv = Bukkit.createInventory(holder, rows * 9, Utils.toComponent(title));
         holder.setInventory(inv);

@@ -9,7 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -33,11 +33,11 @@ implements Listener {
     }
 
     @EventHandler
-    public void onPlayerChat(AsyncPlayerChatEvent e) {
+    public void onPlayerChat(AsyncChatEvent e) {
         boolean awaitingItemInput;
         final Player p = e.getPlayer();
         final UUID uid = p.getUniqueId();
-        final String msg = e.getMessage().trim();
+        final String msg = Utils.stripColor(e.message()).trim();
         if (this.plugin.pendingHoloTimerEdit.contains(uid)) {
             int seconds;
             e.setCancelled(true);

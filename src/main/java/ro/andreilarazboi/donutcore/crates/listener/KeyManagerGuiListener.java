@@ -38,8 +38,8 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String title = e.getView().getTitle();
-        if (!title.equals(Utils.formatColors("&#444444Key Manager"))) {
+        String title = Utils.stripColor(e.getView().title());
+        if (!title.equals("Key Manager")) {
             return;
         }
         if (!p.hasPermission("donutcrate.admin")) {
@@ -66,7 +66,7 @@ implements Listener {
             if (meta == null) {
                 return;
             }
-            String keyId = (String)meta.getPersistentDataContainer().get(this.keyListIdTag, PersistentDataType.STRING);
+            String keyId = meta.getPersistentDataContainer().get(this.keyListIdTag, PersistentDataType.STRING);
             if ((keyId == null || keyId.isBlank()) && meta.hasDisplayName() && (name = Utils.stripColor(meta.displayName())).startsWith("Key: ")) {
                 keyId = name.substring("Key: ".length()).trim();
             }

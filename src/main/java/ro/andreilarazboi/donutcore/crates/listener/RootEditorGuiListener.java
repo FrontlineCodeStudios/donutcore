@@ -32,8 +32,8 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String title = e.getView().getTitle();
-        if (!title.equals(Utils.formatColors("&#444444Crates Editor"))) {
+        String title = Utils.stripColor(e.getView().title());
+        if (!title.equals("Crates Editor")) {
             return;
         }
         if (!p.hasPermission("donutcrate.admin")) {

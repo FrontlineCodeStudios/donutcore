@@ -34,7 +34,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String rawTitle = Utils.stripColor(e.getView().getTitle());
+        String rawTitle = Utils.stripColor(e.getView().title());
         if (rawTitle == null || !rawTitle.endsWith(" Name Color")) {
             return;
         }
@@ -58,7 +58,7 @@ implements Listener {
             return;
         }
         ItemMeta im = clicked.getItemMeta();
-        String code = (String)im.getPersistentDataContainer().get(this.plugin.guiCrateNameColor.colorTag(), PersistentDataType.STRING);
+        String code = im.getPersistentDataContainer().get(this.plugin.guiCrateNameColor.colorTag(), PersistentDataType.STRING);
         if (code == null || code.isBlank()) {
             return;
         }

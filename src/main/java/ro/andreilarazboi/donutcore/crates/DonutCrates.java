@@ -418,7 +418,7 @@ public final class DonutCrates {
             Material mat;
             String matName = this.cfg.saves.getString(base + ".material", "TRIPWIRE_HOOK");
             try {
-                mat = Material.valueOf((String)matName);
+                mat = Material.valueOf(matName);
             }
             catch (Exception ex) {
                 mat = Material.TRIPWIRE_HOOK;

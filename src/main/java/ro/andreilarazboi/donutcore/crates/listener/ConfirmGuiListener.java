@@ -30,12 +30,12 @@ implements Listener {
             return;
         }
         Player p = (Player)humanEntity;
-        String title = LegacyComponentSerializer.legacySection().serialize(e.getView().title());
+        String title = Utils.stripColor(LegacyComponentSerializer.legacySection().serialize(e.getView().title()));
         ConfigurationSection confirm = this.plugin.cfg.config.getConfigurationSection("confirm-menu");
         if (confirm == null) {
             return;
         }
-        if (!title.equals(Utils.formatColors(confirm.getString("title", "")))) {
+        if (!title.equals(Utils.stripColor(Utils.formatColors(confirm.getString("title", ""))))) {
             return;
         }
         int topSize = e.getView().getTopInventory().getSize();

@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class EnderChestCommand implements CommandExecutor, TabCompleter {
+public final class EnderChestCommand implements CommandExecutor, TabCompleter {
     private final DonutEnderChest plugin;
 
     public EnderChestCommand(DonutEnderChest plugin) {

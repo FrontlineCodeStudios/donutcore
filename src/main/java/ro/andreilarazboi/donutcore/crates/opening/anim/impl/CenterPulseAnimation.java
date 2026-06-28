@@ -7,8 +7,6 @@ import org.bukkit.Material;
 public class CenterPulseAnimation
 extends BaseAnimation {
     private int frame = 0;
-    private final int total = 44;
-    private final int win = 13;
     private final int[] ring = new int[]{4, 12, 14, 22, 3, 5, 21, 23};
 
     @Override

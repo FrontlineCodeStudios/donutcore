@@ -24,7 +24,7 @@ public class HistoryClickListener implements Listener {
         if (!(e.getWhoClicked() instanceof Player p)) return;
         HistoryTracker tracker = this.plugin.getHistoryTracker();
         SellHistoryGui gui = this.plugin.getSellHistoryGui();
-        String title = e.getView().getTitle();
+        String title = Utils.stripColor(e.getView().title());
         if (!tracker.isTracked(p.getUniqueId())) return;
         if (!gui.matchesTitle(title)) return;
         e.setCancelled(true);
@@ -64,7 +64,7 @@ public class HistoryClickListener implements Listener {
         HistoryTracker tracker = this.plugin.getHistoryTracker();
         SellHistoryGui gui = this.plugin.getSellHistoryGui();
         if (!tracker.isTracked(p.getUniqueId())) return;
-        if (!gui.matchesTitle(e.getView().getTitle())) return;
+        if (!gui.matchesTitle(Utils.stripColor(e.getView().title()))) return;
         e.setCancelled(true);
     }
 

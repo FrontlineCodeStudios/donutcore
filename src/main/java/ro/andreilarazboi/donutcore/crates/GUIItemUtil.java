@@ -2,9 +2,10 @@
 package ro.andreilarazboi.donutcore.crates;
 
 import java.util.List;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -26,9 +27,8 @@ public class GUIItemUtil {
         if (it.isItemStack("item")) {
             stack = it.getItemStack("item").clone();
         } else {
-            int amount;
-            Material mat = Material.valueOf((String)it.getString("material", "STONE"));
-            stack = new ItemStack(mat, amount = it.getInt("amount", 1));
+            Material mat = Material.valueOf(it.getString("material", "STONE"));
+            stack = new ItemStack(mat, it.getInt("amount", 1));
             ItemMeta im = stack.getItemMeta();
             if (im != null) {
                 String name = it.getString("displayname", null);
@@ -41,7 +41,7 @@ public class GUIItemUtil {
                 }
                 for (String ench : it.getStringList("enchantments")) {
                     String[] p = ench.split(";");
-                    Enchantment e = Enchantment.getByName((String)p[0].trim());
+                    Enchantment e = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).get(NamespacedKey.minecraft(p[0].trim().toLowerCase(java.util.Locale.ROOT)));
                     if (e == null) continue;
                     int lvl = 1;
                     try {
@@ -59,10 +59,10 @@ public class GUIItemUtil {
                     ArmorMeta am = (ArmorMeta)im;
                     if (it.isConfigurationSection("trim")) {
                         try {
-                            NamespacedKey mns = NamespacedKey.fromString((String)it.getString("trim.material"));
-                            NamespacedKey pns = NamespacedKey.fromString((String)it.getString("trim.pattern"));
-                            TrimMaterial tm = (TrimMaterial)Registry.TRIM_MATERIAL.get(mns);
-                            TrimPattern tp = (TrimPattern)Registry.TRIM_PATTERN.get(pns);
+                            NamespacedKey mns = NamespacedKey.fromString(it.getString("trim.material"));
+                            NamespacedKey pns = NamespacedKey.fromString(it.getString("trim.pattern"));
+                            TrimMaterial tm = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_MATERIAL).get(mns);
+                            TrimPattern tp = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_PATTERN).get(pns);
                             if (tm != null && tp != null) {
                                 am.setTrim(new ArmorTrim(tm, tp));
                             }

@@ -103,7 +103,7 @@ public class DeleteConfirmGUI {
 
     private static Material safeMat(String name, Material def) {
         try {
-            return Material.valueOf((String)name);
+            return Material.valueOf(name);
         }
         catch (Exception ignored) {
             return def;

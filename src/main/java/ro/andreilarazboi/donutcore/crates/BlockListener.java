@@ -13,7 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -239,14 +238,14 @@ implements Listener {
         String chosenKey = null;
         ConfigurationSection chosen = null;
         double r = Math.random() * totalWeight;
-        for (Map.Entry en : weights.entrySet()) {
-            if (!((r -= ((Double)en.getValue()).doubleValue()) <= 0.0)) continue;
-            chosenKey = (String)en.getKey();
+        for (Map.Entry<String, Double> en : weights.entrySet()) {
+            if (!((r -= en.getValue().doubleValue()) <= 0.0)) continue;
+            chosenKey = en.getKey();
             chosen = itemsSec.getConfigurationSection(chosenKey);
             break;
         }
         if (chosen == null) {
-            chosenKey = (String)weights.keySet().iterator().next();
+            chosenKey = weights.keySet().iterator().next();
             chosen = itemsSec.getConfigurationSection(chosenKey);
         }
         if (chosen == null) {
@@ -276,7 +275,7 @@ implements Listener {
         boolean animEnabled = crateRoot.getBoolean("opening-animation.enabled", false);
         String typeId = crateRoot.getString("opening-animation.type", "ROW_SPIN");
         OpeningAnimationType type = OpeningAnimationType.byId(typeId);
-        PendingOpen po = new PendingOpen(p.getUniqueId(), crate, keyId, virtual, chosenKey, give, cmd, reward, rewardName);
+        PendingOpen po = new PendingOpen(p.getUniqueId(), crate, chosenKey, give, cmd, reward, rewardName);
         this.pendingOpens.put(p.getUniqueId(), po);
         if (animEnabled) {
             ArrayList<ItemStack> candidates = new ArrayList<ItemStack>();
@@ -299,7 +298,7 @@ implements Listener {
             return;
         }
         po.completed = true;
-        Player p = Bukkit.getPlayer((UUID)po.player);
+        Player p = Bukkit.getPlayer(po.player);
         if (p == null) {
             this.pendingOpens.remove(po.player);
             return;
@@ -308,7 +307,7 @@ implements Listener {
             p.getInventory().addItem(new ItemStack[]{po.reward.clone()});
         }
         if (po.cmd != null && !po.cmd.isBlank()) {
-            Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)po.cmd.replace("%player%", p.getName()));
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), po.cmd.replace("%player%", p.getName()));
         }
         String crateDisplay = this.getCrateDisplayRaw(po.crate);
         String selfTpl = this.plugin.cfg.config.getString("messages.reward-received", "&#0fe30fYou received &f%reward% &7from the &f%crate% &7crate!");
@@ -412,7 +411,7 @@ implements Listener {
             return false;
         }
         ItemMeta meta = item.getItemMeta();
-        String tagged = (String)meta.getPersistentDataContainer().get(this.keyTag, PersistentDataType.STRING);
+        String tagged = meta.getPersistentDataContainer().get(this.keyTag, PersistentDataType.STRING);
         if (tagged != null) {
             return tagged.equalsIgnoreCase(keyId);
         }
@@ -446,8 +445,6 @@ implements Listener {
     private static class PendingOpen {
         final UUID player;
         final String crate;
-        final String keyId;
-        final boolean virtual;
         final String chosenKey;
         final boolean give;
         final String cmd;
@@ -455,11 +452,9 @@ implements Listener {
         final String rewardName;
         boolean completed = false;
 
-        PendingOpen(UUID player, String crate, String keyId, boolean virtual, String chosenKey, boolean give, String cmd, ItemStack reward, String rewardName) {
+        PendingOpen(UUID player, String crate, String chosenKey, boolean give, String cmd, ItemStack reward, String rewardName) {
             this.player = player;
             this.crate = crate;
-            this.keyId = keyId;
-            this.virtual = virtual;
             this.chosenKey = chosenKey;
             this.give = give;
             this.cmd = cmd;

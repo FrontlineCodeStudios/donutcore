@@ -34,7 +34,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String rawTitle = Utils.stripColor(e.getView().getTitle());
+        String rawTitle = Utils.stripColor(e.getView().title());
         if (!rawTitle.endsWith(" Rows")) {
             return;
         }
@@ -71,9 +71,8 @@ implements Listener {
         ConfigurationSection items = this.plugin.cfg.crates.getConfigurationSection("Crates." + crate + ".Items");
         if (items != null) {
             for (String k : items.getKeys(false)) {
-                int s;
                 ConfigurationSection it = items.getConfigurationSection(k);
-                if (it == null || (s = it.getInt("slot")) < newSize) continue;
+                if (it == null || it.getInt("slot") < newSize) continue;
                 it.set("slot", (newSize - 1));
             }
         }

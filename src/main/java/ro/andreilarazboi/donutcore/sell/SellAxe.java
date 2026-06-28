@@ -26,7 +26,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-public class SellAxe implements Listener {
+public final class SellAxe implements Listener {
     private final DonutSell plugin;
     private final NamespacedKey sellAxeKey;
     private final NamespacedKey expiryKey;

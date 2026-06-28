@@ -15,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 
 public class ExplosionEliminationAnimation
 extends BaseAnimation {
-    private final int centerBlack = 22;
     private List<Integer> slots;
     private final Map<Integer, ItemStack> itemAt = new HashMap<Integer, ItemStack>();
     private final Set<Integer> exploded = new HashSet<Integer>();
@@ -121,7 +120,7 @@ extends BaseAnimation {
         if (can.isEmpty()) {
             return null;
         }
-        return (Integer)can.get(this.ctx.rng().nextInt(can.size()));
+        return can.get(this.ctx.rng().nextInt(can.size()));
     }
 
     private int explosionDelay(int aliveCount) {

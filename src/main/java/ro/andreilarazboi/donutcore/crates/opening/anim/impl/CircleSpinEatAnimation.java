@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 
 public class CircleSpinEatAnimation
 extends BaseAnimation {
-    private final int centerBlack = 22;
     private final int[] ring = new int[]{10, 11, 12, 13, 14, 15, 16, 25, 34, 43, 42, 41, 40, 39, 38, 37, 28, 19};
     private final Map<Integer, ItemStack> itemAt = new HashMap<Integer, ItemStack>();
     private final Set<Integer> covered = new HashSet<Integer>();
@@ -89,7 +88,7 @@ extends BaseAnimation {
         if (can.isEmpty()) {
             return null;
         }
-        return (Integer)can.get(this.ctx.rng().nextInt(can.size()));
+        return can.get(this.ctx.rng().nextInt(can.size()));
     }
 
     private int circleDelay(int remainingUncovered) {

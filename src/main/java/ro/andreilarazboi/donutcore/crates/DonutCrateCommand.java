@@ -95,17 +95,16 @@ TabCompleter {
                 return true;
             }
             case "key": {
-                String sub;
                 if (args.length < 2) {
                     return this.syntax(sender);
                 }
-                switch (sub = args[1].toLowerCase()) {
+                switch (args[1].toLowerCase()) {
                     case "give": {
                         int amount;
                         if (args.length != 5) {
                             return this.syntax(sender);
                         }
-                        Player target = Bukkit.getPlayer((String)args[2]);
+                        Player target = Bukkit.getPlayer(args[2]);
                         if (target == null) {
                             this.plugin.msg(sender, "&#d61111Player not found.");
                             return true;
@@ -188,7 +187,7 @@ TabCompleter {
                         if (args.length != 5) {
                             return this.syntax(sender);
                         }
-                        Player target = Bukkit.getPlayer((String)args[2]);
+                        Player target = Bukkit.getPlayer(args[2]);
                         if (target == null) {
                             this.plugin.msg(sender, "&#d61111Player not found.");
                             return true;
@@ -230,7 +229,7 @@ TabCompleter {
                             this.plugin.msg(sender, "&#0fe30fReset virtual keys for all players for crate &#f5f5f5" + crate + " &#0fe30f(key &f" + keyId + "&#0fe30f)");
                             return true;
                         }
-                        OfflinePlayer off = Bukkit.getOfflinePlayer((String)who);
+                        OfflinePlayer off = Bukkit.getOfflinePlayer(who);
                         if (off.getName() == null) {
                             this.plugin.msg(sender, "&#d61111Player not found.");
                             return true;
@@ -303,7 +302,7 @@ TabCompleter {
         if (args.length != 5) {
             return this.syntax(sender);
         }
-        Player target = Bukkit.getPlayer((String)args[2]);
+        Player target = Bukkit.getPlayer(args[2]);
         if (target == null) {
             this.plugin.msg(sender, "&#d61111Player not found.");
             return true;
@@ -373,28 +372,28 @@ TabCompleter {
         boolean isAdmin = sender.hasPermission("donutcrate.admin");
         if (!isAdmin && !hasPayPerm) {
             if (args.length == 1) {
-                return (List)StringUtil.copyPartialMatches((String)args[0], List.of("stats", "help"), new ArrayList<>());
+                return StringUtil.copyPartialMatches(args[0], List.of("stats", "help"), new ArrayList<>());
             }
             return List.of();
         }
         if (hasPayPerm && !isAdmin) {
             if (args.length == 1) {
-                return (List)StringUtil.copyPartialMatches((String)args[0], List.of("key", "stats", "help"), new ArrayList<>());
+                return StringUtil.copyPartialMatches(args[0], List.of("key", "stats", "help"), new ArrayList<>());
             }
             if (args.length >= 2 && args[0].equalsIgnoreCase("key")) {
                 if (args.length == 2) {
-                    return (List)StringUtil.copyPartialMatches((String)args[1], List.of("pay"), new ArrayList<>());
+                    return StringUtil.copyPartialMatches(args[1], List.of("pay"), new ArrayList<>());
                 }
                 if (args[1].equalsIgnoreCase("pay")) {
                     if (args.length == 3) {
-                        List players = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
-                        return (List)StringUtil.copyPartialMatches((String)args[2], players, new ArrayList<>());
+                        List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                        return StringUtil.copyPartialMatches(args[2], players, new ArrayList<>());
                     }
                     if (args.length == 4) {
-                        return (List)StringUtil.copyPartialMatches((String)args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
+                        return StringUtil.copyPartialMatches(args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
                     }
                     if (args.length == 5) {
-                        return (List)StringUtil.copyPartialMatches((String)args[4], List.of("1", "5", "10", "64"), new ArrayList<>());
+                        return StringUtil.copyPartialMatches(args[4], List.of("1", "5", "10", "64"), new ArrayList<>());
                     }
                 }
             }
@@ -404,76 +403,75 @@ TabCompleter {
             return List.of();
         }
         if (args.length == 1) {
-            return (List)StringUtil.copyPartialMatches((String)args[0], List.of("editor", "preview", "key", "reload", "stats", "help"), new ArrayList<>());
+            return StringUtil.copyPartialMatches(args[0], List.of("editor", "preview", "key", "reload", "stats", "help"), new ArrayList<>());
         }
         if (args[0].equalsIgnoreCase("preview")) {
             if (args.length == 2) {
-                return (List)StringUtil.copyPartialMatches((String)args[1], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
+                return StringUtil.copyPartialMatches(args[1], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
             }
             return List.of();
         }
         if (args[0].equalsIgnoreCase("key")) {
-            String sub;
             if (args.length == 2) {
                 ArrayList<String> subs = new ArrayList<String>(List.of("give", "giveall", "remove", "reset"));
                 if (keyPayEnabled) {
                     subs.add("pay");
                 }
-                return (List)StringUtil.copyPartialMatches((String)args[1], subs, new ArrayList<>());
+                return StringUtil.copyPartialMatches(args[1], subs, new ArrayList<>());
             }
-            switch (sub = args[1].toLowerCase()) {
+            switch (args[1].toLowerCase()) {
                 case "give": {
                     if (args.length == 3) {
-                        List players = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
-                        return (List)StringUtil.copyPartialMatches((String)args[2], players, new ArrayList<>());
+                        List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                        return StringUtil.copyPartialMatches(args[2], players, new ArrayList<>());
                     }
                     if (args.length == 4) {
-                        return (List)StringUtil.copyPartialMatches((String)args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
+                        return StringUtil.copyPartialMatches(args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
                     }
                     if (args.length != 5) break;
-                    return (List)StringUtil.copyPartialMatches((String)args[4], List.of("1", "5", "10", "64"), new ArrayList<>());
+                    return StringUtil.copyPartialMatches(args[4], List.of("1", "5", "10", "64"), new ArrayList<>());
                 }
                 case "giveall": {
                     if (args.length == 3) {
-                        return (List)StringUtil.copyPartialMatches((String)args[2], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
+                        return StringUtil.copyPartialMatches(args[2], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
                     }
                     if (args.length != 4) break;
-                    return (List)StringUtil.copyPartialMatches((String)args[3], List.of("1", "5", "10", "64"), new ArrayList<>());
+                    return StringUtil.copyPartialMatches(args[3], List.of("1", "5", "10", "64"), new ArrayList<>());
                 }
                 case "remove": {
                     if (args.length == 3) {
-                        List players = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
-                        return (List)StringUtil.copyPartialMatches((String)args[2], players, new ArrayList<>());
+                        List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                        return StringUtil.copyPartialMatches(args[2], players, new ArrayList<>());
                     }
                     if (args.length == 4) {
-                        return (List)StringUtil.copyPartialMatches((String)args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
+                        return StringUtil.copyPartialMatches(args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
                     }
                     if (args.length != 5) break;
-                    return (List)StringUtil.copyPartialMatches((String)args[4], List.of("1", "5", "10", "64"), new ArrayList<>());
+                    return StringUtil.copyPartialMatches(args[4], List.of("1", "5", "10", "64"), new ArrayList<>());
                 }
                 case "reset": {
                     if (args.length == 3) {
                         ArrayList<String> opts = new ArrayList<String>();
                         opts.add("all");
                         Bukkit.getOnlinePlayers().forEach(p -> opts.add(p.getName()));
-                        return (List)StringUtil.copyPartialMatches((String)args[2], opts, new ArrayList<>());
+                        return StringUtil.copyPartialMatches(args[2], opts, new ArrayList<>());
                     }
                     if (args.length != 4) break;
-                    return (List)StringUtil.copyPartialMatches((String)args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
+                    return StringUtil.copyPartialMatches(args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
                 }
                 case "pay": {
                     if (!keyPayEnabled) {
                         return List.of();
                     }
                     if (args.length == 3) {
-                        List players = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
-                        return (List)StringUtil.copyPartialMatches((String)args[2], players, new ArrayList<>());
+                        List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                        return StringUtil.copyPartialMatches(args[2], players, new ArrayList<>());
                     }
                     if (args.length == 4) {
-                        return (List)StringUtil.copyPartialMatches((String)args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
+                        return StringUtil.copyPartialMatches(args[3], new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet()), new ArrayList<>());
                     }
                     if (args.length != 5) break;
-                    return (List)StringUtil.copyPartialMatches((String)args[4], List.of("1", "5", "10", "64"), new ArrayList<>());
+                    return StringUtil.copyPartialMatches(args[4], List.of("1", "5", "10", "64"), new ArrayList<>());
                 }
             }
         }

@@ -24,11 +24,11 @@ public class SellPlaceholderExpansion extends PlaceholderExpansion {
     }
 
     public String getAuthor() {
-        return this.plugin.getDescription().getAuthors().toString();
+        return this.plugin.getPluginMeta().getAuthors().toString();
     }
 
     public String getVersion() {
-        return this.plugin.getDescription().getVersion();
+        return this.plugin.getPluginMeta().getVersion();
     }
 
     public String onPlaceholderRequest(Player player, String identifier) {

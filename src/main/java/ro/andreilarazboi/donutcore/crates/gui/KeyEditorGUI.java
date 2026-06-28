@@ -31,13 +31,13 @@ public class KeyEditorGUI {
         String mat = saves.getString(base + ".material", "TRIPWIRE_HOOK");
         boolean virt = saves.getBoolean(base + ".virtual", true);
         try {
-            material = Material.valueOf((String)mat);
+            material = Material.valueOf(mat);
         }
         catch (IllegalArgumentException ex) {
             material = Material.TRIPWIRE_HOOK;
         }
         EditorHolder holder = new EditorHolder();
-        Inventory inv = Bukkit.createInventory(null, 27, Utils.toComponent("&#444444" + keyId + " Key Editor"));
+        Inventory inv = Bukkit.createInventory(holder, 27, Utils.toComponent("&#444444" + keyId + " Key Editor"));
         holder.setInventory(inv);
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fm = filler.getItemMeta();

@@ -54,7 +54,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
@@ -121,8 +120,8 @@ public final class DonutSell implements Listener {
         return this.parent.getCommand(name);
     }
 
-    public org.bukkit.plugin.PluginDescriptionFile getDescription() {
-        return this.parent.getDescription();
+    public io.papermc.paper.plugin.configuration.PluginMeta getPluginMeta() {
+        return this.parent.getPluginMeta();
     }
 
     public FileConfiguration getConfig() {
@@ -709,8 +708,8 @@ public final class DonutSell implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!DonutCore.getInstance().getSellModule().isActive()) return;
         Player p = (Player) event.getPlayer();
-        String openTitle = event.getView().getTitle();
-        String classicTitle = Utils.formatColors(this.getMenusConfig().getString("sell-menu.title", "&aSell Items"));
+        String openTitle = Utils.stripColor(event.getView().title());
+        String classicTitle = Utils.stripColor(Utils.formatColors(this.getMenusConfig().getString("sell-menu.title", "&aSell Items")));
         if (!openTitle.equals(classicTitle)) return;
 
         Inventory inv = event.getInventory();

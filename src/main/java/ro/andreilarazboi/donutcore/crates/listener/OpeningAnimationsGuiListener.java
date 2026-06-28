@@ -48,7 +48,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String rawTitle = Utils.stripColor(e.getView().getTitle());
+        String rawTitle = Utils.stripColor(e.getView().title());
         if (!rawTitle.endsWith(" Opening Animations")) {
             return;
         }
@@ -82,7 +82,7 @@ implements Listener {
         if (meta == null) {
             return;
         }
-        String guiId = (String)meta.getPersistentDataContainer().get(this.animKey, PersistentDataType.STRING);
+        String guiId = meta.getPersistentDataContainer().get(this.animKey, PersistentDataType.STRING);
         if (guiId == null || guiId.isBlank()) {
             return;
         }
@@ -112,7 +112,7 @@ implements Listener {
                 }
             }
             if (!candidates.isEmpty()) {
-                previewReward = ((ItemStack)candidates.get(new Random().nextInt(candidates.size()))).clone();
+                previewReward = candidates.get(new Random().nextInt(candidates.size())).clone();
                 previewReward.setAmount(1);
             } else {
                 previewReward = new ItemStack(Material.DIAMOND);

@@ -1,7 +1,6 @@
 package ro.andreilarazboi.donutcore.sell;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -9,6 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -150,7 +151,7 @@ public class CategoryGui {
             String enKeyRaw = enchM.group(1);
             int lvl = Integer.parseInt(enchM.group(2));
             String prettyEn = this.prettyName(enKeyRaw);
-            Enchantment found = Arrays.stream(Enchantment.values())
+            Enchantment found = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream()
                     .filter(e -> e.getKey().getKey().equalsIgnoreCase(enKeyRaw))
                     .findFirst().orElse(null);
             ItemStack stk = new ItemStack(Material.ENCHANTED_BOOK);
@@ -214,7 +215,7 @@ public class CategoryGui {
         int end = Math.min(start + perPage, this.items.size());
         String titleTpl = this.customTitles.getOrDefault(this.categoryKey, this.defaultTitleTpl);
         String title = titleTpl.replace("%item%", this.prettyName(this.categoryKey));
-        Inventory inv = Bukkit.createInventory(new GuiHolder(this.categoryKey, page), this.rows * 9, title);
+        Inventory inv = Bukkit.createInventory(new GuiHolder(this.categoryKey, page), this.rows * 9, Utils.toComponent(title));
         for (int i = start; i < end; ++i) {
             inv.setItem(i - start, this.items.get(i));
         }

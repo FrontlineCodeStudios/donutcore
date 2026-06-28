@@ -27,11 +27,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class AdminPriceEditorMenu implements Listener {
+public final class AdminPriceEditorMenu implements Listener {
     private static final String FILTER_ALL = "ALL";
+    private static final String EDITOR_TITLE_PREFIX = "Price Editor (Page ";
+    private static final String CATEGORY_TITLE = "Select Category";
     private final DonutSell plugin;
-    private final String editorTitlePrefix;
-    private final String categoryTitle;
     private static final Pattern ENCH_PATTERN = Pattern.compile("([a-z0-9_]+?)[_-]?(\\d+)-value");
     private static final Pattern POTION_PATTERN = Pattern.compile("(?:(splash|lingering)_)?(?:(long|strong)_)?([a-z_]+)$");
     private final Map<UUID, Integer> pageByPlayer = new HashMap<>();
@@ -46,8 +46,6 @@ public class AdminPriceEditorMenu implements Listener {
 
     public AdminPriceEditorMenu(DonutSell plugin) {
         this.plugin = plugin;
-        this.editorTitlePrefix = Utils.formatColors("&#444444Price Editor (Page ");
-        this.categoryTitle = Utils.formatColors("&#444444Select Category");
         Bukkit.getPluginManager().registerEvents(this, plugin.getPlugin());
         this.reloadData();
     }
@@ -94,7 +92,7 @@ public class AdminPriceEditorMenu implements Listener {
             List<EntryData> pageEntries = snapshot.subList(start, end);
             this.plugin.runAtPlayer(player, () -> {
                 Inventory inv = Bukkit.createInventory(null, 54,
-                        Utils.formatColors("&#444444Price Editor (Page " + page + ")"));
+                        Utils.toComponent("&#444444" + EDITOR_TITLE_PREFIX + page + ")"));
                 for (int i = 0; i < pageEntries.size(); ++i) {
                     EntryData data = pageEntries.get(i);
                     ItemStack item = new ItemStack(data.material());
@@ -148,14 +146,13 @@ public class AdminPriceEditorMenu implements Listener {
     public void onEditorClick(InventoryClickEvent event) {
         HumanEntity humanEntity = event.getWhoClicked();
         if (!(humanEntity instanceof Player player)) return;
-        String title = event.getView().getTitle();
-        if (title == null) return;
-        if (title.startsWith(this.editorTitlePrefix)) {
+        String title = Utils.stripColor(event.getView().title());
+        if (title.startsWith(EDITOR_TITLE_PREFIX)) {
             event.setCancelled(true);
             this.handleEditorClick(player, event.getRawSlot(), event.getView().getTopInventory());
             return;
         }
-        if (title.equals(this.categoryTitle)) {
+        if (title.equals(CATEGORY_TITLE)) {
             event.setCancelled(true);
             this.handleCategoryClick(player, event.getRawSlot(), event.getView().getTopInventory());
         }
@@ -165,13 +162,12 @@ public class AdminPriceEditorMenu implements Listener {
     public void onClose(InventoryCloseEvent event) {
         HumanEntity humanEntity = event.getPlayer();
         if (!(humanEntity instanceof Player player)) return;
-        String title = event.getView().getTitle();
-        if (title == null) return;
+        String title = Utils.stripColor(event.getView().title());
         UUID uuid = player.getUniqueId();
-        if (title.startsWith(this.editorTitlePrefix)) {
+        if (title.startsWith(EDITOR_TITLE_PREFIX)) {
             this.pageByPlayer.put(uuid, 1);
         }
-        if (title.equals(this.categoryTitle) && this.awaitingCategory.containsKey(uuid)) {
+        if (title.equals(CATEGORY_TITLE) && this.awaitingCategory.containsKey(uuid)) {
             this.awaitingCategory.remove(uuid);
         }
     }
@@ -201,7 +197,7 @@ public class AdminPriceEditorMenu implements Listener {
         UUID uuid = player.getUniqueId();
         PendingCategory pending = this.awaitingCategory.get(uuid);
         if (pending == null) return;
-        Inventory inv = Bukkit.createInventory(null, 27, this.categoryTitle);
+        Inventory inv = Bukkit.createInventory(null, 27, Utils.toComponent("&#444444" + CATEGORY_TITLE));
         List<String> categories = this.plugin.getMenusConfig().getStringList("new-sell-menu.items");
         ConfigurationSection settings = this.plugin.getMenusConfig().getConfigurationSection("new-sell-menu.item-settings");
         ItemStack selectedItem = new ItemStack(pending.material());

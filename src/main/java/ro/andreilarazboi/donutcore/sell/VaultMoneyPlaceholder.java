@@ -50,11 +50,11 @@ public class VaultMoneyPlaceholder extends PlaceholderExpansion {
     }
 
     public String getAuthor() {
-        return String.join(", ", this.plugin.getDescription().getAuthors());
+        return String.join(", ", this.plugin.getPluginMeta().getAuthors());
     }
 
     public String getVersion() {
-        return this.plugin.getDescription().getVersion();
+        return this.plugin.getPluginMeta().getVersion();
     }
 
     public String onPlaceholderRequest(Player player, String identifier) {

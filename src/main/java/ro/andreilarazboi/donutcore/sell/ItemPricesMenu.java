@@ -2,7 +2,6 @@ package ro.andreilarazboi.donutcore.sell;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -16,6 +15,8 @@ import java.util.regex.Pattern;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -88,7 +89,7 @@ public class ItemPricesMenu implements Listener {
         }
         ConfigurationSection menu = plugin.getMenusConfig().getConfigurationSection("item-prices-menu");
         this.titleTemplate = menu.getString("title");
-        this.titlePrefix = this.titleTemplate.split("%page%", 2)[0];
+        this.titlePrefix = Utils.stripColor(Utils.formatColors(this.titleTemplate)).split("%page%", 2)[0];
         this.rows = menu.getInt("rows", 6);
         ConfigurationSection prev = menu.getConfigurationSection("previous");
         this.prevMat = Material.valueOf(prev.getString("previous-page-material").toUpperCase());
@@ -152,7 +153,7 @@ public class ItemPricesMenu implements Listener {
             String enKey = mk.group(1);
             int lvl = Integer.parseInt(mk.group(2));
             double val = this.plugin.getPrice(key);
-            Enchantment ench = Arrays.stream(Enchantment.values())
+            Enchantment ench = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream()
                     .filter(e -> e.getKey().getKey().equalsIgnoreCase(enKey))
                     .findFirst().orElse(null);
             ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
@@ -234,7 +235,7 @@ public class ItemPricesMenu implements Listener {
     public void onInventoryClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player player)) return;
         Inventory top = e.getView().getTopInventory();
-        String title = e.getView().getTitle();
+        String title = Utils.stripColor(e.getView().title());
         if (!title.startsWith(this.titlePrefix)) return;
         int slot = e.getRawSlot();
         if (slot < 0 || slot >= top.getSize()) return;
@@ -288,7 +289,7 @@ public class ItemPricesMenu implements Listener {
         int maxPage = Math.max(1, (int) Math.ceil((double) sorted.size() / per));
         int page = Math.min(maxPage, Math.max(1, reqPage));
         Inventory inv = Bukkit.createInventory(null, size,
-                Utils.formatColors(this.titleTemplate.replace("%page%", String.valueOf(page))));
+                Utils.toComponent(this.titleTemplate.replace("%page%", String.valueOf(page))));
         int start = (page - 1) * per;
         int end = Math.min(start + per, sorted.size());
         for (int i = start; i < end; ++i) {

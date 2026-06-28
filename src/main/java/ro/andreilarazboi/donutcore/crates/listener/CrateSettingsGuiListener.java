@@ -32,7 +32,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String rawTitle = Utils.stripColor(e.getView().getTitle());
+        String rawTitle = Utils.stripColor(e.getView().title());
         if (rawTitle == null || !rawTitle.endsWith(" Settings")) {
             return;
         }

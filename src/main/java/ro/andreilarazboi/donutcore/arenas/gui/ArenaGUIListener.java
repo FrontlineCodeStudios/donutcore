@@ -1,7 +1,9 @@
 package ro.andreilarazboi.donutcore.arenas.gui;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,11 +22,12 @@ import ro.andreilarazboi.donutcore.DonutCore;
 import ro.andreilarazboi.donutcore.arenas.Arena;
 import ro.andreilarazboi.donutcore.arenas.ArenaManager;
 import ro.andreilarazboi.donutcore.arenas.Trigger;
-import ro.andreilarazboi.donutcore.sell.Utils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ArenaGUIListener implements Listener {
 
@@ -50,6 +53,9 @@ public class ArenaGUIListener implements Listener {
     }
 
     record PendingInput(InputType type, String arenaName, String triggerName, String extra) {}
+
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+    private static final Pattern HEX_CODE = Pattern.compile("&#([A-Fa-f0-9]{6})");
 
     private final DonutCore         plugin;
     private final ArenaManager      manager;
@@ -89,10 +95,10 @@ public class ArenaGUIListener implements Listener {
     private Inventory buildListInventory(int page) {
         Inventory inv = Bukkit.createInventory(
             new ArenaGuiHolder("list", null), 54,
-            Utils.toComponent(menus.getString("list-menu.title", "&8&lZone Manager")));
+            render(menus.getString("list-menu.title", "<dark_gray><bold>Zone Manager")));
 
-        ItemStack glass = glass();
-        border(inv, glass);
+        ItemStack glassItem = glass();
+        border(inv, glassItem);
 
         inv.setItem(4, configItem("list-menu.title-icon", null));
 
@@ -103,22 +109,22 @@ public class ArenaGUIListener implements Listener {
         for (int i = 0; i < 28 && start + i < sorted.size(); i++) {
             Arena a = sorted.get(start + i);
             List<String> lore = new ArrayList<>(List.of(
-                "&7Region: &f" + a.getRegion(),
-                "&7World:  &f" + a.getWorldName(),
+                "<gray>Region: <white>" + a.getRegion(),
+                "<gray>World: <white>" + a.getWorldName(),
                 "",
-                "&7AFK Timer: " + (a.isAfkEnabled()
-                    ? "&aEnabled &8| &f" + formatTime(a.getAfkIntervalSeconds())
-                    : "&cDisabled"),
-                "&7On Enter:  " + (a.getEnterMessageType().equals("none") && !a.isEnterCommandEnabled()
-                    ? "&8Off" : "&aOn"),
-                "&7On Exit:   " + (a.getExitMessageType().equals("none") && !a.isExitCommandEnabled()
-                    ? "&8Off" : "&aOn"),
-                "&7Triggers:  &f" + a.getTriggers().size(),
+                "<gray>AFK Timer: " + (a.isAfkEnabled()
+                    ? "<green>Enabled <dark_gray>| <white>" + formatTime(a.getAfkIntervalSeconds())
+                    : "<red>Disabled"),
+                "<gray>On Enter: " + (a.getEnterMessageType().equals("none") && !a.isEnterCommandEnabled()
+                    ? "<dark_gray>Off" : "<green>On"),
+                "<gray>On Exit: " + (a.getExitMessageType().equals("none") && !a.isExitCommandEnabled()
+                    ? "<dark_gray>Off" : "<green>On"),
+                "<gray>Triggers: <white>" + a.getTriggers().size(),
                 "",
-                "&8Click to manage"
+                "<dark_gray>Click to manage"
             ));
             Material mat = configMaterial("list-menu.zone-item", Material.GRASS_BLOCK);
-            inv.setItem(GRID_SLOTS[i], item(mat, "&e" + a.getName(), lore.toArray(new String[0])));
+            inv.setItem(GRID_SLOTS[i], item(mat, "<yellow>" + a.getName(), lore.toArray(new String[0])));
         }
 
         inv.setItem(49, configItem("list-menu.create-button", null));
@@ -130,121 +136,116 @@ public class ArenaGUIListener implements Listener {
         return inv;
     }
 
-    // ── Zone Detail GUI builder ───────────────────────────────────────────────
+    // ── Zone Detail GUI builder (5 rows, color-coded sections) ───────────────
 
     private Inventory buildDetailInventory(Arena arena) {
         UnaryOperator<String> zoneRepl = s -> s.replace("%zone%", arena.getName());
 
         Inventory inv = Bukkit.createInventory(
-            new ArenaGuiHolder("detail", arena.getName()), 54,
-            Utils.toComponent(configTitle("detail-menu.title", "&8Zone: &e%zone%", zoneRepl)));
+            new ArenaGuiHolder("detail", arena.getName()), 45,
+            render(configTitle("detail-menu.title", "<dark_gray>Zone: <yellow>%zone%", zoneRepl)));
 
-        ItemStack glass = glass();
+        ItemStack navGlass = glass();
 
-        // Row 0: navigation header
-        for (int i = 0; i < 9; i++) inv.setItem(i, glass);
+        // Row 0 (0-8): navigation header
+        for (int i = 0; i < 9; i++) inv.setItem(i, navGlass);
         inv.setItem(0, configItem("detail-menu.back-button", null));
-        inv.setItem(4, item(Material.EMERALD, "&e&l" + arena.getName(),
-            "&7Region: &f" + arena.getRegion(),
-            "&7World:  &f" + arena.getWorldName()));
+        UnaryOperator<String> countRepl = s -> s.replace("%count%", String.valueOf(arena.getTriggers().size()));
+        inv.setItem(2, configItem("detail-menu.triggers-button", countRepl));
+        inv.setItem(4, item(Material.EMERALD, "<yellow><bold>" + arena.getName(),
+            "<gray>Region: <white>" + arena.getRegion(),
+            "<gray>World: <white>" + arena.getWorldName()));
         inv.setItem(8, configItem("detail-menu.delete-button", null));
 
-        // Row 1: AFK Timer
-        inv.setItem(9,  item(Material.CLOCK, "&6&lAFK Timer",
-            "&7Reward players for staying in this zone",
-            "&8(requires interval + command to be set)"));
+        // Row 1 (9-17): AFK Timer — fully packed, no spacers needed
+        inv.setItem(9,  item(Material.CLOCK, "<gold><bold>AFK Timer",
+            "<gray>Reward players for staying in this zone",
+            "<dark_gray>(requires interval + command to be set)"));
         inv.setItem(10, toggle(arena.isAfkEnabled(), "AFK Timer"));
-        inv.setItem(11, item(Material.GOLD_NUGGET, "&eInterval",
-            "&7Current: &f" + formatTime(arena.getAfkIntervalSeconds()),
-            "&8Click to change  &7|  Format: &f30s&7, &f1m&7, &f2m30s"));
-        inv.setItem(12, item(Material.COMMAND_BLOCK, "&eReward Command",
-            "&7Current: &f" + blank(arena.getAfkCommand()),
-            "&8Click to change  &7|  Use &f{player}"));
-        inv.setItem(13, item(Material.OAK_SIGN, "&eDisplay Type",
-            "&7Current: &f" + arena.getAfkDisplayType(),
-            "&8Click to cycle: actionbar → title → chat → all"));
-        inv.setItem(14, item(Material.PAPER, "&eActionbar Text",
-            "&7" + arena.getAfkActionbarText(),
-            "&8Click to change  &7|  Use &f{time}"));
-        inv.setItem(15, item(Material.ENCHANTED_BOOK, "&eTitle Text",
-            "&7" + arena.getAfkTitleText(),
-            "&8Click to change  &7|  Use &f{time}"));
-        inv.setItem(16, item(Material.BOOK, "&eSubtitle Text",
-            "&7" + arena.getAfkSubtitleText(),
-            "&8Click to change  &7|  Use &f{time}"));
-        inv.setItem(17, item(Material.FEATHER, "&eChat Text",
-            "&7" + arena.getAfkChatText(),
-            "&8Click to change  &7|  Use &f{time}",
-            "&8Shown only at reward milestones"));
+        inv.setItem(11, item(Material.GOLD_NUGGET, "<yellow>Interval",
+            "<gray>Current: <white>" + formatTime(arena.getAfkIntervalSeconds()),
+            "<dark_gray>Click to change  |  Format: <white>30s<dark_gray>, <white>1m<dark_gray>, <white>2m30s"));
+        inv.setItem(12, item(Material.COMMAND_BLOCK, "<yellow>Reward Command",
+            "<gray>Current: <white>" + blank(arena.getAfkCommand()),
+            "<dark_gray>Click to change  |  Use <white>{player}"));
+        inv.setItem(13, item(Material.OAK_SIGN, "<yellow>Display Type",
+            "<gray>Current: <white>" + arena.getAfkDisplayType(),
+            "<dark_gray>Click to cycle: actionbar → title → chat → all"));
+        inv.setItem(14, item(Material.PAPER, "<yellow>Actionbar Text",
+            "<gray>" + arena.getAfkActionbarText(),
+            "<dark_gray>Click to change  |  Use <white>{time}"));
+        inv.setItem(15, item(Material.ENCHANTED_BOOK, "<yellow>Title Text",
+            "<gray>" + arena.getAfkTitleText(),
+            "<dark_gray>Click to change  |  Use <white>{time}"));
+        inv.setItem(16, item(Material.BOOK, "<yellow>Subtitle Text",
+            "<gray>" + arena.getAfkSubtitleText(),
+            "<dark_gray>Click to change  |  Use <white>{time}"));
+        inv.setItem(17, item(Material.FEATHER, "<yellow>Chat Text",
+            "<gray>" + arena.getAfkChatText(),
+            "<dark_gray>Click to change  |  Use <white>{time}",
+            "<dark_gray>Shown only at reward milestones"));
 
-        // Row 2: separator + Triggers button
-        for (int i = 18; i < 27; i++) inv.setItem(i, glass);
-        UnaryOperator<String> countRepl = s -> s.replace("%count%", String.valueOf(arena.getTriggers().size()));
-        inv.setItem(22, configItem("detail-menu.triggers-button", countRepl));
-
-        // Row 3: Enter action
-        inv.setItem(27, item(Material.LIME_DYE, "&a&lEnter Action",
-            "&7Triggers when a player enters this zone"));
-        inv.setItem(28, item(Material.OAK_SIGN, "&aMessage Type",
-            "&7Current: &f" + arena.getEnterMessageType(),
-            "&8Click to cycle: none → chat → actionbar → title"));
-        inv.setItem(29, item(Material.PAPER, "&aMessage Text",
-            "&7" + arena.getEnterMessage(),
-            "&8Click to change  &7|  Use &f{zone}"));
+        // Row 2 (18-26): Enter action — lime-tinted spacers
+        ItemStack enterGlass = coloredGlass(Material.LIME_STAINED_GLASS_PANE);
+        inv.setItem(18, item(Material.LIME_DYE, "<green><bold>Enter Action",
+            "<gray>Runs when a player enters this zone"));
+        inv.setItem(19, item(Material.OAK_SIGN, "<green>Message Type",
+            "<gray>Current: <white>" + arena.getEnterMessageType(),
+            "<dark_gray>Click to cycle: none → chat → actionbar → title"));
+        inv.setItem(20, item(Material.PAPER, "<green>Message Text",
+            "<gray>" + arena.getEnterMessage(),
+            "<dark_gray>Click to change  |  Use <white>{zone}"));
         if (arena.getEnterMessageType().equals("title")) {
-            inv.setItem(30, item(Material.ENCHANTED_BOOK, "&aTitle Text",
-                "&7" + arena.getEnterTitle(),
-                "&8Click to change  &7|  Use &f{zone}"));
-            inv.setItem(31, item(Material.BOOK, "&aSubtitle Text",
-                "&7" + arena.getEnterSubtitle(),
-                "&8Click to change  &7|  Use &f{zone}"));
+            inv.setItem(21, item(Material.ENCHANTED_BOOK, "<green>Title Text",
+                "<gray>" + arena.getEnterTitle(), "<dark_gray>Click to change  |  Use <white>{zone}"));
+            inv.setItem(22, item(Material.BOOK, "<green>Subtitle Text",
+                "<gray>" + arena.getEnterSubtitle(), "<dark_gray>Click to change  |  Use <white>{zone}"));
         } else {
-            inv.setItem(30, glass);
-            inv.setItem(31, glass);
+            inv.setItem(21, enterGlass);
+            inv.setItem(22, enterGlass);
         }
-        inv.setItem(32, glass);
-        inv.setItem(33, toggle(arena.isEnterCommandEnabled(), "Enter Command"));
-        inv.setItem(34, arena.isEnterCommandEnabled()
-            ? item(Material.COMMAND_BLOCK, "&aEnter Command",
-                "&7Current: &f" + blank(arena.getEnterCommand()),
-                "&8Click to change  &7|  Use &f{player}&7, &f{zone}")
-            : glass);
-        inv.setItem(35, glass);
+        inv.setItem(23, enterGlass);
+        inv.setItem(24, toggle(arena.isEnterCommandEnabled(), "Enter Command"));
+        inv.setItem(25, arena.isEnterCommandEnabled()
+            ? item(Material.COMMAND_BLOCK, "<green>Enter Command",
+                "<gray>Current: <white>" + blank(arena.getEnterCommand()),
+                "<dark_gray>Click to change  |  Use <white>{player}<dark_gray>, <white>{zone}")
+            : enterGlass);
+        inv.setItem(26, enterGlass);
 
-        // Row 4: Exit action
-        inv.setItem(36, item(Material.RED_DYE, "&c&lExit Action",
-            "&7Triggers when a player leaves this zone"));
-        inv.setItem(37, item(Material.OAK_SIGN, "&cMessage Type",
-            "&7Current: &f" + arena.getExitMessageType(),
-            "&8Click to cycle: none → chat → actionbar → title"));
-        inv.setItem(38, item(Material.PAPER, "&cMessage Text",
-            "&7" + arena.getExitMessage(),
-            "&8Click to change  &7|  Use &f{zone}"));
+        // Row 3 (27-35): Exit action — red-tinted spacers
+        ItemStack exitGlass = coloredGlass(Material.RED_STAINED_GLASS_PANE);
+        inv.setItem(27, item(Material.RED_DYE, "<red><bold>Exit Action",
+            "<gray>Runs when a player leaves this zone"));
+        inv.setItem(28, item(Material.OAK_SIGN, "<red>Message Type",
+            "<gray>Current: <white>" + arena.getExitMessageType(),
+            "<dark_gray>Click to cycle: none → chat → actionbar → title"));
+        inv.setItem(29, item(Material.PAPER, "<red>Message Text",
+            "<gray>" + arena.getExitMessage(),
+            "<dark_gray>Click to change  |  Use <white>{zone}"));
         if (arena.getExitMessageType().equals("title")) {
-            inv.setItem(39, item(Material.ENCHANTED_BOOK, "&cTitle Text",
-                "&7" + arena.getExitTitle(),
-                "&8Click to change  &7|  Use &f{zone}"));
-            inv.setItem(40, item(Material.BOOK, "&cSubtitle Text",
-                "&7" + arena.getExitSubtitle(),
-                "&8Click to change  &7|  Use &f{zone}"));
+            inv.setItem(30, item(Material.ENCHANTED_BOOK, "<red>Title Text",
+                "<gray>" + arena.getExitTitle(), "<dark_gray>Click to change  |  Use <white>{zone}"));
+            inv.setItem(31, item(Material.BOOK, "<red>Subtitle Text",
+                "<gray>" + arena.getExitSubtitle(), "<dark_gray>Click to change  |  Use <white>{zone}"));
         } else {
-            inv.setItem(39, glass);
-            inv.setItem(40, glass);
+            inv.setItem(30, exitGlass);
+            inv.setItem(31, exitGlass);
         }
-        inv.setItem(41, glass);
-        inv.setItem(42, toggle(arena.isExitCommandEnabled(), "Exit Command"));
-        inv.setItem(43, arena.isExitCommandEnabled()
-            ? item(Material.COMMAND_BLOCK, "&cExit Command",
-                "&7Current: &f" + blank(arena.getExitCommand()),
-                "&8Click to change  &7|  Use &f{player}&7, &f{zone}")
-            : glass);
-        inv.setItem(44, glass);
+        inv.setItem(32, exitGlass);
+        inv.setItem(33, toggle(arena.isExitCommandEnabled(), "Exit Command"));
+        inv.setItem(34, arena.isExitCommandEnabled()
+            ? item(Material.COMMAND_BLOCK, "<red>Exit Command",
+                "<gray>Current: <white>" + blank(arena.getExitCommand()),
+                "<dark_gray>Click to change  |  Use <white>{player}<dark_gray>, <white>{zone}")
+            : exitGlass);
+        inv.setItem(35, exitGlass);
 
-        // Row 5: footer
-        for (int i = 45; i < 54; i++) inv.setItem(i, glass);
-        inv.setItem(45, configItem("detail-menu.back-button", null));
-        inv.setItem(49, configItem("detail-menu.autosave-note", null));
-        inv.setItem(53, configItem("detail-menu.delete-button", null));
+        // Row 4 (36-44): footer
+        for (int i = 36; i < 45; i++) inv.setItem(i, navGlass);
+        inv.setItem(36, configItem("detail-menu.back-button", null));
+        inv.setItem(40, configItem("detail-menu.autosave-note", null));
+        inv.setItem(44, configItem("detail-menu.delete-button", null));
 
         return inv;
     }
@@ -256,10 +257,10 @@ public class ArenaGUIListener implements Listener {
 
         Inventory inv = Bukkit.createInventory(
             new ArenaGuiHolder("trigger-list", arena.getName()), 54,
-            Utils.toComponent(configTitle("trigger-list-menu.title", "&8Triggers: &e%zone%", zoneRepl)));
+            render(configTitle("trigger-list-menu.title", "<dark_gray>Triggers: <yellow>%zone%", zoneRepl)));
 
-        ItemStack glass = glass();
-        border(inv, glass);
+        ItemStack glassItem = glass();
+        border(inv, glassItem);
 
         inv.setItem(4, configItem("trigger-list-menu.title-icon", zoneRepl));
 
@@ -270,99 +271,90 @@ public class ArenaGUIListener implements Listener {
         for (int i = 0; i < 28 && start + i < sorted.size(); i++) {
             Trigger t = sorted.get(start + i);
             List<String> lore = List.of(
-                "&7Region: &f" + t.getRegion(),
-                "&7Status: " + (t.isEnabled() ? "&aEnabled" : "&cDisabled"),
+                "<gray>Region: <white>" + t.getRegion(),
+                "<gray>Status: " + (t.isEnabled() ? "<green>Enabled" : "<red>Disabled"),
                 "",
-                "&7Command:  " + (t.isCommandEnabled() ? "&aOn" : "&8Off"),
-                "&7Teleport: " + (t.isTeleportEnabled() ? "&aOn" : "&8Off"),
-                "&7Message:  " + (t.getMessageType().equals("none") ? "&8Off" : "&aOn"),
+                "<gray>Command: " + (t.isCommandEnabled() ? "<green>On" : "<dark_gray>Off"),
+                "<gray>Teleport: " + (t.isTeleportEnabled() ? "<green>On" : "<dark_gray>Off"),
+                "<gray>Message: " + (t.getMessageType().equals("none") ? "<dark_gray>Off" : "<green>On"),
                 "",
-                "&8Click to manage"
+                "<dark_gray>Click to manage"
             );
             Material mat = configMaterial("trigger-list-menu.trigger-item", Material.COMPASS);
-            inv.setItem(GRID_SLOTS[i], item(mat, "&b" + t.getName(), lore.toArray(new String[0])));
+            inv.setItem(GRID_SLOTS[i], item(mat, "<aqua>" + t.getName(), lore.toArray(new String[0])));
         }
 
         inv.setItem(45, configItem("trigger-list-menu.back-button", null));
         inv.setItem(49, configItem("trigger-list-menu.create-button", null));
         if (page > 0)
-            inv.setItem(47, item(Material.ARROW, "&7← Previous"));
+            inv.setItem(47, item(Material.ARROW, "<gray>← Previous"));
         if (start + 28 < sorted.size())
-            inv.setItem(51, item(Material.ARROW, "&7Next →"));
+            inv.setItem(51, item(Material.ARROW, "<gray>Next →"));
 
         return inv;
     }
 
-    // ── Trigger Detail GUI builder ────────────────────────────────────────────
+    // ── Trigger Detail GUI builder (3 rows, no wasted space) ─────────────────
 
     private Inventory buildTriggerDetailInventory(Arena arena, Trigger trigger) {
         UnaryOperator<String> trigRepl = s -> s.replace("%trigger%", trigger.getName());
 
         Inventory inv = Bukkit.createInventory(
-            new ArenaGuiHolder("trigger-detail", arena.getName(), trigger.getName()), 54,
-            Utils.toComponent(configTitle("trigger-detail-menu.title", "&8Trigger: &e%trigger%", trigRepl)));
+            new ArenaGuiHolder("trigger-detail", arena.getName(), trigger.getName()), 27,
+            render(configTitle("trigger-detail-menu.title", "<dark_gray>Trigger: <yellow>%trigger%", trigRepl)));
 
-        ItemStack glass = glass();
-        for (int i = 0; i < 9; i++) inv.setItem(i, glass);
+        ItemStack navGlass = glass();
+        for (int i = 0; i < 9; i++) inv.setItem(i, navGlass);
         inv.setItem(0, configItem("trigger-detail-menu.back-button", null));
-        inv.setItem(4, item(Material.COMPASS, "&b&l" + trigger.getName(),
-            "&7Region: &f" + trigger.getRegion(),
-            "&7Status: " + (trigger.isEnabled() ? "&aEnabled" : "&cDisabled"),
-            "&8Click to toggle"));
+        inv.setItem(4, item(Material.COMPASS, "<aqua><bold>" + trigger.getName(),
+            "<gray>Region: <white>" + trigger.getRegion(),
+            "<gray>Status: " + (trigger.isEnabled() ? "<green>Enabled" : "<red>Disabled"),
+            "<dark_gray>Click to toggle"));
         inv.setItem(8, configItem("trigger-detail-menu.delete-button", null));
 
-        // Row 1: Command action
-        inv.setItem(9,  item(Material.COMMAND_BLOCK, "&6&lCommand Action",
-            "&7Run a console command when entered"));
+        // Row 1 (9-17): Command action (9-11) + Teleport action (13-16)
+        ItemStack spacer = glass();
+        inv.setItem(9,  item(Material.COMMAND_BLOCK, "<gold><bold>Command Action",
+            "<gray>Run a console command when entered"));
         inv.setItem(10, toggle(trigger.isCommandEnabled(), "Run Command"));
-        inv.setItem(11, item(Material.PAPER, "&eCommand",
-            "&7Current: &f" + blank(trigger.getCommand()),
-            "&8Click to change  &7|  Use &f{player}&7, &f{zone}&7, &f{trigger}"));
-
-        for (int i = 12; i < 18; i++) inv.setItem(i, glass);
-
-        // Row 2: Teleport action
-        inv.setItem(18, item(Material.ENDER_PEARL, "&d&lTeleport Action",
-            "&7Teleport the player to a fixed location"));
-        inv.setItem(19, toggle(trigger.isTeleportEnabled(), "Teleport"));
-        inv.setItem(20, configItem("trigger-detail-menu.set-location-button", null));
-        inv.setItem(21, item(Material.MAP, "&dCurrent Location",
+        inv.setItem(11, item(Material.PAPER, "<yellow>Command",
+            "<gray>Current: <white>" + blank(trigger.getCommand()),
+            "<dark_gray>Click to change  |  Use <white>{player}<dark_gray>, <white>{zone}<dark_gray>, <white>{trigger}"));
+        inv.setItem(12, spacer);
+        inv.setItem(13, item(Material.ENDER_PEARL, "<light_purple><bold>Teleport Action",
+            "<gray>Teleport the player to a fixed location"));
+        inv.setItem(14, toggle(trigger.isTeleportEnabled(), "Teleport"));
+        inv.setItem(15, configItem("trigger-detail-menu.set-location-button", null));
+        inv.setItem(16, item(Material.MAP, "<light_purple>Current Location",
             trigger.hasTeleportLocation()
-                ? "&7" + trigger.getTeleportWorld() + " &8@ &7"
+                ? "<gray>" + trigger.getTeleportWorld() + " <dark_gray>@ <gray>"
                     + Math.round(trigger.getTeleportX()) + ", "
                     + Math.round(trigger.getTeleportY()) + ", "
                     + Math.round(trigger.getTeleportZ())
-                : "&8(not set)"));
+                : "<dark_gray>(not set)"));
+        inv.setItem(17, spacer);
 
-        for (int i = 22; i < 27; i++) inv.setItem(i, glass);
-
-        // Row 3: Message on enter
-        inv.setItem(27, item(Material.OAK_SIGN, "&b&lMessage on Enter",
-            "&7Shown to the player when they enter"));
-        inv.setItem(28, item(Material.OAK_SIGN, "&bMessage Type",
-            "&7Current: &f" + trigger.getMessageType(),
-            "&8Click to cycle: none → chat → actionbar → title"));
-        inv.setItem(29, item(Material.PAPER, "&bMessage Text",
-            "&7" + blank(trigger.getMessage()),
-            "&8Click to change  &7|  Use &f{zone}&7, &f{trigger}"));
+        // Row 2 (18-26): Message on enter
+        inv.setItem(18, item(Material.OAK_SIGN, "<aqua><bold>Message on Enter",
+            "<gray>Shown to the player when they enter"));
+        inv.setItem(19, item(Material.OAK_SIGN, "<aqua>Message Type",
+            "<gray>Current: <white>" + trigger.getMessageType(),
+            "<dark_gray>Click to cycle: none → chat → actionbar → title"));
+        inv.setItem(20, item(Material.PAPER, "<aqua>Message Text",
+            "<gray>" + blank(trigger.getMessage()),
+            "<dark_gray>Click to change  |  Use <white>{zone}<dark_gray>, <white>{trigger}"));
         if (trigger.getMessageType().equals("title")) {
-            inv.setItem(30, item(Material.ENCHANTED_BOOK, "&bTitle Text",
-                "&7" + blank(trigger.getTitle()),
-                "&8Click to change  &7|  Use &f{zone}&7, &f{trigger}"));
-            inv.setItem(31, item(Material.BOOK, "&bSubtitle Text",
-                "&7" + blank(trigger.getSubtitle()),
-                "&8Click to change  &7|  Use &f{zone}&7, &f{trigger}"));
+            inv.setItem(21, item(Material.ENCHANTED_BOOK, "<aqua>Title Text",
+                "<gray>" + blank(trigger.getTitle()),
+                "<dark_gray>Click to change  |  Use <white>{zone}<dark_gray>, <white>{trigger}"));
+            inv.setItem(22, item(Material.BOOK, "<aqua>Subtitle Text",
+                "<gray>" + blank(trigger.getSubtitle()),
+                "<dark_gray>Click to change  |  Use <white>{zone}<dark_gray>, <white>{trigger}"));
         } else {
-            inv.setItem(30, glass);
-            inv.setItem(31, glass);
+            inv.setItem(21, spacer);
+            inv.setItem(22, spacer);
         }
-        for (int i = 32; i < 36; i++) inv.setItem(i, glass);
-
-        for (int i = 36; i < 45; i++) inv.setItem(i, glass);
-
-        for (int i = 45; i < 54; i++) inv.setItem(i, glass);
-        inv.setItem(45, configItem("trigger-detail-menu.back-button", null));
-        inv.setItem(53, configItem("trigger-detail-menu.delete-button", null));
+        for (int i = 23; i < 27; i++) inv.setItem(i, spacer);
 
         return inv;
     }
@@ -378,7 +370,9 @@ public class ArenaGUIListener implements Listener {
 
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || clicked.getType() == Material.AIR) return;
-        if (clicked.getType() == fillerMaterial()) return;
+        if (clicked.getType() == fillerMaterial()
+            || clicked.getType() == Material.LIME_STAINED_GLASS_PANE
+            || clicked.getType() == Material.RED_STAINED_GLASS_PANE) return;
 
         switch (holder.getType()) {
             case "list"           -> handleListClick(player, event.getRawSlot());
@@ -425,49 +419,49 @@ public class ArenaGUIListener implements Listener {
         if (arena == null) { openListGUI(player); return; }
 
         switch (slot) {
-            case 0, 45 -> openListGUI(player);
-            case 8, 53 -> promptDeleteZone(player, arena);
-            case 22 -> { triggerPage.put(player.getUniqueId(), 0); openTriggerListGUI(player, arena); }
+            case 0, 36 -> openListGUI(player);
+            case 8, 44 -> promptDeleteZone(player, arena);
+            case 2 -> { triggerPage.put(player.getUniqueId(), 0); openTriggerListGUI(player, arena); }
 
             // AFK Timer
             case 10 -> { arena.setAfkEnabled(!arena.isAfkEnabled()); saveZone(player, arena); }
             case 11 -> prompt(player, arenaName, InputType.AFk_INTERVAL,
-                "&aType the AFK reward interval &7(e.g. &f30s&7, &f1m&7, &f2m30s&7):");
+                "<green>Type the AFK reward interval <gray>(e.g. <white>30s<gray>, <white>1m<gray>, <white>2m30s<gray>):");
             case 12 -> prompt(player, arenaName, InputType.AFk_COMMAND,
-                "&aType the reward command &7(use &f{player}&7):");
+                "<green>Type the reward command <gray>(use <white>{player}<gray>):");
             case 13 -> { cycleAfkDisplay(arena); saveZone(player, arena); }
             case 14 -> prompt(player, arenaName, InputType.AFk_ACTIONBAR,
-                "&aType the actionbar text &7(use &f{time}&7):");
+                "<green>Type the actionbar text <gray>(use <white>{time}<gray>):");
             case 15 -> prompt(player, arenaName, InputType.AFk_TITLE,
-                "&aType the title text &7(use &f{time}&7):");
+                "<green>Type the title text <gray>(use <white>{time}<gray>):");
             case 16 -> prompt(player, arenaName, InputType.AFk_SUBTITLE,
-                "&aType the subtitle text &7(use &f{time}&7):");
+                "<green>Type the subtitle text <gray>(use <white>{time}<gray>):");
             case 17 -> prompt(player, arenaName, InputType.AFk_CHAT,
-                "&aType the chat text &7(use &f{time}&7):");
+                "<green>Type the chat text <gray>(use <white>{time}<gray>):");
 
             // Enter action
-            case 28 -> { cycleMessageType(arena, true); saveZone(player, arena); }
-            case 29 -> prompt(player, arenaName, InputType.ENTER_MESSAGE,
-                "&aType the enter message &7(use &f{zone}&7):");
-            case 30 -> prompt(player, arenaName, InputType.ENTER_TITLE,
-                "&aType the enter title &7(use &f{zone}&7):");
-            case 31 -> prompt(player, arenaName, InputType.ENTER_SUBTITLE,
-                "&aType the enter subtitle &7(use &f{zone}&7):");
-            case 33 -> { arena.setEnterCommandEnabled(!arena.isEnterCommandEnabled()); saveZone(player, arena); }
-            case 34 -> prompt(player, arenaName, InputType.ENTER_COMMAND,
-                "&aType the enter command &7(use &f{player}&7, &f{zone}&7):");
+            case 19 -> { cycleMessageType(arena, true); saveZone(player, arena); }
+            case 20 -> prompt(player, arenaName, InputType.ENTER_MESSAGE,
+                "<green>Type the enter message <gray>(use <white>{zone}<gray>):");
+            case 21 -> prompt(player, arenaName, InputType.ENTER_TITLE,
+                "<green>Type the enter title <gray>(use <white>{zone}<gray>):");
+            case 22 -> prompt(player, arenaName, InputType.ENTER_SUBTITLE,
+                "<green>Type the enter subtitle <gray>(use <white>{zone}<gray>):");
+            case 24 -> { arena.setEnterCommandEnabled(!arena.isEnterCommandEnabled()); saveZone(player, arena); }
+            case 25 -> prompt(player, arenaName, InputType.ENTER_COMMAND,
+                "<green>Type the enter command <gray>(use <white>{player}<gray>, <white>{zone}<gray>):");
 
             // Exit action
-            case 37 -> { cycleMessageType(arena, false); saveZone(player, arena); }
-            case 38 -> prompt(player, arenaName, InputType.EXIT_MESSAGE,
-                "&aType the exit message &7(use &f{zone}&7):");
-            case 39 -> prompt(player, arenaName, InputType.EXIT_TITLE,
-                "&aType the exit title &7(use &f{zone}&7):");
-            case 40 -> prompt(player, arenaName, InputType.EXIT_SUBTITLE,
-                "&aType the exit subtitle &7(use &f{zone}&7):");
-            case 42 -> { arena.setExitCommandEnabled(!arena.isExitCommandEnabled()); saveZone(player, arena); }
-            case 43 -> prompt(player, arenaName, InputType.EXIT_COMMAND,
-                "&aType the exit command &7(use &f{player}&7, &f{zone}&7):");
+            case 28 -> { cycleMessageType(arena, false); saveZone(player, arena); }
+            case 29 -> prompt(player, arenaName, InputType.EXIT_MESSAGE,
+                "<green>Type the exit message <gray>(use <white>{zone}<gray>):");
+            case 30 -> prompt(player, arenaName, InputType.EXIT_TITLE,
+                "<green>Type the exit title <gray>(use <white>{zone}<gray>):");
+            case 31 -> prompt(player, arenaName, InputType.EXIT_SUBTITLE,
+                "<green>Type the exit subtitle <gray>(use <white>{zone}<gray>):");
+            case 33 -> { arena.setExitCommandEnabled(!arena.isExitCommandEnabled()); saveZone(player, arena); }
+            case 34 -> prompt(player, arenaName, InputType.EXIT_COMMAND,
+                "<green>Type the exit command <gray>(use <white>{player}<gray>, <white>{zone}<gray>):");
         }
     }
 
@@ -511,16 +505,16 @@ public class ArenaGUIListener implements Listener {
         if (arena == null || trigger == null) { openListGUI(player); return; }
 
         switch (slot) {
-            case 0, 45 -> openTriggerListGUI(player, arena);
-            case 8, 53 -> promptDeleteTrigger(player, arena, trigger);
+            case 0 -> openTriggerListGUI(player, arena);
+            case 8 -> promptDeleteTrigger(player, arena, trigger);
             case 4 -> { trigger.setEnabled(!trigger.isEnabled()); saveTrigger(player, arena, trigger); }
 
             case 10 -> { trigger.setCommandEnabled(!trigger.isCommandEnabled()); saveTrigger(player, arena, trigger); }
             case 11 -> promptTrigger(player, arena, trigger, InputType.TRIGGER_COMMAND,
-                "&aType the trigger command &7(use &f{player}&7, &f{zone}&7, &f{trigger}&7):");
+                "<green>Type the trigger command <gray>(use <white>{player}<gray>, <white>{zone}<gray>, <white>{trigger}<gray>):");
 
-            case 19 -> { trigger.setTeleportEnabled(!trigger.isTeleportEnabled()); saveTrigger(player, arena, trigger); }
-            case 20 -> {
+            case 14 -> { trigger.setTeleportEnabled(!trigger.isTeleportEnabled()); saveTrigger(player, arena, trigger); }
+            case 15 -> {
                 Location loc = player.getLocation();
                 trigger.setTeleportWorld(loc.getWorld().getName());
                 trigger.setTeleportX(loc.getX());
@@ -528,17 +522,17 @@ public class ArenaGUIListener implements Listener {
                 trigger.setTeleportZ(loc.getZ());
                 trigger.setTeleportYaw(loc.getYaw());
                 trigger.setTeleportPitch(loc.getPitch());
-                tell(player, "&aTeleport location set to your current position.");
+                tell(player, "<green>Teleport location set to your current position.");
                 saveTrigger(player, arena, trigger);
             }
 
-            case 28 -> { cycleTriggerMessageType(trigger); saveTrigger(player, arena, trigger); }
-            case 29 -> promptTrigger(player, arena, trigger, InputType.TRIGGER_MESSAGE,
-                "&aType the trigger message &7(use &f{zone}&7, &f{trigger}&7):");
-            case 30 -> promptTrigger(player, arena, trigger, InputType.TRIGGER_TITLE,
-                "&aType the trigger title &7(use &f{zone}&7, &f{trigger}&7):");
-            case 31 -> promptTrigger(player, arena, trigger, InputType.TRIGGER_SUBTITLE,
-                "&aType the trigger subtitle &7(use &f{zone}&7, &f{trigger}&7):");
+            case 19 -> { cycleTriggerMessageType(trigger); saveTrigger(player, arena, trigger); }
+            case 20 -> promptTrigger(player, arena, trigger, InputType.TRIGGER_MESSAGE,
+                "<green>Type the trigger message <gray>(use <white>{zone}<gray>, <white>{trigger}<gray>):");
+            case 21 -> promptTrigger(player, arena, trigger, InputType.TRIGGER_TITLE,
+                "<green>Type the trigger title <gray>(use <white>{zone}<gray>, <white>{trigger}<gray>):");
+            case 22 -> promptTrigger(player, arena, trigger, InputType.TRIGGER_SUBTITLE,
+                "<green>Type the trigger subtitle <gray>(use <white>{zone}<gray>, <white>{trigger}<gray>):");
         }
     }
 
@@ -576,17 +570,17 @@ public class ArenaGUIListener implements Listener {
             case CREATE_ZONE_NAME -> {
                 String name = text.toLowerCase().replaceAll("[^a-z0-9_-]", "_");
                 if (name.isBlank()) {
-                    tell(player, "&cInvalid name. Type a zone name:");
+                    tell(player, "<red>Invalid name. Type a zone name:");
                     pending.put(player.getUniqueId(), new PendingInput(InputType.CREATE_ZONE_NAME, null, null, null));
                     return;
                 }
                 if (manager.getArena(name) != null) {
-                    tell(player, "&cZone '&4" + name + "&c' already exists. Choose a different name:");
+                    tell(player, "<red>Zone '<dark_red>" + name + "<red>' already exists. Choose a different name:");
                     pending.put(player.getUniqueId(), new PendingInput(InputType.CREATE_ZONE_NAME, null, null, null));
                     return;
                 }
-                tell(player, "&aZone name: &2" + name + "&a. Now type the WorldGuard region name:");
-                tell(player, "&8(Region must already exist in your current world)");
+                tell(player, "<green>Zone name: <dark_green>" + name + "<green>. Now type the WorldGuard region name:");
+                tell(player, "<dark_gray>(Region must already exist in your current world)");
                 pending.put(player.getUniqueId(), new PendingInput(InputType.CREATE_ZONE_REGION, null, null, name));
             }
 
@@ -595,23 +589,23 @@ public class ArenaGUIListener implements Listener {
                 String region = text.toLowerCase();
                 String world  = player.getWorld().getName();
                 if (!manager.regionExists(world, region)) {
-                    tell(player, "&cRegion '&4" + region + "&c' not found in world '&4" + world + "&c'. Try again:");
+                    tell(player, "<red>Region '<dark_red>" + region + "<red>' not found in world '<dark_red>" + world + "<red>'. Try again:");
                     pending.put(player.getUniqueId(), new PendingInput(InputType.CREATE_ZONE_REGION, null, null, name));
                     return;
                 }
                 Arena arena = new Arena(name, region, world);
                 manager.addArena(arena);
-                tell(player, "&aZone '&2" + name + "&a' created!");
+                tell(player, "<green>Zone '<dark_green>" + name + "<green>' created!");
                 openDetailGUI(player, arena);
             }
 
             case CONFIRM_DELETE_ZONE -> {
                 if (text.equalsIgnoreCase("confirm")) {
                     manager.removeArena(p.arenaName());
-                    tell(player, "&aZone '&2" + p.arenaName() + "&a' deleted.");
+                    tell(player, "<green>Zone '<dark_green>" + p.arenaName() + "<green>' deleted.");
                     openListGUI(player);
                 } else {
-                    tell(player, "&cType &4confirm &cor &4cancel&c:");
+                    tell(player, "<red>Type <dark_red>confirm <red>or <dark_red>cancel<red>:");
                     pending.put(player.getUniqueId(), new PendingInput(InputType.CONFIRM_DELETE_ZONE, p.arenaName(), null, null));
                 }
             }
@@ -621,12 +615,12 @@ public class ArenaGUIListener implements Listener {
                 if (arena == null) { openListGUI(player); return; }
                 String name = text.toLowerCase().replaceAll("[^a-z0-9_-]", "_");
                 if (name.isBlank() || arena.getTrigger(name) != null) {
-                    tell(player, "&cInvalid or duplicate name. Type a trigger name:");
+                    tell(player, "<red>Invalid or duplicate name. Type a trigger name:");
                     pending.put(player.getUniqueId(), new PendingInput(InputType.CREATE_TRIGGER_NAME, arena.getName(), null, null));
                     return;
                 }
-                tell(player, "&aTrigger name: &2" + name + "&a. Now type the WorldGuard region name:");
-                tell(player, "&8(Region must already exist in this zone's world: " + arena.getWorldName() + ")");
+                tell(player, "<green>Trigger name: <dark_green>" + name + "<green>. Now type the WorldGuard region name:");
+                tell(player, "<dark_gray>(Region must already exist in this zone's world: " + arena.getWorldName() + ")");
                 pending.put(player.getUniqueId(), new PendingInput(InputType.CREATE_TRIGGER_REGION, arena.getName(), null, name));
             }
 
@@ -636,14 +630,14 @@ public class ArenaGUIListener implements Listener {
                 String name   = p.extra();
                 String region = text.toLowerCase();
                 if (!manager.regionExists(arena.getWorldName(), region)) {
-                    tell(player, "&cRegion '&4" + region + "&c' not found in world '&4" + arena.getWorldName() + "&c'. Try again:");
+                    tell(player, "<red>Region '<dark_red>" + region + "<red>' not found in world '<dark_red>" + arena.getWorldName() + "<red>'. Try again:");
                     pending.put(player.getUniqueId(), new PendingInput(InputType.CREATE_TRIGGER_REGION, arena.getName(), null, name));
                     return;
                 }
                 Trigger trigger = new Trigger(name, region);
                 arena.addTrigger(trigger);
                 manager.save();
-                tell(player, "&aTrigger '&2" + name + "&a' created!");
+                tell(player, "<green>Trigger '<dark_green>" + name + "<green>' created!");
                 openTriggerDetailGUI(player, arena, trigger);
             }
 
@@ -654,10 +648,10 @@ public class ArenaGUIListener implements Listener {
                         arena.removeTrigger(p.triggerName());
                         manager.save();
                     }
-                    tell(player, "&aTrigger '&2" + p.triggerName() + "&a' deleted.");
+                    tell(player, "<green>Trigger '<dark_green>" + p.triggerName() + "<green>' deleted.");
                     if (arena != null) openTriggerListGUI(player, arena); else openListGUI(player);
                 } else {
-                    tell(player, "&cType &4confirm &cor &4cancel&c:");
+                    tell(player, "<red>Type <dark_red>confirm <red>or <dark_red>cancel<red>:");
                     pending.put(player.getUniqueId(), new PendingInput(InputType.CONFIRM_DELETE_TRIGGER, p.arenaName(), p.triggerName(), null));
                 }
             }
@@ -750,42 +744,42 @@ public class ArenaGUIListener implements Listener {
     private void prompt(Player player, String arenaName, InputType type, String message) {
         player.closeInventory();
         tell(player, message);
-        tell(player, "&8Type &ccancel &8to discard changes.");
+        tell(player, "<dark_gray>Type <red>cancel <dark_gray>to discard changes.");
         pending.put(player.getUniqueId(), new PendingInput(type, arenaName, null, null));
     }
 
     private void promptTrigger(Player player, Arena arena, Trigger trigger, InputType type, String message) {
         player.closeInventory();
         tell(player, message);
-        tell(player, "&8Type &ccancel &8to discard changes.");
+        tell(player, "<dark_gray>Type <red>cancel <dark_gray>to discard changes.");
         pending.put(player.getUniqueId(), new PendingInput(type, arena.getName(), trigger.getName(), null));
     }
 
     private void promptCreateZone(Player player) {
         player.closeInventory();
-        tell(player, "&aType the zone name in chat:");
-        tell(player, "&8Type &ccancel &8to discard.");
+        tell(player, "<green>Type the zone name in chat:");
+        tell(player, "<dark_gray>Type <red>cancel <dark_gray>to discard.");
         pending.put(player.getUniqueId(), new PendingInput(InputType.CREATE_ZONE_NAME, null, null, null));
     }
 
     private void promptDeleteZone(Player player, Arena arena) {
         player.closeInventory();
-        tell(player, "&cType &4confirm &cto permanently delete zone '&4" + arena.getName() + "&c'.");
-        tell(player, "&8Type &ccancel &8to go back.");
+        tell(player, "<red>Type <dark_red>confirm <red>to permanently delete zone '<dark_red>" + arena.getName() + "<red>'.");
+        tell(player, "<dark_gray>Type <red>cancel <dark_gray>to go back.");
         pending.put(player.getUniqueId(), new PendingInput(InputType.CONFIRM_DELETE_ZONE, arena.getName(), null, null));
     }
 
     private void promptCreateTrigger(Player player, Arena arena) {
         player.closeInventory();
-        tell(player, "&aType the trigger name in chat:");
-        tell(player, "&8Type &ccancel &8to discard.");
+        tell(player, "<green>Type the trigger name in chat:");
+        tell(player, "<dark_gray>Type <red>cancel <dark_gray>to discard.");
         pending.put(player.getUniqueId(), new PendingInput(InputType.CREATE_TRIGGER_NAME, arena.getName(), null, null));
     }
 
     private void promptDeleteTrigger(Player player, Arena arena, Trigger trigger) {
         player.closeInventory();
-        tell(player, "&cType &4confirm &cto permanently delete trigger '&4" + trigger.getName() + "&c'.");
-        tell(player, "&8Type &ccancel &8to go back.");
+        tell(player, "<red>Type <dark_red>confirm <red>to permanently delete trigger '<dark_red>" + trigger.getName() + "<red>'.");
+        tell(player, "<dark_gray>Type <red>cancel <dark_gray>to go back.");
         pending.put(player.getUniqueId(), new PendingInput(InputType.CONFIRM_DELETE_TRIGGER, arena.getName(), trigger.getName(), null));
     }
 
@@ -820,7 +814,7 @@ public class ArenaGUIListener implements Listener {
     }
 
     private void tell(Player player, String msg) {
-        player.sendMessage(Utils.toComponent(menus.getString("prefix", "&8&l[&aArena&8&l] &r") + msg));
+        player.sendMessage(render(menus.getString("prefix", "<dark_gray><bold>[<green>Arena<dark_gray>]<reset> ") + msg));
     }
 
     private void border(Inventory inv, ItemStack glass) {
@@ -832,13 +826,82 @@ public class ArenaGUIListener implements Listener {
         }
     }
 
+    // ── MiniMessage rendering (with legacy & code interop) ────────────────────
+
+    /**
+     * Renders chrome text and/or admin-authored text as one Component. Accepts
+     * native MiniMessage {@code <tags>} and legacy {@code &} codes (including
+     * {@code &#rrggbb} hex) in the same string — legacy codes are translated to
+     * MiniMessage tags before parsing, so both styles compose safely. Falls back
+     * to plain text if an admin-typed value contains a stray '<' that MiniMessage
+     * can't parse, so a typo can never break the menu.
+     */
+    private static Component render(String raw) {
+        if (raw == null || raw.isEmpty()) return Component.empty();
+        try {
+            return MM.deserialize(toMiniMessageTags(raw));
+        } catch (Exception ex) {
+            return Component.text(raw);
+        }
+    }
+
+    private static String toMiniMessageTags(String input) {
+        Matcher hex = HEX_CODE.matcher(input);
+        StringBuilder withHex = new StringBuilder();
+        int last = 0;
+        while (hex.find()) {
+            withHex.append(input, last, hex.start()).append("<#").append(hex.group(1)).append('>');
+            last = hex.end();
+        }
+        withHex.append(input.substring(last));
+
+        StringBuilder out = new StringBuilder(withHex.length());
+        for (int i = 0; i < withHex.length(); i++) {
+            char c = withHex.charAt(i);
+            if (c == '&' && i + 1 < withHex.length()) {
+                String tag = legacyTag(Character.toLowerCase(withHex.charAt(i + 1)));
+                if (tag != null) { out.append(tag); i++; continue; }
+            }
+            out.append(c);
+        }
+        return out.toString();
+    }
+
+    private static String legacyTag(char code) {
+        return switch (code) {
+            case '0' -> "<black>";
+            case '1' -> "<dark_blue>";
+            case '2' -> "<dark_green>";
+            case '3' -> "<dark_aqua>";
+            case '4' -> "<dark_red>";
+            case '5' -> "<dark_purple>";
+            case '6' -> "<gold>";
+            case '7' -> "<gray>";
+            case '8' -> "<dark_gray>";
+            case '9' -> "<blue>";
+            case 'a' -> "<green>";
+            case 'b' -> "<aqua>";
+            case 'c' -> "<red>";
+            case 'd' -> "<light_purple>";
+            case 'e' -> "<yellow>";
+            case 'f' -> "<white>";
+            case 'l' -> "<bold>";
+            case 'o' -> "<italic>";
+            case 'n' -> "<underlined>";
+            case 'm' -> "<strikethrough>";
+            case 'k' -> "<obfuscated>";
+            case 'r' -> "<reset>";
+            default -> null;
+        };
+    }
+
     private static ItemStack item(Material mat, String name, String... lore) {
         ItemStack stack = new ItemStack(mat);
         stack.editMeta(meta -> {
-            meta.displayName(Utils.toComponent(name).decoration(TextDecoration.ITALIC, false));
+            meta.displayName(render(name).decoration(TextDecoration.ITALIC, false));
             if (lore.length > 0) {
                 meta.lore(Arrays.stream(lore)
-                    .map(l -> Utils.toComponent(l).decoration(TextDecoration.ITALIC, false))
+                    .map(l -> render(l).decoration(TextDecoration.ITALIC, false))
                     .toList());
             }
         });
@@ -847,12 +910,16 @@ public class ArenaGUIListener implements Listener {
 
     private static ItemStack toggle(boolean enabled, String label) {
         Material mat  = enabled ? Material.LIME_WOOL : Material.RED_WOOL;
-        String   name = (enabled ? "&a" : "&c") + label + ": " + (enabled ? "&aEnabled" : "&cDisabled");
-        return item(mat, name, "&8Click to toggle");
+        String   name = (enabled ? "<green>" : "<red>") + label + ": " + (enabled ? "<green>Enabled" : "<red>Disabled");
+        return item(mat, name, "<dark_gray>Click to toggle");
     }
 
     private ItemStack glass() {
         return item(fillerMaterial(), " ");
+    }
+
+    private static ItemStack coloredGlass(Material mat) {
+        return item(mat, " ");
     }
 
     private Material fillerMaterial() {

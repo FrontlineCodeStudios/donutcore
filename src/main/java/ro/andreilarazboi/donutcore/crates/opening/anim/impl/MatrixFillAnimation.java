@@ -6,7 +6,6 @@ import ro.andreilarazboi.donutcore.crates.opening.anim.BaseAnimation;
 public class MatrixFillAnimation
 extends BaseAnimation {
     private int frame = 0;
-    private final int totalFrames = 70;
 
     @Override
     public int inventorySize() {

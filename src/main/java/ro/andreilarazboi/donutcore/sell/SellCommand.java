@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ro.andreilarazboi.donutcore.DonutCore;
 
-public class SellCommand implements CommandExecutor, TabCompleter {
+public final class SellCommand implements CommandExecutor, TabCompleter {
     private final DonutSell plugin;
 
     public SellCommand(DonutSell plugin) {

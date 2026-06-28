@@ -38,7 +38,7 @@ implements Listener {
         if (!(top.getHolder() instanceof EditorHolder)) {
             return;
         }
-        String rawTitle = Utils.stripColor(e.getView().getTitle());
+        String rawTitle = Utils.stripColor(e.getView().title());
         if (!rawTitle.endsWith(" Select Key")) {
             return;
         }
@@ -65,7 +65,7 @@ implements Listener {
             return;
         }
         ItemMeta meta = clicked.getItemMeta();
-        String keyId = (String)meta.getPersistentDataContainer().get(this.keySelectIdTag, PersistentDataType.STRING);
+        String keyId = meta.getPersistentDataContainer().get(this.keySelectIdTag, PersistentDataType.STRING);
         if (keyId == null || keyId.isBlank()) {
             return;
         }

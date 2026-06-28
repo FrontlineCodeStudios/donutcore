@@ -29,9 +29,9 @@ implements Listener {
         Inventory top = e.getView().getTopInventory();
         if (top.getHolder() instanceof EditorHolder || top.getHolder() instanceof CrateHolder || top.getHolder() instanceof OpeningAnimationHolder) {
             int topSize = top.getSize();
-            Iterator iterator = e.getRawSlots().iterator();
+            Iterator<Integer> iterator = e.getRawSlots().iterator();
             while (iterator.hasNext()) {
-                int raw = (Integer)iterator.next();
+                int raw = iterator.next();
                 if (raw >= topSize) continue;
                 e.setCancelled(true);
                 return;

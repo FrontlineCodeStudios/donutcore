@@ -48,7 +48,7 @@ public class KeyUtil {
             return false;
         }
         ItemMeta meta = item.getItemMeta();
-        String tagged = (String)meta.getPersistentDataContainer().get(this.keyTag, PersistentDataType.STRING);
+        String tagged = meta.getPersistentDataContainer().get(this.keyTag, PersistentDataType.STRING);
         if (tagged != null) {
             return tagged.equalsIgnoreCase(keyId);
         }

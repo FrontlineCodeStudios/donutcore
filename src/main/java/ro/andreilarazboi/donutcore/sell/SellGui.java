@@ -14,7 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class SellGui {
+public final class SellGui {
     private final DonutSell plugin;
     private String title;
     private int rows;
@@ -46,7 +46,7 @@ public class SellGui {
     }
 
     public Inventory open(Player p) {
-        Inventory inv = Bukkit.createInventory(null, this.size, this.title);
+        Inventory inv = Bukkit.createInventory(null, this.size, Utils.toComponent(this.title));
         List<LevelData> lvlList = this.loadLevels();
         if (!this.useNewMenuFlag && this.plugin.isUseMultipliers()) {
             this.populateBottomRow("sell-menu", inv, lvlList, p);
@@ -57,7 +57,7 @@ public class SellGui {
 
     public Inventory openNew(Player p) {
         this.loadSection("new-sell-menu");
-        Inventory inv = Bukkit.createInventory(null, this.size, this.title);
+        Inventory inv = Bukkit.createInventory(null, this.size, Utils.toComponent(this.title));
         List<LevelData> lvlList = this.loadLevels();
         if (this.plugin.isUseMultipliers()) {
             this.populateBottomRow("new-sell-menu", inv, lvlList, p);

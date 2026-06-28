@@ -30,7 +30,7 @@ public class CrateStatsGUI {
         ArrayList<String> crates = new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet());
         crates.sort(String::compareToIgnoreCase);
         for (int slot = 0; slot < 54 && slot < crates.size(); ++slot) {
-            String crate = (String)crates.get(slot);
+            String crate = crates.get(slot);
             int opened = this.plugin.dataMgr.getCrateOpenCount(player.getUniqueId(), crate);
             Material material = this.resolveCrateMaterial(crate);
             ItemStack item = new ItemStack(material);
@@ -87,7 +87,7 @@ public class CrateStatsGUI {
             return Material.EMERALD_ORE;
         }
         try {
-            return Material.valueOf((String)configured.trim().toUpperCase(Locale.ROOT));
+            return Material.valueOf(configured.trim().toUpperCase(Locale.ROOT));
         }
         catch (IllegalArgumentException ignored) {
             return Material.EMERALD_ORE;

@@ -8,10 +8,8 @@ import org.bukkit.Material;
 
 public class SpiralEliminationAnimation
 extends BaseAnimation {
-    private final int centerBlack = 22;
     private List<Integer> path;
     private int winnerSlot = -1;
-    private int removedCount = 0;
     private int pointer = 0;
 
     @Override
@@ -54,7 +52,6 @@ extends BaseAnimation {
         }
         if (toRemove != null) {
             this.inv.setItem(toRemove.intValue(), this.pane(Material.BLACK_STAINED_GLASS_PANE));
-            ++this.removedCount;
         }
         this.ctx.player().playSound(this.ctx.player().getLocation(), this.ctx.tick(), 0.6f, 1.05f);
         this.wait = this.spiralDelay(remaining);

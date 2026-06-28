@@ -25,9 +25,9 @@ public class SellMenuClickListener implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player p)) return;
-        String title = e.getView().getTitle();
-        String oldTitle = Utils.formatColors(this.plugin.getMenusConfig().getString("sell-menu.title", ""));
-        String newTitle = Utils.formatColors(this.plugin.getMenusConfig().getString("new-sell-menu.title", ""));
+        String title = Utils.stripColor(e.getView().title());
+        String oldTitle = Utils.stripColor(Utils.formatColors(this.plugin.getMenusConfig().getString("sell-menu.title", "")));
+        String newTitle = Utils.stripColor(Utils.formatColors(this.plugin.getMenusConfig().getString("new-sell-menu.title", "")));
         boolean isOld = title.equals(oldTitle);
         boolean isNew = this.useNew && title.equals(newTitle);
         if (!isOld && !isNew) return;
@@ -88,9 +88,9 @@ public class SellMenuClickListener implements Listener {
     @EventHandler
     public void onDrag(InventoryDragEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
-        String title = e.getView().getTitle();
-        String oldTitle = Utils.formatColors(this.plugin.getMenusConfig().getString("sell-menu.title", ""));
-        String newTitle = Utils.formatColors(this.plugin.getMenusConfig().getString("new-sell-menu.title", ""));
+        String title = Utils.stripColor(e.getView().title());
+        String oldTitle = Utils.stripColor(Utils.formatColors(this.plugin.getMenusConfig().getString("sell-menu.title", "")));
+        String newTitle = Utils.stripColor(Utils.formatColors(this.plugin.getMenusConfig().getString("new-sell-menu.title", "")));
         boolean isOld = title.equals(oldTitle);
         boolean isNew = this.useNew && title.equals(newTitle);
         if (!isOld && !isNew) return;
