@@ -1,5 +1,5 @@
 name: DonutCore
-version: '1.0.7'
+version: '1.0.8'
 main: ro.andreilarazboi.donutcore.DonutCore
 api-version: '1.21'
 authors: [Andreilarazboi]

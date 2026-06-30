@@ -6,7 +6,7 @@
 
     <groupId>ro.andreilarazboi</groupId>
     <artifactId>DonutCore</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
     <packaging>jar</packaging>
 
     <name>DonutCore</name>
@@ -25,8 +25,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
             <plugin>
@@ -43,7 +42,7 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <relocations>
                                 <relocation>
-                                    <pattern>org.xerial</pattern>
+                                    <pattern>org.sqlite</pattern>
                                     <shadedPattern>ro.andreilarazboi.donutcore.libs.sqlite</shadedPattern>
                                 </relocation>
                             </relocations>
