@@ -19,3 +19,38 @@
 # for zones AND triggers. Lower = more precise enter/exit
 # detection, Higher = better performance.
 location-check-interval: 1
+
+# Example arena configuration section.
+# Actual arena data is usually stored in arenas.yml, but this
+# shows a sample arena structure for reference.
+AFKZONE:
+  enabled: true
+  display-name: "AFK ZONE"
+  world: afkzone
+  region: akfzone
+  enter:
+    message: "Welcome to the AFK ZONE!"
+  exit:
+    message: "You have left the AFK ZONE."
+  afk-reward:
+    interval: 60
+    command: "eco give credits 1 %player%"
+    messages:
+      title:
+        enabled: true
+        text: "AFK reward in %seconds% seconds"
+      action-bar:
+        enabled: true
+        text: "Next reward in %seconds%s"
+      chat:
+        enabled: true
+        text: "You will receive AFK credits in %seconds% seconds"
+#THIS IS A EXAMPLE FOR TRIGGERS, YOU CAN REMOVE IT IF YOU WANT    
+  triggers:
+    portal:
+      region: example_arena_portal
+      command: "say %player% entered the portal"
+      teleport:
+        x: 100
+        y: 65
+        z: 200
