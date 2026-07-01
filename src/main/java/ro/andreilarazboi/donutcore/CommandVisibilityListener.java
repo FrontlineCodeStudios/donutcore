@@ -37,6 +37,16 @@ public class CommandVisibilityListener implements Listener {
         "donutcore:donutstash", "donutcore:stash"
     );
 
+    private static final Set<String> VIP_CMDS = Set.of(
+        "chatcolor", "namecolor",
+        "donutcore:chatcolor", "donutcore:namecolor"
+    );
+
+    private static final Set<String> HIDE_CMDS = Set.of(
+        "hide", "staffhide",
+        "donutcore:hide", "donutcore:staffhide"
+    );
+
     public CommandVisibilityListener(DonutCore plugin) {
         this.plugin = plugin;
     }
@@ -44,10 +54,12 @@ public class CommandVisibilityListener implements Listener {
     @EventHandler
     public void onCommandSend(PlayerCommandSendEvent event) {
         Collection<String> cmds = event.getCommands();
-        if (!plugin.getCratesModule().isActive())     cmds.removeAll(CRATES_CMDS);
-        if (!plugin.getSellModule().isActive())       cmds.removeAll(SELL_CMDS);
-        if (!plugin.getEnderChestModule().isActive()) cmds.removeAll(ENDERCHEST_CMDS);
-        if (!plugin.getArenasModule().isActive())     cmds.removeAll(ARENA_CMDS);
-        if (!plugin.getStashModule().isActive())      cmds.removeAll(STASH_CMDS);
+        if (!plugin.getCratesModule().isActive())           cmds.removeAll(CRATES_CMDS);
+        if (!plugin.getSellModule().isActive())             cmds.removeAll(SELL_CMDS);
+        if (!plugin.getEnderChestModule().isActive())       cmds.removeAll(ENDERCHEST_CMDS);
+        if (!plugin.getArenasModule().isActive())           cmds.removeAll(ARENA_CMDS);
+        if (!plugin.getStashModule().isActive())            cmds.removeAll(STASH_CMDS);
+        if (!plugin.getVipFeaturesModule().isActive())      cmds.removeAll(VIP_CMDS);
+        if (!plugin.getHideModule().isActive())             cmds.removeAll(HIDE_CMDS);
     }
 }

@@ -8,8 +8,10 @@ import ro.andreilarazboi.donutcore.arenas.ArenasModule;
 import ro.andreilarazboi.donutcore.crates.CratesModule;
 import ro.andreilarazboi.donutcore.enderchest.EnderChestModule;
 import ro.andreilarazboi.donutcore.fastcrystals.FastCrystalsModule;
+import ro.andreilarazboi.donutcore.hide.HideModule;
 import ro.andreilarazboi.donutcore.sell.SellModule;
 import ro.andreilarazboi.donutcore.stash.StashModule;
+import ro.andreilarazboi.donutcore.vipfeatures.VipFeaturesModule;
 
 import java.util.Objects;
 import java.util.logging.Handler;
@@ -24,6 +26,8 @@ public final class DonutCore extends JavaPlugin {
     private ArenasModule arenasModule;
     private FastCrystalsModule fastCrystalsModule;
     private StashModule stashModule;
+    private VipFeaturesModule vipFeaturesModule;
+    private HideModule hideModule;
 
     private static final char   ESC   = 27;
     private static final String RESET = ESC + "[0m";
@@ -37,7 +41,8 @@ public final class DonutCore extends JavaPlugin {
         saveDefaultConfig();
 
         boolean cratesOk = false, sellOk = false, enderChestOk = false,
-                arenasOk = false, fastCrystalsOk = false, stashOk = false;
+                arenasOk = false, fastCrystalsOk = false, stashOk = false,
+                vipOk = false, hideOk = false;
 
         cratesModule = new CratesModule(this);
         if (getConfig().getBoolean("modules.crates", true)) {
@@ -75,6 +80,18 @@ public final class DonutCore extends JavaPlugin {
             catch (Throwable t) { getLogger().severe("Stash module failed: " + t.getMessage()); }
         }
 
+        vipFeaturesModule = new VipFeaturesModule(this);
+        if (getConfig().getBoolean("modules.vipfeatures", false)) {
+            try { vipFeaturesModule.enable(); vipOk = true; }
+            catch (Throwable t) { getLogger().severe("VipFeatures module failed: " + t.getMessage()); }
+        }
+
+        hideModule = new HideModule(this);
+        if (getConfig().getBoolean("modules.hide", false)) {
+            try { hideModule.enable(); hideOk = true; }
+            catch (Throwable t) { getLogger().severe("Hide module failed: " + t.getMessage()); }
+        }
+
         DonutCoreCommand donutCoreCmd = new DonutCoreCommand(this);
         Objects.requireNonNull(getCommand("donutcore")).setExecutor(donutCoreCmd);
         Objects.requireNonNull(getCommand("donutcore")).setTabCompleter(donutCoreCmd);
@@ -82,7 +99,7 @@ public final class DonutCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CommandVisibilityListener(this), this);
 
         syncModuleCommandVisibility();
-        printBanner(cratesOk, sellOk, enderChestOk, arenasOk, fastCrystalsOk, stashOk);
+        printBanner(cratesOk, sellOk, enderChestOk, arenasOk, fastCrystalsOk, stashOk, vipOk, hideOk);
     }
 
     public void syncModuleCommandVisibility() {
@@ -90,7 +107,9 @@ public final class DonutCore extends JavaPlugin {
         boolean sellOn   = sellModule.isActive();
         boolean ecOn     = enderChestModule.isActive();
         boolean arenaOn  = arenasModule != null && arenasModule.isActive();
-        boolean stashOn  = stashModule != null && stashModule.isActive();
+        boolean stashOn   = stashModule        != null && stashModule.isActive();
+        boolean vipOn     = vipFeaturesModule   != null && vipFeaturesModule.isActive();
+        boolean hideOn    = hideModule          != null && hideModule.isActive();
 
         applyPerm("donutcrate",  cratesOn ? "donutcore.crate.use"  : "donutcore.admin", !cratesOn);
 
@@ -104,8 +123,12 @@ public final class DonutCore extends JavaPlugin {
         applyPerm("enderchest",  ecOn ? "enderchest.command"        : "donutcore.admin", !ecOn);
         applyPerm("clearechest", ecOn ? "enderchest.clear"          : "donutcore.admin", !ecOn);
 
-        applyPerm("donutarena", arenaOn ? "donutcore.arenas.admin" : "donutcore.admin", !arenaOn);
-        applyPerm("donutstash", stashOn ? "donutcore.admin.stash"  : "donutcore.admin", !stashOn);
+        applyPerm("donutarena",  arenaOn ? "donutcore.arenas.admin"  : "donutcore.admin", !arenaOn);
+        applyPerm("donutstash",  stashOn ? "donutcore.admin.stash"   : "donutcore.admin", !stashOn);
+        applyPerm("chatcolor",   vipOn   ? "donutcore.vip.chatcolor" : "donutcore.admin", !vipOn);
+        applyPerm("namecolor",   vipOn   ? "donutcore.vip.namecolor" : "donutcore.admin", !vipOn);
+        applyPerm("hide",        hideOn  ? "donutcore.hide.vip"      : "donutcore.admin", !hideOn);
+        applyPerm("staffhide",   hideOn  ? "donutcore.hide.staff"    : "donutcore.admin", !hideOn);
 
         getServer().getOnlinePlayers().forEach(Player::updateCommands);
     }
@@ -137,7 +160,8 @@ public final class DonutCore extends JavaPlugin {
     }
 
     private void printBanner(boolean cratesOk, boolean sellOk, boolean enderChestOk,
-                             boolean arenasOk, boolean fastCrystalsOk, boolean stashOk) {
+                             boolean arenasOk, boolean fastCrystalsOk, boolean stashOk,
+                             boolean vipOk, boolean hideOk) {
         boolean hasPapi       = getServer().getPluginManager().getPlugin("PlaceholderAPI") != null;
         boolean hasVault      = getServer().getPluginManager().getPlugin("Vault") != null;
         boolean hasWorldGuard = getServer().getPluginManager().getPlugin("WorldGuard") != null;
@@ -166,6 +190,8 @@ public final class DonutCore extends JavaPlugin {
         log("    Arenas        » " + (arenasOk       ? on : off));
         log("    FastCrystals  » " + (fastCrystalsOk ? on : off));
         log("    Stash         » " + (stashOk        ? on : off));
+        log("    VIP Features  » " + (vipOk          ? on : off));
+        log("    Hide          » " + (hideOk         ? on : off));
         log("");
         log("    PlaceholderAPI » " + (hasPapi       ? "YES" : "NO  (Install it for the plugin to work properly)"));
         log("    Vault          » " + (hasVault      ? "YES" : "NO  (Install it for the plugin to work properly)"));
@@ -181,12 +207,14 @@ public final class DonutCore extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (arenasModule       != null && arenasModule.isActive())       arenasModule.disable();
-        if (stashModule        != null && stashModule.isActive())        stashModule.disable();
+        if (hideModule         != null && hideModule.isActive())        hideModule.disable();
+        if (vipFeaturesModule  != null && vipFeaturesModule.isActive()) vipFeaturesModule.disable();
+        if (arenasModule       != null && arenasModule.isActive())      arenasModule.disable();
+        if (stashModule        != null && stashModule.isActive())       stashModule.disable();
         if (fastCrystalsModule != null && fastCrystalsModule.isActive()) fastCrystalsModule.disable();
-        if (enderChestModule   != null && enderChestModule.isActive())   enderChestModule.disable();
-        if (sellModule         != null && sellModule.isActive())         sellModule.disable();
-        if (cratesModule       != null && cratesModule.isActive())       cratesModule.disable();
+        if (enderChestModule   != null && enderChestModule.isActive())  enderChestModule.disable();
+        if (sellModule         != null && sellModule.isActive())        sellModule.disable();
+        if (cratesModule       != null && cratesModule.isActive())      cratesModule.disable();
         getLogger().info("DonutCore disabled.");
     }
 
@@ -197,4 +225,6 @@ public final class DonutCore extends JavaPlugin {
     public ArenasModule getArenasModule()                     { return arenasModule; }
     public FastCrystalsModule getFastCrystalsModule()         { return fastCrystalsModule; }
     public StashModule getStashModule()                       { return stashModule; }
+    public VipFeaturesModule getVipFeaturesModule()           { return vipFeaturesModule; }
+    public HideModule getHideModule()                         { return hideModule; }
 }
