@@ -8,8 +8,6 @@ description: DonutCore - Modular plugin with DonutSMP like modules.
 softdepend:
   - PlaceholderAPI
   - Vault
-  - WorldGuard
-  - WorldEdit
 
 commands:
   donutcore:
@@ -40,10 +38,9 @@ commands:
     description: Admin sell command
     usage: /donutsell <subcommand>
     permission: donutcore.sell.admin
-  donutcrate:
+  crate:
     description: Main crate command
-    usage: /donutcrate <subcommand>
-    aliases: [dcrate, crate]
+    usage: /crate <subcommand>
     permission: donutcore.crate.use
   enderchest:
     description: Open your ender chest
@@ -55,31 +52,6 @@ commands:
     usage: /clearechest <player>
     aliases: [clearenderchest]
     permission: enderchest.clear
-  donutarena:
-    description: Manage arena zones (requires WorldGuard)
-    usage: /donutarena
-    permission: donutcore.arenas.admin
-  donutstash:
-    description: Manage stash traps (WorldEdit schematics + manual marking)
-    usage: /donutstash <save|spawn|remove|list|mark|unmark>
-    aliases: [stash]
-    permission: donutcore.admin.stash
-  chatcolor:
-    description: Set your personal chat color
-    usage: /chatcolor <color|reset>
-    permission: donutcore.vip.chatcolor
-  namecolor:
-    description: Set your personal name color
-    usage: /namecolor <color|reset>
-    permission: donutcore.vip.namecolor
-  hide:
-    description: Toggle VIP / Streamer hide (hides name tag, tab, applies random skin)
-    usage: /hide
-    permission: donutcore.hide.vip
-  staffhide:
-    description: Toggle staff camouflage with a fake name and skin
-    usage: /staffhide [FakeName] [SkinName|UUID]
-    permission: donutcore.hide.staff
 
 permissions:
   donutcore.crate.use:
@@ -114,24 +86,6 @@ permissions:
     default: op
   enderchest.clear:
     description: Clear a player's ender chest
-    default: op
-  donutcore.arenas.admin:
-    description: Manage arenas
-    default: op
-  donutcore.admin.stash:
-    description: Use spawn/unspawn stash commands
-    default: op
-  donutcore.vip.chatcolor:
-    description: Set a custom chat color with /chatcolor
-    default: false
-  donutcore.vip.namecolor:
-    description: Set a custom name color with /namecolor
-    default: false
-  donutcore.hide.vip:
-    description: Toggle VIP/Streamer hide (/hide)
-    default: false
-  donutcore.hide.staff:
-    description: Toggle staff camouflage (/staffhide)
     default: op
   enderchest.size.1:
     description: Ender chest with 9 slots (1 row)

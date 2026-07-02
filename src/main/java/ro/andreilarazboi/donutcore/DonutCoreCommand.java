@@ -14,8 +14,7 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
 
     /** Canonical module names in display order. */
     private static final List<String> ALL_MODULES = List.of(
-            "crates", "sell", "enderchest", "arenas", "fastcrystals", "stash", "vipfeatures", "hide"
-    );
+            "crates", "sell", "enderchest");
 
     public DonutCoreCommand(DonutCore plugin) {
         this.plugin = plugin;
@@ -105,18 +104,14 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
     // =========================================================================
 
     private void sendModuleList(CommandSender sender) {
-        sender.sendMessage("§8§m════════════════════════════════════════");
-        sender.sendMessage("  §6§lDonutCore §7— Module Status");
-        sender.sendMessage("§8§m════════════════════════════════════════");
+        sendHelpLine(sender, "&7&m----------------------------");
+        sendHelpLine(sender, "&#0fe30fDonutCore Modules:");
         for (String name : ALL_MODULES) {
-            boolean active  = isActive(name);
-            String  icon    = active ? "§a✔" : "§c✗";
-            String  status  = active ? "§aEnabled" : "§cDisabled";
-            String  display = padRight(capitalize(name), 14);
-            sender.sendMessage("  " + icon + " §f" + display + "§8» " + status);
+            boolean active = isActive(name);
+            String status = active ? "&#0fe30fEnabled" : "&cDisabled";
+            sendHelpLine(sender, "&#0fe30f" + capitalize(name) + " &7- " + status);
         }
-        sender.sendMessage("§8§m════════════════════════════════════════");
-        sender.sendMessage("  §7Use §f/donutcore modules enable/disable <module|all>");
+        sendHelpLine(sender, "&7&m----------------------------");
     }
 
     // =========================================================================
@@ -139,8 +134,10 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
         }
 
         try {
-            if (enable) getModule(name).enable();
-            else        getModule(name).disable();
+            if (enable)
+                getModule(name).enable();
+            else
+                getModule(name).disable();
         } catch (Throwable t) {
             sender.sendMessage("§c" + capitalize(name) + " failed: " + t.getMessage());
             return;
@@ -175,8 +172,10 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
                 continue;
             }
             try {
-                if (enable) getModule(name).enable();
-                else        getModule(name).disable();
+                if (enable)
+                    getModule(name).enable();
+                else
+                    getModule(name).disable();
                 plugin.getConfig().set("modules." + name, enable);
                 changed++;
             } catch (Throwable t) {
@@ -200,90 +199,76 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
     // =========================================================================
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage("§8§m════════════════════════════════════════");
-        sender.sendMessage("  §6§lDonutCore §7— Command Reference");
-        sender.sendMessage("§8§m════════════════════════════════════════");
-
+        sendHelpLine(sender, "&7&m----------------------------");
+        sendHelpLine(sender, "&#0fe30fDonutCore Help Menu:");
+        
         // --- Admin ---
-        sender.sendMessage("  §e§lAdmin §8| §7donutcore.admin");
-        sender.sendMessage("    §f/donutcore modules list");
-        sender.sendMessage("    §f/donutcore modules enable §8<module|all>");
-        sender.sendMessage("    §f/donutcore modules disable §8<module|all>");
-        sender.sendMessage("    §f/donutcore help");
-        sender.sendMessage("");
+        if (sender.hasPermission("donutcore.admin")) {
+            sendHelpLine(sender, "&#0fe30f/donutcore modules list &7- List all modules.");
+            sendHelpLine(sender, "&#0fe30f/donutcore modules enable <module|all> &7- Enable a module.");
+            sendHelpLine(sender, "&#0fe30f/donutcore modules disable <module|all> &7- Disable a module.");
+            sendHelpLine(sender, "&#0fe30f/donutcore help &7- Show this help menu.");
+        }
 
         // --- Sell ---
-        helpLine(sender, "Sell", "donutcore.sell.use",
-                plugin.getSellModule().isActive(),
-                "/sell §8· §f/sellmulti §8· §f/worth §8· §f/toggleworth §8· §f/sellhistory");
-        helpLine(sender, "Sell Admin", "donutcore.sell.admin",
-                plugin.getSellModule().isActive(),
-                "/donutsell");
+        if (plugin.getSellModule().isActive() && (sender.hasPermission("donutcore.sell.use") || sender.hasPermission("donutcore.admin"))) {
+            sendHelpLine(sender, "&#0fe30f/sell &7- Open the sell GUI.");
+            sendHelpLine(sender, "&#0fe30f/sellmulti &7- Sell multiple items.");
+            sendHelpLine(sender, "&#0fe30f/worth &7- Check item worth.");
+            sendHelpLine(sender, "&#0fe30f/toggleworth &7- Toggle worth messages.");
+            sendHelpLine(sender, "&#0fe30f/sellhistory &7- View sell history.");
+        }
 
         // --- Crates ---
-        helpLine(sender, "Crates", "donutcore.crate.use",
-                plugin.getCratesModule().isActive(),
-                "/donutcrate §8[aliases: /dcrate, /crate]");
-        helpLine(sender, "Crates Admin", "donutcore.crate.admin",
-                plugin.getCratesModule().isActive(),
-                "/donutcrate give/set/…");
+        if (plugin.getCratesModule().isActive()) {
+            sendHelpLine(sender, "&#0fe30f/crate stats &7- Open crate stats GUI.");
+            if (sender.hasPermission("donutcrate.admin") || sender.hasPermission("donutcore.admin")) {
+                sendHelpLine(sender, "&#0fe30f/crate editor &7- Open crate editor.");
+                sendHelpLine(sender, "&#0fe30f/crate preview <crate> &7- Preview a crate.");
+                sendHelpLine(sender, "&#0fe30f/crate reload &7- Reload crate data.");
+                sendHelpLine(sender, "&#0fe30f/crate key <give|giveall|remove|reset> ...");
+            }
+        }
 
         // --- EnderChest ---
-        helpLine(sender, "EnderChest", "enderchest.command",
-                plugin.getEnderChestModule().isActive(),
-                "/enderchest §8[aliases: /ec, /echest]");
-        helpLine(sender, "EnderChest Admin", "enderchest.clear",
-                plugin.getEnderChestModule().isActive(),
-                "/clearechest §8<player>");
+        if (plugin.getEnderChestModule().isActive()) {
+            if (sender.hasPermission("enderchest.command") || sender.hasPermission("donutcore.admin")) {
+                sendHelpLine(sender, "&#0fe30f/enderchest &7- Open your enderchest.");
+            }
+            if (sender.hasPermission("enderchest.clear") || sender.hasPermission("donutcore.admin")) {
+                sendHelpLine(sender, "&#0fe30f/clearechest <player> &7- Clear a player's enderchest.");
+            }
+        }
 
-        // --- Arenas ---
-        helpLine(sender, "Arenas Admin", "donutcore.arenas.admin",
-                plugin.getArenasModule().isActive(),
-                "/donutarena");
-
-        // --- FastCrystals ---
-        helpSection(sender, "FastCrystals", plugin.getFastCrystalsModule().isActive(),
-                "§7Passive — no commands. Grants immunity to own crystal explosions.");
-
-        // --- Stash ---
-        helpLine(sender, "Stash Admin", "donutcore.admin.stash",
-                plugin.getStashModule().isActive(),
-                "/donutstash save/spawn/remove/list/mark/unmark §8[alias: /stash]");
-
-        // --- VIP Features ---
-        helpLine(sender, "VIP Features", "donutcore.vip.chatcolor",
-                plugin.getVipFeaturesModule().isActive(),
-                "/chatcolor §8<&X|&#RRGGBB|reset>");
-        helpLine(sender, "VIP Features", "donutcore.vip.namecolor",
-                plugin.getVipFeaturesModule().isActive(),
-                "/namecolor §8<&X|&#RRGGBB|reset>");
-
-        // --- Hide ---
-        helpLine(sender, "Hide VIP", "donutcore.hide.vip",
-                plugin.getHideModule().isActive(),
-                "/hide §8— toggle streamer mode (name tag + random skin)");
-        helpLine(sender, "Hide Staff", "donutcore.hide.staff",
-                plugin.getHideModule().isActive(),
-                "/staffhide §8<FakeName> [SkinName|UUID]  ·  no args = deactivate");
-
-        sender.sendMessage("§8§m════════════════════════════════════════");
+        sendHelpLine(sender, "&7&m----------------------------");
     }
 
-    /** Prints a module section header + command line (coloured by active/inactive). */
-    private void helpLine(CommandSender sender, String section, String perm,
-                          boolean moduleActive, String commands) {
-        String status = moduleActive ? "" : " §c[Disabled]";
-        sender.sendMessage("  §e§l" + section + status + " §8| §7" + perm);
-        sender.sendMessage("    §f" + commands);
-        sender.sendMessage("");
+    private void sendHelpLine(CommandSender sender, String raw) {
+        sender.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(formatColors(raw)));
     }
 
-    /** Prints a passive module section (no command). */
-    private void helpSection(CommandSender sender, String section, boolean moduleActive, String note) {
-        String status = moduleActive ? "" : " §c[Disabled]";
-        sender.sendMessage("  §e§l" + section + status);
-        sender.sendMessage("    " + note);
-        sender.sendMessage("");
+    private String formatColors(String input) {
+        if (input == null) return null;
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})").matcher(input);
+        StringBuffer buffer = new StringBuffer(input.length() + 32);
+        while (matcher.find()) {
+            String hex = matcher.group(1);
+            StringBuilder repl = new StringBuilder("§x");
+            for (char c : hex.toCharArray()) repl.append('§').append(c);
+            matcher.appendReplacement(buffer, java.util.regex.Matcher.quoteReplacement(repl.toString()));
+        }
+        matcher.appendTail(buffer);
+        char[] chars = buffer.toString().toCharArray();
+        StringBuilder sb = new StringBuilder(chars.length);
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == '&' && i + 1 < chars.length && "0123456789abcdefklmnorx".indexOf(Character.toLowerCase(chars[i + 1])) >= 0) {
+                sb.append('§').append(Character.toLowerCase(chars[i + 1]));
+                i++;
+            } else {
+                sb.append(chars[i]);
+            }
+        }
+        return sb.toString();
     }
 
     // =========================================================================
@@ -293,58 +278,49 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
     /** Returns whether the named module is currently active. */
     private boolean isActive(String name) {
         return switch (name) {
-            case "crates"       -> plugin.getCratesModule().isActive();
-            case "sell"         -> plugin.getSellModule().isActive();
-            case "enderchest"   -> plugin.getEnderChestModule().isActive();
-            case "arenas"       -> plugin.getArenasModule().isActive();
-            case "fastcrystals" -> plugin.getFastCrystalsModule().isActive();
-            case "stash"        -> plugin.getStashModule().isActive();
-            case "vipfeatures"  -> plugin.getVipFeaturesModule().isActive();
-            case "hide"         -> plugin.getHideModule().isActive();
-            default             -> false;
+            case "crates" -> plugin.getCratesModule().isActive();
+            case "sell" -> plugin.getSellModule().isActive();
+            case "enderchest" -> plugin.getEnderChestModule().isActive();
+            default -> false;
         };
     }
 
     /** Small interface to unify module enable/disable calls. */
     private interface Togglable {
         void enable();
+
         void disable();
     }
 
     /** Returns a {@link Togglable} adapter for the named module. */
     private Togglable getModule(String name) {
         return switch (name) {
-            case "crates"       -> new Togglable() {
-                public void enable()  { plugin.getCratesModule().enable(); }
-                public void disable() { plugin.getCratesModule().disable(); }
+            case "crates" -> new Togglable() {
+                public void enable() {
+                    plugin.getCratesModule().enable();
+                }
+
+                public void disable() {
+                    plugin.getCratesModule().disable();
+                }
             };
-            case "sell"         -> new Togglable() {
-                public void enable()  { plugin.getSellModule().enable(); }
-                public void disable() { plugin.getSellModule().disable(); }
+            case "sell" -> new Togglable() {
+                public void enable() {
+                    plugin.getSellModule().enable();
+                }
+
+                public void disable() {
+                    plugin.getSellModule().disable();
+                }
             };
-            case "enderchest"   -> new Togglable() {
-                public void enable()  { plugin.getEnderChestModule().enable(); }
-                public void disable() { plugin.getEnderChestModule().disable(); }
-            };
-            case "arenas"       -> new Togglable() {
-                public void enable()  { plugin.getArenasModule().enable(); }
-                public void disable() { plugin.getArenasModule().disable(); }
-            };
-            case "fastcrystals" -> new Togglable() {
-                public void enable()  { plugin.getFastCrystalsModule().enable(); }
-                public void disable() { plugin.getFastCrystalsModule().disable(); }
-            };
-            case "stash"        -> new Togglable() {
-                public void enable()  { plugin.getStashModule().enable(); }
-                public void disable() { plugin.getStashModule().disable(); }
-            };
-            case "vipfeatures"  -> new Togglable() {
-                public void enable()  { plugin.getVipFeaturesModule().enable(); }
-                public void disable() { plugin.getVipFeaturesModule().disable(); }
-            };
-            case "hide"         -> new Togglable() {
-                public void enable()  { plugin.getHideModule().enable(); }
-                public void disable() { plugin.getHideModule().disable(); }
+            case "enderchest" -> new Togglable() {
+                public void enable() {
+                    plugin.getEnderChestModule().enable();
+                }
+
+                public void disable() {
+                    plugin.getEnderChestModule().disable();
+                }
             };
             default -> throw new IllegalArgumentException("Unknown module: " + name);
         };
@@ -372,7 +348,8 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("donutcore.admin")) return null;
+        if (!sender.hasPermission("donutcore.admin"))
+            return null;
 
         return switch (args.length) {
             case 1 -> filter(List.of("modules", "help"), args[0]);
@@ -384,7 +361,7 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
                 yield null;
             }
             case 3 -> {
-                String sub    = args[0].toLowerCase();
+                String sub = args[0].toLowerCase();
                 String action = args[1].toLowerCase();
                 if ((sub.equals("modules") || sub.equals("module"))
                         && (action.equals("enable") || action.equals("disable"))) {

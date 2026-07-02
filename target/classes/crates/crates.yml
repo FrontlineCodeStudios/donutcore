@@ -1,3 +1,469 @@
-# DonutCrates - crate definitions
-# Crates are managed in-game via /donutcrate editor
-Crates: {}
+Crates:
+  keyall:
+    rows: 4
+    fillerEnabled: true
+    fillerMaterial: GRAY_STAINED_GLASS_PANE
+    title: '&8ᴋᴇʏᴀʟʟ ᴄʀᴀᴛᴇ'
+    Items:
+      Item1:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:diamond_helmet
+          count: 1
+          schema_version: 1
+        amount: 1
+        slot: 10
+        giveitem: true
+        material: DIAMOND_HELMET
+        enchantments: []
+      Item2:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:diamond_chestplate
+          count: 1
+          schema_version: 1
+        amount: 1
+        slot: 11
+        giveitem: true
+        material: DIAMOND_CHESTPLATE
+        enchantments: []
+      Item3:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:diamond_leggings
+          count: 1
+          schema_version: 1
+        amount: 1
+        slot: 12
+        giveitem: true
+        material: DIAMOND_LEGGINGS
+        enchantments: []
+      Item4:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:diamond_boots
+          count: 1
+          schema_version: 1
+        amount: 1
+        slot: 13
+        giveitem: true
+        material: DIAMOND_BOOTS
+        enchantments: []
+      Item5:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:diamond_sword
+          count: 1
+          schema_version: 1
+        amount: 1
+        slot: 14
+        giveitem: true
+        material: DIAMOND_SWORD
+        enchantments: []
+      Item6:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:diamond_pickaxe
+          count: 1
+          schema_version: 1
+        amount: 1
+        slot: 15
+        giveitem: true
+        material: DIAMOND_PICKAXE
+        enchantments: []
+      Item7:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:diamond_axe
+          count: 1
+          schema_version: 1
+        amount: 1
+        slot: 16
+        giveitem: true
+        material: DIAMOND_AXE
+        enchantments: []
+      Item8:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:bow
+          count: 1
+          schema_version: 1
+        amount: 1
+        slot: 19
+        giveitem: true
+        material: BOW
+        enchantments: []
+      Item9:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:arrow
+          count: 8
+          schema_version: 1
+        amount: 8
+        slot: 20
+        giveitem: true
+        material: ARROW
+        enchantments: []
+      Item10:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:cooked_beef
+          count: 16
+          schema_version: 1
+        amount: 16
+        slot: 21
+        giveitem: true
+        material: COOKED_BEEF
+        enchantments: []
+      Item11:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:totem_of_undying
+          count: 1
+          schema_version: 1
+        amount: 1
+        slot: 22
+        giveitem: true
+        material: TOTEM_OF_UNDYING
+        enchantments: []
+      Item12:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:golden_apple
+          count: 4
+          schema_version: 1
+        amount: 4
+        slot: 23
+        giveitem: true
+        material: GOLDEN_APPLE
+        enchantments: []
+      Item14:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:iron_ingot
+          count: 16
+          schema_version: 1
+        amount: 16
+        slot: 25
+        giveitem: true
+        material: IRON_INGOT
+        enchantments: []
+  gear:
+    rows: 3
+    fillerEnabled: true
+    fillerMaterial: GRAY_STAINED_GLASS_PANE
+    title: '&8ɢᴇᴀʀ ᴄʀᴀтᴇ'
+    Items:
+      Item8:
+        material: NETHERITE_HELMET
+        displayname: §x§F§F§6§A§0§0ɢᴇᴀʀ ʜᴇʟᴍᴇᴛ
+        amount: 1
+        slot: 9
+        command: ''
+        giveitem: true
+        enchantments:
+        - MENDING;1
+        - OXYGEN;3
+        - PROTECTION_ENVIRONMENTAL;4
+        - WATER_WORKER;1
+        - DURABILITY;3
+        trim:
+          material: minecraft:gold
+          pattern: minecraft:silence
+      Item9:
+        material: NETHERITE_CHESTPLATE
+        displayname: §x§F§F§6§A§0§0ɢᴇᴀʀ ᴄʜᴇsᴛᴘʟᴀᴛᴇ
+        amount: 1
+        slot: 10
+        command: ''
+        giveitem: true
+        enchantments:
+        - MENDING;1
+        - PROTECTION_ENVIRONMENTAL;4
+        - DURABILITY;3
+        trim:
+          material: minecraft:gold
+          pattern: minecraft:silence
+      Item10:
+        material: NETHERITE_LEGGINGS
+        displayname: §x§F§F§6§A§0§0ɢᴇᴀʀ ʟᴇɢɢɪɴɢs
+        amount: 1
+        slot: 11
+        command: ''
+        giveitem: true
+        enchantments:
+        - MENDING;1
+        - PROTECTION_ENVIRONMENTAL;4
+        - SWIFT_SNEAK;3
+        - DURABILITY;3
+        trim:
+          material: minecraft:gold
+          pattern: minecraft:silence
+      Item11:
+        material: NETHERITE_BOOTS
+        displayname: §x§F§F§6§A§0§0ɢᴇᴀʀ ʙᴏᴏᴛs
+        amount: 1
+        slot: 12
+        lore: []
+        command: ''
+        giveitem: true
+        enchantments:
+        - DEPTH_STRIDER;3
+        - MENDING;1
+        - PROTECTION_ENVIRONMENTAL;4
+        - PROTECTION_FALL;4
+        - SOUL_SPEED;3
+        - DURABILITY;3
+        trim:
+          material: minecraft:gold
+          pattern: minecraft:silence
+      Item12:
+        material: NETHERITE_SWORD
+        displayname: §x§F§F§6§A§0§0ɢᴇᴀʀ sᴡᴏʀᴅ
+        amount: 1
+        slot: 13
+        command: ''
+        giveitem: true
+        enchantments:
+        - LOOT_BONUS_MOBS;3
+        - DAMAGE_ALL;5
+        - SWEEPING_EDGE;2
+        - FIRE_ASPECT;2
+        - DURABILITY;3
+      Item13:
+        material: NETHERITE_AXE
+        displayname: §x§F§F§6§A§0§0ɢᴇᴀʀ ᴀxᴇ
+        amount: 1
+        slot: 14
+        lore: []
+        command: ''
+        giveitem: true
+        enchantments:
+        - DIG_SPEED;5
+        - DAMAGE_ALL;3
+        - DURABILITY;3
+      Item16:
+        material: CROSSBOW
+        displayname: §x§F§F§6§A§0§0ɢᴇᴀʀ ᴄʀᴏssʙᴏᴡ
+        amount: 1
+        slot: 17
+        command: ''
+        giveitem: true
+        enchantments:
+        - MENDING;1
+        - PIERCING;4
+        - QUICK_CHARGE;3
+        - DURABILITY;3
+      Item17:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:netherite_pickaxe
+          count: 1
+          components:
+            minecraft:enchantments: '{"minecraft:efficiency":5,"minecraft:silk_touch":1,"minecraft:unbreaking":3}'
+            minecraft:custom_name: '{color:"#F58231",italic:0b,text:"ɢᴇᴀʀ ᴘɪᴄᴋᴀхᴇ"}'
+            minecraft:custom_data: '{PublicBukkitValues:{"zessentials:item-name-raw":"#F58231ɢᴇᴀʀ
+              ᴘɪᴄᴋᴀхᴇ"}}'
+          schema_version: 1
+        amount: 1
+        slot: 15
+        giveitem: true
+        material: NETHERITE_PICKAXE
+        displayname: §x§F§5§8§2§3§1ɢᴇᴀʀ ᴘɪᴄᴋᴀхᴇ
+        enchantments:
+        - SILK_TOUCH;1
+        - DURABILITY;3
+        - DIG_SPEED;5
+        chance: 0.0
+        broadcast:
+          enabled: false
+      Item18:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:ominous_trial_key
+          count: 2
+          schema_version: 1
+        amount: 2
+        slot: 16
+        giveitem: true
+        material: OMINOUS_TRIAL_KEY
+        enchantments: []
+        chance: 0.0
+        broadcast:
+          enabled: false
+  special:
+    rows: 3
+    fillerEnabled: true
+    fillerMaterial: GRAY_STAINED_GLASS_PANE
+    title: '&8ѕᴘᴇᴄıᴀʟ ᴄʀᴀтᴇ'
+    Items:
+      Item1:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:netherite_helmet
+          count: 1
+          components:
+            minecraft:unbreakable: '{}'
+            minecraft:custom_name: '{extra:[{bold:0b,color:"light_purple",italic:0b,obfuscated:0b,strikethrough:0b,text:"ѕᴘᴇᴄıᴀʟ
+              нᴇʟмᴇт",underlined:0b}],text:""}'
+          schema_version: 1
+        amount: 1
+        slot: 10
+        giveitem: true
+        material: NETHERITE_HELMET
+        displayname: §dѕᴘᴇᴄıᴀʟ нᴇʟмᴇт
+        unbreakable: true
+        enchantments: []
+        chance: 0.0
+        broadcast:
+          enabled: false
+      Item2:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:netherite_chestplate
+          count: 1
+          components:
+            minecraft:unbreakable: '{}'
+            minecraft:custom_name: '{extra:[{bold:0b,color:"light_purple",italic:0b,obfuscated:0b,strikethrough:0b,text:"ѕᴘᴇᴄıᴀʟ
+              ᴄнᴇѕтᴘʟᴀтᴇ",underlined:0b}],text:""}'
+          schema_version: 1
+        amount: 1
+        slot: 11
+        giveitem: true
+        material: NETHERITE_CHESTPLATE
+        displayname: §dѕᴘᴇᴄıᴀʟ ᴄнᴇѕтᴘʟᴀтᴇ
+        unbreakable: true
+        enchantments: []
+        chance: 0.0
+        broadcast:
+          enabled: false
+      Item3:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:netherite_leggings
+          count: 1
+          components:
+            minecraft:unbreakable: '{}'
+            minecraft:custom_name: '{extra:[{bold:0b,color:"light_purple",italic:0b,obfuscated:0b,strikethrough:0b,text:"ѕᴘᴇᴄıᴀʟ
+              ʟᴇɢɢıɴɢѕ",underlined:0b}],text:""}'
+          schema_version: 1
+        amount: 1
+        slot: 12
+        giveitem: true
+        material: NETHERITE_LEGGINGS
+        displayname: §dѕᴘᴇᴄıᴀʟ ʟᴇɢɢıɴɢѕ
+        unbreakable: true
+        enchantments: []
+        chance: 0.0
+        broadcast:
+          enabled: false
+      Item4:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:netherite_boots
+          count: 1
+          components:
+            minecraft:unbreakable: '{}'
+            minecraft:custom_name: '{color:"light_purple",italic:0b,text:"ѕᴘᴇᴄɪᴀʟ
+              ʙᴏᴏᴛѕ"}'
+            minecraft:custom_data: '{PublicBukkitValues:{"zessentials:item-name-raw":"&dѕᴘᴇᴄɪᴀʟ
+              ʙᴏᴏᴛѕ"}}'
+          schema_version: 1
+        amount: 1
+        slot: 13
+        giveitem: true
+        material: NETHERITE_BOOTS
+        displayname: §dѕᴘᴇᴄɪᴀʟ ʙᴏᴏᴛѕ
+        unbreakable: true
+        enchantments: []
+        chance: 0.0
+        broadcast:
+          enabled: false
+      Item5:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:netherite_sword
+          count: 1
+          components:
+            minecraft:unbreakable: '{}'
+            minecraft:custom_name: '{color:"light_purple",italic:0b,text:"ѕᴘᴇᴄɪᴀʟ
+              ѕᴡᴏʀᴅ"}'
+            minecraft:custom_data: '{PublicBukkitValues:{"zessentials:item-name-raw":"&dѕᴘᴇᴄɪᴀʟ
+              ѕᴡᴏʀᴅ"}}'
+          schema_version: 1
+        amount: 1
+        slot: 14
+        giveitem: true
+        material: NETHERITE_SWORD
+        displayname: §dѕᴘᴇᴄɪᴀʟ ѕᴡᴏʀᴅ
+        unbreakable: true
+        enchantments: []
+        chance: 0.0
+        broadcast:
+          enabled: false
+      Item6:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:netherite_axe
+          count: 1
+          components:
+            minecraft:unbreakable: '{}'
+            minecraft:custom_name: '{color:"light_purple",italic:0b,text:"ѕᴘᴇᴄɪᴀʟ
+              ᴀхᴇ"}'
+            minecraft:custom_data: '{PublicBukkitValues:{"zessentials:item-name-raw":"&dѕᴘᴇᴄɪᴀʟ
+              ᴀхᴇ"}}'
+          schema_version: 1
+        amount: 1
+        slot: 15
+        giveitem: true
+        material: NETHERITE_AXE
+        displayname: §dѕᴘᴇᴄɪᴀʟ ᴀхᴇ
+        unbreakable: true
+        enchantments: []
+        chance: 0.0
+        broadcast:
+          enabled: false
+      Item7:
+        item:
+          ==: org.bukkit.inventory.ItemStack
+          DataVersion: 4790
+          id: minecraft:netherite_pickaxe
+          count: 1
+          components:
+            minecraft:unbreakable: '{}'
+            minecraft:custom_name: '{color:"light_purple",italic:0b,text:"ѕᴘᴇᴄɪᴀʟ
+              ᴘɪᴄᴋᴀхᴇ"}'
+            minecraft:custom_data: '{PublicBukkitValues:{"zessentials:item-name-raw":"&dѕᴘᴇᴄɪᴀʟ
+              ᴘɪᴄᴋᴀхᴇ"}}'
+          schema_version: 1
+        amount: 1
+        slot: 16
+        giveitem: true
+        material: NETHERITE_PICKAXE
+        displayname: §dѕᴘᴇᴄɪᴀʟ ᴘɪᴄᴋᴀхᴇ
+        unbreakable: true
+        enchantments: []
+        chance: 0.0
+        broadcast:
+          enabled: false

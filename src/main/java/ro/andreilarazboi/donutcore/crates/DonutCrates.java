@@ -194,8 +194,8 @@ public final class DonutCrates {
             new DonutCratesPlaceholder().register();
         }
         DonutCrateCommand executor = new DonutCrateCommand(this);
-        Objects.requireNonNull(parent.getCommand("donutcrate")).setExecutor((CommandExecutor)executor);
-        Objects.requireNonNull(parent.getCommand("donutcrate")).setTabCompleter((TabCompleter)executor);
+        Objects.requireNonNull(parent.getCommand("crate")).setExecutor((CommandExecutor)executor);
+        Objects.requireNonNull(parent.getCommand("crate")).setTabCompleter((TabCompleter)executor);
         parent.getServer().getPluginManager().registerEvents((Listener)new BlockListener(this), (Plugin)parent);
         parent.getServer().getPluginManager().registerEvents((Listener)new InventoryCloseListener(this), (Plugin)parent);
         parent.getServer().getPluginManager().registerEvents((Listener)new ChatInputListener(this), (Plugin)parent);
