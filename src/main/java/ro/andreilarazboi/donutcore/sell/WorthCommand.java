@@ -20,7 +20,7 @@ public final class WorthCommand implements CommandExecutor, TabCompleter {
 
     public WorthCommand(DonutSell plugin) {
         this.plugin = plugin;
-        this.materialKeys = Arrays.stream(Material.values()).filter(Material::isItem).map(m -> m.name().toLowerCase()).sorted().collect(Collectors.toList());
+        this.materialKeys = Arrays.stream(Material.values()).filter(m -> m.isItem()).map(m -> m.name().toLowerCase()).sorted().collect(Collectors.toList());
         plugin.getCommand("worth").setExecutor(this);
         plugin.getCommand("worth").setTabCompleter(this);
     }

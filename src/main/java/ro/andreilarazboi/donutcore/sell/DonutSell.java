@@ -595,7 +595,7 @@ public final class DonutSell implements Listener {
     }
 
     private void saveToggleWorthToSave() {
-        this.saveConfig.set("toggleworth-disabled", this.toggleWorthDisabled.stream().map(UUID::toString).toList());
+        this.saveConfig.set("toggleworth-disabled", this.toggleWorthDisabled.stream().map(u -> u.toString()).toList());
         try { this.saveConfig.save(this.saveFile); } catch (IOException e) { e.printStackTrace(); }
     }
 
@@ -684,7 +684,7 @@ public final class DonutSell implements Listener {
             this.itemHistory.get(id).put(k, new Stats(old.count + st.count, old.revenue + st.revenue));
         });
         double sum = sold.values().stream().mapToDouble(s -> s.revenue).sum();
-        this.totalSold.merge(id, sum, Double::sum);
+        this.totalSold.merge(id, sum, (a, b) -> a + b);
         Map<String, Double> cmap = this.soldByCategory.computeIfAbsent(id, k -> new HashMap<>());
         HashMap<String, Double> catDelta = new HashMap<>();
         for (Map.Entry<String, List<String>> entry : this.categoryItems.entrySet()) {
@@ -693,7 +693,7 @@ public final class DonutSell implements Listener {
                     .filter(e -> entry.getValue().contains(e.getKey().toUpperCase(Locale.ROOT)))
                     .mapToDouble(e -> e.getValue().revenue).sum();
             if (!(catSum > 0.0)) continue;
-            cmap.merge(catName, catSum, Double::sum);
+            cmap.merge(catName, catSum, (a, b) -> a + b);
             catDelta.put(catName, catSum);
         }
         if (this.usingMySQL && this.mysql != null && sum > 0.0) {
@@ -762,7 +762,7 @@ public final class DonutSell implements Listener {
                             sold.merge(keyName, new Stats(inside.getAmount(), totalRev), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                             for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                                 if (!cat.getValue().contains(keyName.toUpperCase(Locale.ROOT))) continue;
-                                revCats.merge(cat.getKey(), totalRev, Double::sum);
+                                revCats.merge(cat.getKey(), totalRev, (a, b) -> a + b);
                             }
                         }
                         continue;
@@ -772,7 +772,7 @@ public final class DonutSell implements Listener {
                     sold.merge(insideKey, new Stats(inside.getAmount(), d), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                     for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                         if (!cat.getValue().contains(inside.getType().name())) continue;
-                        revCats.merge(cat.getKey(), d, Double::sum);
+                        revCats.merge(cat.getKey(), d, (a, b) -> a + b);
                     }
                 }
                 ItemStack emptyBox = new ItemStack(item.getType(), item.getAmount());
@@ -790,7 +790,7 @@ public final class DonutSell implements Listener {
                 sold.merge(boxKey, new Stats(item.getAmount(), boxValue), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                 for (Map.Entry<String, List<String>> entry : this.categoryItems.entrySet()) {
                     if (!entry.getValue().contains(item.getType().name())) continue;
-                    revCats.merge(entry.getKey(), boxValue, Double::sum);
+                    revCats.merge(entry.getKey(), boxValue, (a, b) -> a + b);
                 }
                 for (ItemStack inside : boxState.getInventory().getContents()) {
                     if (inside == null || inside.getType().isAir()) continue;
@@ -802,7 +802,7 @@ public final class DonutSell implements Listener {
                             sold.merge(keyName, new Stats(inside.getAmount(), totalRev), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                             for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                                 if (!cat.getValue().contains(keyName.toUpperCase(Locale.ROOT))) continue;
-                                revCats.merge(cat.getKey(), totalRev, Double::sum);
+                                revCats.merge(cat.getKey(), totalRev, (a, b) -> a + b);
                             }
                         }
                         continue;
@@ -812,7 +812,7 @@ public final class DonutSell implements Listener {
                     sold.merge(insideKey, new Stats(inside.getAmount(), d), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                     for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                         if (!cat.getValue().contains(inside.getType().name())) continue;
-                        revCats.merge(cat.getKey(), d, Double::sum);
+                        revCats.merge(cat.getKey(), d, (a, b) -> a + b);
                     }
                 }
                 continue;
@@ -827,7 +827,7 @@ public final class DonutSell implements Listener {
                     sold.merge(keyName, new Stats(item.getAmount(), totalRev), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                     for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                         if (!cat.getValue().contains(keyName.toUpperCase(Locale.ROOT))) continue;
-                        revCats.merge(cat.getKey(), totalRev, Double::sum);
+                        revCats.merge(cat.getKey(), totalRev, (a, b) -> a + b);
                     }
                 }
                 continue;
@@ -837,7 +837,7 @@ public final class DonutSell implements Listener {
             sold.merge(key, new Stats(item.getAmount(), raw), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
             for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                 if (!cat.getValue().contains(item.getType().name())) continue;
-                revCats.merge(cat.getKey(), raw, Double::sum);
+                revCats.merge(cat.getKey(), raw, (a, b) -> a + b);
             }
         }
 

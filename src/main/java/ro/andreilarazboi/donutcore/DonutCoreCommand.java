@@ -334,10 +334,6 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("  §f/donutcore help");
     }
 
-    private static String padRight(String s, int len) {
-        return s.length() >= len ? s : s + " ".repeat(len - s.length());
-    }
-
     private static String capitalize(String s) {
         return s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }

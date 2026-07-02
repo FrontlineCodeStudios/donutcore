@@ -259,7 +259,7 @@ public class CrateManager {
     }
 
     public String getCrateByBlock(Block b) {
-        return this.crateBlocks.entrySet().stream().filter(e -> e.getValue() != null && e.getValue().equals(b)).map(Map.Entry::getKey).findFirst().orElse(null);
+        return this.crateBlocks.entrySet().stream().filter(e -> e.getValue() != null && e.getValue().equals(b)).map(e -> e.getKey()).findFirst().orElse(null);
     }
 
     public boolean isRandomMode(String crate) {

@@ -28,7 +28,7 @@ public class CrateStatsGUI {
         Inventory inv = Bukkit.createInventory(holder, 54, Utils.toComponent("&#444444Crate Stats"));
         holder.setInventory(inv);
         ArrayList<String> crates = new ArrayList<String>(this.plugin.crateMgr.crateBlocks.keySet());
-        crates.sort(String::compareToIgnoreCase);
+        crates.sort((s1, s2) -> s1.compareToIgnoreCase(s2));
         for (int slot = 0; slot < 54 && slot < crates.size(); ++slot) {
             String crate = crates.get(slot);
             int opened = this.plugin.dataMgr.getCrateOpenCount(player.getUniqueId(), crate);

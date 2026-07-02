@@ -3,7 +3,6 @@ package ro.andreilarazboi.donutcore.sell;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -309,14 +308,14 @@ public final class AdminPriceEditorMenu implements Listener {
         if (sort == SortMode.HIGH_TO_LOW) {
             snapshot.sort((a, b) -> Double.compare(b.price(), a.price()));
         } else if (sort == SortMode.LOW_TO_HIGH) {
-            snapshot.sort(Comparator.comparingDouble(EntryData::price));
+            snapshot.sort((a, b) -> Double.compare(a.price(), b.price()));
         } else if (sort == SortMode.A_TO_Z) {
-            snapshot.sort(Comparator.comparing(EntryData::display, String.CASE_INSENSITIVE_ORDER));
+            snapshot.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.display(), b.display()));
         } else if (sort == SortMode.Z_TO_A) {
             snapshot.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(b.display(), a.display()));
         } else if (sort == SortMode.NO_LISTED_PRICE) {
-            snapshot.removeIf(EntryData::listed);
-            snapshot.sort(Comparator.comparing(EntryData::display, String.CASE_INSENSITIVE_ORDER));
+            snapshot.removeIf(entry -> entry.listed());
+            snapshot.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.display(), b.display()));
         }
         List<EntryData> immutable = List.copyOf(snapshot);
         this.viewCache.put(key, immutable);

@@ -102,7 +102,7 @@ public final class SellHistoryGui {
         switch (order) {
             case HIGH -> all.sort((a, b) -> Double.compare(b.getValue().revenue, a.getValue().revenue));
             case LOW -> all.sort((a, b) -> Double.compare(a.getValue().revenue, b.getValue().revenue));
-            case NAME -> all.sort(Comparator.comparing(Map.Entry::getKey));
+            case NAME -> all.sort(Comparator.comparing(e -> e.getKey()));
         }
         int perPage = (this.rows - 1) * 9;
         int from = (page - 1) * perPage;

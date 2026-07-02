@@ -258,7 +258,7 @@ public class ItemPricesMenu implements Listener {
             sorted = new ArrayList<>(this.masterEntries);
             switch (vt.getOrder(player.getUniqueId())) {
                 case HIGH_TO_LOW -> sorted.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
-                case LOW_TO_HIGH -> sorted.sort(Comparator.comparingDouble(Map.Entry::getValue));
+                case LOW_TO_HIGH -> sorted.sort((a, b) -> Double.compare(a.getValue(), b.getValue()));
                 case A_TO_Z, NAME -> sorted.sort(Comparator.comparing(en -> {
                     ItemMeta m = en.getKey().getItemMeta();
                     return m != null && m.hasDisplayName() && m.displayName() != null

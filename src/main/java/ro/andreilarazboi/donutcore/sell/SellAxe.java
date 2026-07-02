@@ -78,7 +78,7 @@ public final class SellAxe implements Listener {
                             (a, b) -> new DonutSell.Stats(a.count + b.count, a.revenue + b.revenue));
                     for (Map.Entry<String, List<String>> cat : this.plugin.categoryItems.entrySet()) {
                         if (!cat.getValue().contains(key.toUpperCase(Locale.ROOT))) continue;
-                        revCats.merge(cat.getKey(), total, Double::sum);
+                        revCats.merge(cat.getKey(), total, (a, b) -> a + b);
                     }
                 }
                 continue;
@@ -92,7 +92,7 @@ public final class SellAxe implements Listener {
                             (a, b) -> new DonutSell.Stats(a.count + b.count, a.revenue + b.revenue));
                     for (Map.Entry<String, List<String>> cat : this.plugin.categoryItems.entrySet()) {
                         if (!cat.getValue().contains(item.getType().name())) continue;
-                        revCats.merge(cat.getKey(), boxValue, Double::sum);
+                        revCats.merge(cat.getKey(), boxValue, (a, b) -> a + b);
                     }
                     for (ItemStack inside : nested.getInventory().getContents()) {
                         if (inside == null || inside.getType().isAir()) continue;
@@ -105,7 +105,7 @@ public final class SellAxe implements Listener {
                                         (a, b) -> new DonutSell.Stats(a.count + b.count, a.revenue + b.revenue));
                                 for (Map.Entry<String, List<String>> cat : this.plugin.categoryItems.entrySet()) {
                                     if (!cat.getValue().contains(key.toUpperCase(Locale.ROOT))) continue;
-                                    revCats.merge(cat.getKey(), val, Double::sum);
+                                    revCats.merge(cat.getKey(), val, (a, b) -> a + b);
                                 }
                             }
                             continue;
@@ -116,7 +116,7 @@ public final class SellAxe implements Listener {
                                 (a, b) -> new DonutSell.Stats(a.count + b.count, a.revenue + b.revenue));
                         for (Map.Entry<String, List<String>> cat : this.plugin.categoryItems.entrySet()) {
                             if (!cat.getValue().contains(inside.getType().name())) continue;
-                            revCats.merge(cat.getKey(), val, Double::sum);
+                            revCats.merge(cat.getKey(), val, (a, b) -> a + b);
                         }
                     }
                     continue;
@@ -128,7 +128,7 @@ public final class SellAxe implements Listener {
                     (a, b) -> new DonutSell.Stats(a.count + b.count, a.revenue + b.revenue));
             for (Map.Entry<String, List<String>> cat : this.plugin.categoryItems.entrySet()) {
                 if (!cat.getValue().contains(item.getType().name())) continue;
-                revCats.merge(cat.getKey(), value, Double::sum);
+                revCats.merge(cat.getKey(), value, (a, b) -> a + b);
             }
         }
         if (sold.isEmpty()) {

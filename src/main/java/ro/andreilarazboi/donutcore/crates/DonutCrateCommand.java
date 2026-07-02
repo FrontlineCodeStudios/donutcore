@@ -368,7 +368,7 @@ public class DonutCrateCommand
                 }
                 if (args[1].equalsIgnoreCase("pay")) {
                     if (args.length == 3) {
-                        List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                        List<String> players = Bukkit.getOnlinePlayers().stream().map(p -> p.getName())
                                 .collect(Collectors.toList());
                         return StringUtil.copyPartialMatches(args[2], players, new ArrayList<>());
                     }
@@ -408,7 +408,7 @@ public class DonutCrateCommand
             switch (args[1].toLowerCase()) {
                 case "give": {
                     if (args.length == 3) {
-                        List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                        List<String> players = Bukkit.getOnlinePlayers().stream().map(p -> p.getName())
                                 .collect(Collectors.toList());
                         return StringUtil.copyPartialMatches(args[2], players, new ArrayList<>());
                     }
@@ -431,7 +431,7 @@ public class DonutCrateCommand
                 }
                 case "remove": {
                     if (args.length == 3) {
-                        List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                        List<String> players = Bukkit.getOnlinePlayers().stream().map(p -> p.getName())
                                 .collect(Collectors.toList());
                         return StringUtil.copyPartialMatches(args[2], players, new ArrayList<>());
                     }
@@ -460,7 +460,7 @@ public class DonutCrateCommand
                         return List.of();
                     }
                     if (args.length == 3) {
-                        List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                        List<String> players = Bukkit.getOnlinePlayers().stream().map(p -> p.getName())
                                 .collect(Collectors.toList());
                         return StringUtil.copyPartialMatches(args[2], players, new ArrayList<>());
                     }

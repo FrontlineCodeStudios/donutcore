@@ -241,7 +241,7 @@ public final class SellAxeCommand implements CommandExecutor, TabCompleter {
             if (args[0].equalsIgnoreCase("givesellwand") || args[0].equalsIgnoreCase("resetall")) {
                 String prefix = args[1].toLowerCase(Locale.ROOT);
                 return Bukkit.getOnlinePlayers().stream()
-                        .map(Player::getName)
+                        .map(p -> p.getName())
                         .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix))
                         .collect(Collectors.toList());
             }

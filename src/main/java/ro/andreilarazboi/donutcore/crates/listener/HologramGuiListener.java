@@ -66,7 +66,7 @@ implements Listener {
                     String defaultTemplateId;
                     ConfigurationSection templates = this.plugin.cfg.config.getConfigurationSection("hologram-templates");
                     defaultTemplateId = templates != null && templates.isConfigurationSection("default") ? "default" : null;
-                    if (defaultTemplateId != null && ((activeTemplate = h.getString("template", null)) == null || activeTemplate.isBlank())) {
+                    if (templates != null && defaultTemplateId != null && ((activeTemplate = h.getString("template", null)) == null || activeTemplate.isBlank())) {
                         ConfigurationSection defaultTemplate = templates.getConfigurationSection(defaultTemplateId);
                         h.set("template", defaultTemplateId);
                         h.set("lines", defaultTemplate.getStringList("lines"));

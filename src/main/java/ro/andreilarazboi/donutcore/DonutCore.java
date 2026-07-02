@@ -2,7 +2,6 @@ package ro.andreilarazboi.donutcore;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import ro.andreilarazboi.donutcore.crates.CratesModule;
 import ro.andreilarazboi.donutcore.enderchest.EnderChestModule;
@@ -77,7 +76,7 @@ public final class DonutCore extends JavaPlugin {
         applyPerm("enderchest",  ecOn ? "enderchest.command"        : "donutcore.admin", !ecOn);
         applyPerm("clearechest", ecOn ? "enderchest.clear"          : "donutcore.admin", !ecOn);
 
-        getServer().getOnlinePlayers().forEach(Player::updateCommands);
+        getServer().getOnlinePlayers().forEach(p -> p.updateCommands());
     }
 
     @SuppressWarnings("deprecation")

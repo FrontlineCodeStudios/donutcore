@@ -70,7 +70,7 @@ public final class SellPacketListener {
         this.displayWorthLore = this.plugin.getConfig().getBoolean("display-worth-lore", true);
         this.worthLorePerItem = this.plugin.getConfig().getBoolean("worth-lore-per-item", false);
         this.worthLoreGuiWhitelist = this.plugin.getConfig().getStringList("worth-lore-whitelist-gui-names")
-                .stream().map(String::toLowerCase).collect(Collectors.toList());
+                .stream().map(s -> s.toLowerCase()).collect(Collectors.toList());
         this.disabledItems = this.plugin.getConfig().getStringList("disabled-items")
                 .stream().map(s -> s.toUpperCase(Locale.ROOT))
                 .collect(Collectors.toCollection(HashSet::new));
@@ -235,7 +235,7 @@ public final class SellPacketListener {
             double boxUnitPrice = this.plugin.getPrice(boxKey);
             String boxCat = this.plugin.categoryItems.entrySet().stream()
                     .filter(e -> e.getValue().contains(bukkit.getType().name()))
-                    .map(Map.Entry::getKey).findFirst().orElse(null);
+                    .map(e -> e.getKey()).findFirst().orElse(null);
             double boxMult = boxCat != null ? this.plugin.getSellMultiplier(playerId, boxCat) : 1.0;
             double perBoxTotal = boxUnitPrice * boxMult;
             for (ItemStack inside : box.getInventory().getContents()) {
@@ -243,7 +243,7 @@ public final class SellPacketListener {
                 double insideRaw = this.plugin.calculateItemWorth(inside);
                 String insideCat = this.plugin.categoryItems.entrySet().stream()
                         .filter(e -> e.getValue().contains(inside.getType().name()))
-                        .map(Map.Entry::getKey).findFirst().orElse(null);
+                        .map(e -> e.getKey()).findFirst().orElse(null);
                 double insideMult = insideCat != null ? this.plugin.getSellMultiplier(playerId, insideCat) : 1.0;
                 perBoxTotal += insideRaw * insideMult;
             }
@@ -276,7 +276,7 @@ public final class SellPacketListener {
             double unitRaw = baseVal + enchVal;
             String cat = this.plugin.categoryItems.entrySet().stream()
                     .filter(e -> e.getValue().contains(bukkit.getType().name()))
-                    .map(Map.Entry::getKey).findFirst().orElse(null);
+                    .map(e -> e.getKey()).findFirst().orElse(null);
             double mult = cat != null ? this.plugin.getSellMultiplier(playerId, cat) : 1.0;
             valueToShow = this.worthLorePerItem ? unitRaw * mult : unitRaw * bukkit.getAmount() * mult;
         }

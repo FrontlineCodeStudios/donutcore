@@ -42,7 +42,7 @@ implements Listener {
             return;
         }
         if (!holder.isHistoryView()) {
-            String crate = this.plugin.crateMgr.crateBlocks.keySet().stream().sorted(String::compareToIgnoreCase).skip(event.getRawSlot()).findFirst().orElse(null);
+            String crate = this.plugin.crateMgr.crateBlocks.keySet().stream().sorted((s1, s2) -> s1.compareToIgnoreCase(s2)).skip(event.getRawSlot()).findFirst().orElse(null);
             if (crate == null) {
                 return;
             }
