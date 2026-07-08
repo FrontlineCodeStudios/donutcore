@@ -15,8 +15,8 @@ public class CommandVisibilityListener implements Listener {
             "crate", "donutcore:crate");
 
     private static final Set<String> SELL_CMDS = Set.of(
-            "sell", "sellmulti", "worth", "toggleworth", "sellhistory", "donutsell",
-            "donutcore:sell", "donutcore:sellmulti", "donutcore:worth",
+            "sell", "worth", "toggleworth", "sellhistory", "donutsell",
+            "donutcore:sell", "donutcore:worth",
             "donutcore:toggleworth", "donutcore:sellhistory", "donutcore:donutsell");
 
     private static final Set<String> ENDERCHEST_CMDS = Set.of(

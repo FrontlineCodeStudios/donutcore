@@ -213,7 +213,6 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
         // --- Sell ---
         if (plugin.getSellModule().isActive() && (sender.hasPermission("donutcore.sell.use") || sender.hasPermission("donutcore.admin"))) {
             sendHelpLine(sender, "&#FF073A/sell &7- Open the sell GUI.");
-            sendHelpLine(sender, "&#FF073A/sellmulti &7- Sell multiple items.");
             sendHelpLine(sender, "&#FF073A/worth &7- Check item worth.");
             sendHelpLine(sender, "&#FF073A/toggleworth &7- Toggle worth messages.");
             sendHelpLine(sender, "&#FF073A/sellhistory &7- View sell history.");

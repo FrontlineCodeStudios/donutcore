@@ -18,10 +18,6 @@ commands:
     description: Open the sell menu
     usage: /sell
     permission: donutcore.sell.use
-  sellmulti:
-    description: Open the new sell menu
-    usage: /sellmulti
-    permission: donutcore.sell.use
   worth:
     description: Check item worth
     usage: /worth

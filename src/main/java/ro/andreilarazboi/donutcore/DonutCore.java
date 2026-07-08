@@ -67,7 +67,6 @@ public final class DonutCore extends JavaPlugin {
         applyPerm("crate",  cratesOn ? "donutcore.crate.use"  : "donutcore.admin", !cratesOn);
 
         applyPerm("sell",        sellOn ? "donutcore.sell.use"      : "donutcore.admin", !sellOn);
-        applyPerm("sellmulti",   sellOn ? "donutcore.sell.use"      : "donutcore.admin", !sellOn);
         applyPerm("worth",       sellOn ? "donutcore.sell.use"      : "donutcore.admin", !sellOn);
         applyPerm("toggleworth", sellOn ? "donutcore.sell.use"      : "donutcore.admin", !sellOn);
         applyPerm("sellhistory", sellOn ? "donutcore.sell.use"      : "donutcore.admin", !sellOn);

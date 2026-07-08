@@ -235,12 +235,6 @@ public final class DonutSell implements Listener {
         this.unregisterOtherSellCommands();
         new ToggleWorthCommand(this);
 
-        Objects.requireNonNull(this.parent.getCommand("sellmulti")).setExecutor((sender, cmd, lbl, args) -> {
-            if (!(sender instanceof Player p)) { sender.sendMessage(Utils.toComponent("&cOnly players can use this command.")); return true; }
-            this.getSellGui().openNew(p);
-            return true;
-        });
-
         if (!this.setupVault()) {
             this.parent.getLogger().severe("[DonutCore] Vault not found — economy features disabled. Install Vault + an economy plugin.");
         }
@@ -706,13 +700,10 @@ public final class DonutSell implements Listener {
         Player p = (Player) event.getPlayer();
         String openTitle = Utils.stripColor(event.getView().title());
         String classicTitle = Utils.stripColor(Utils.formatColors(this.getMenusConfig().getString("sell-menu.title", "&aSell Items")));
-        String newTitle = Utils.stripColor(Utils.formatColors(this.getMenusConfig().getString("new-sell-menu.title", "&aMulti Sell Items")));
-        boolean isOld = openTitle.equals(classicTitle);
-        boolean isNew = openTitle.equals(newTitle);
-        if (!isOld && !isNew) return;
+        if (!openTitle.equals(classicTitle)) return;
 
         Inventory inv = event.getInventory();
-        boolean useNewFlag = isNew;
+        boolean useNewFlag = this.getConfig().getBoolean("use-new-sell-menu", false);
         boolean excludeBottomRow = !useNewFlag && this.isUseMultipliers();
         int sellableSlots = inv.getSize() - (excludeBottomRow ? 9 : 0);
         Set<String> disabledSet = this.disabledItemsUpper;

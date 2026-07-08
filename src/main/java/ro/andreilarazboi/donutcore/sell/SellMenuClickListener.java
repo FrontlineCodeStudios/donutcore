@@ -29,7 +29,7 @@ public class SellMenuClickListener implements Listener {
         String oldTitle = Utils.stripColor(Utils.formatColors(this.plugin.getMenusConfig().getString("sell-menu.title", "")));
         String newTitle = Utils.stripColor(Utils.formatColors(this.plugin.getMenusConfig().getString("new-sell-menu.title", "")));
         boolean isOld = title.equals(oldTitle);
-        boolean isNew = title.equals(newTitle);
+        boolean isNew = this.useNew && title.equals(newTitle);
         if (!isOld && !isNew) return;
         Inventory top = e.getInventory();
         int topSize = top.getSize();
@@ -92,7 +92,7 @@ public class SellMenuClickListener implements Listener {
         String oldTitle = Utils.stripColor(Utils.formatColors(this.plugin.getMenusConfig().getString("sell-menu.title", "")));
         String newTitle = Utils.stripColor(Utils.formatColors(this.plugin.getMenusConfig().getString("new-sell-menu.title", "")));
         boolean isOld = title.equals(oldTitle);
-        boolean isNew = title.equals(newTitle);
+        boolean isNew = this.useNew && title.equals(newTitle);
         if (!isOld && !isNew) return;
         Inventory top = e.getInventory();
         int topSize = top.getSize();
