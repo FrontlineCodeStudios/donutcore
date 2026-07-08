@@ -75,7 +75,7 @@ implements Listener {
                     color = this.extractLeadingColor(raw, "&7");
                 }
                 this.plugin.setCrateDisplayName(crate, color + plain);
-                this.plugin.msg(p, "&#0fe30fDisplay name set to: &r" + this.plugin.getCrateDisplayNameFormatted(crate));
+                this.plugin.msg(p, "&#FF073ADisplay name set to: &r" + this.plugin.getCrateDisplayNameFormatted(crate));
                 p.openInventory(this.plugin.guiCrateDisplayName.build(crate));
             }));
             return;
@@ -113,7 +113,7 @@ implements Listener {
                     currentPlain = crate;
                 }
                 this.plugin.setCrateDisplayName(crate, hexCode + currentPlain);
-                this.plugin.msg(p, "&#0fe30fHex applied. Preview: &r" + this.plugin.getCrateDisplayNameFormatted(crate));
+                this.plugin.msg(p, "&#FF073AHex applied. Preview: &r" + this.plugin.getCrateDisplayNameFormatted(crate));
                 p.openInventory(this.plugin.guiCrateDisplayName.build(crate));
             }));
             return;
@@ -123,7 +123,7 @@ implements Listener {
             this.plugin.setCrateDisplayName(crate, null);
             this.plugin.pendingDisplayNameColor.remove(uid);
             this.plugin.pendingDisplayNameCrate.remove(uid);
-            this.plugin.msg(p, "&#0fe30fDisplay name reset to default.");
+            this.plugin.msg(p, "&#FF073ADisplay name reset to default.");
             p.openInventory(this.plugin.guiCrateDisplayName.build(crate));
         }
     }

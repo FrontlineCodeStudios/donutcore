@@ -249,7 +249,7 @@ public class CrateOpenService {
         }
         this.plugin.dataMgr.recordCrateOpen(p.getUniqueId(), po.crate, po.rewardName, po.reward);
         String crateDisplayRaw = this.getCrateDisplayRaw(po.crate);
-        String selfTpl = this.plugin.cfg.config.getString("messages.reward-received", "&#0fe30fYou received &f%reward% &7from the &f%crate% &7crate!");
+        String selfTpl = this.plugin.cfg.config.getString("messages.reward-received", "&#FF073AYou received &f%reward% &7from the &f%crate% &7crate!");
         String rewardInsert = "&r" + po.rewardName;
         String crateInsert = "&r" + crateDisplayRaw;
         selfTpl = selfTpl.replace("%player%", p.getName()).replace("%crate%", crateInsert).replace("%reward%", rewardInsert);

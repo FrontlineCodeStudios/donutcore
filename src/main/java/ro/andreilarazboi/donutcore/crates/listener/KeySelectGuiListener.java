@@ -72,7 +72,7 @@ implements Listener {
         GuiUtil.playClick(this.plugin, p);
         this.plugin.cfg.crates.set("Crates." + crate + ".key", (Object)keyId.toLowerCase(Locale.ROOT));
         this.plugin.cfg.saveAll();
-        this.plugin.msg(p, "&#0fe30fSelected key &f" + keyId + " &#0fe30ffor crate &f" + crate + "&#0fe30f.");
+        this.plugin.msg(p, "&#FF073ASelected key &f" + keyId + " &#FF073Afor crate &f" + crate + "&#FF073A.");
         p.openInventory(this.plugin.guiCrateSettings.build(crate));
     }
 }

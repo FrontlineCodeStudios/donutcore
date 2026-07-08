@@ -67,7 +67,7 @@ implements Listener {
         this.plugin.pendingDisplayNameColor.put(uid, code);
         String plain = this.plugin.getCrateDisplayNamePlain(crate);
         this.plugin.setCrateDisplayName(crate, code + plain);
-        this.plugin.msg(p, "&#0fe30fApplied color &f" + code + " &#0fe30fto display name.");
+        this.plugin.msg(p, "&#FF073AApplied color &f" + code + " &#FF073Ato display name.");
         p.openInventory(this.plugin.guiCrateDisplayName.build(crate));
     }
 }

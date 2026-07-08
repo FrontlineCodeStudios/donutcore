@@ -60,7 +60,7 @@ implements Listener {
                 public void run() {
                     ChatInputListener.this.plugin.restartHologramTask();
                     ChatInputListener.this.plugin.pendingHoloTimerEdit.remove(uid);
-                    ChatInputListener.this.plugin.msg(p, "&#0fe30fUpdated hologram timer");
+                    ChatInputListener.this.plugin.msg(p, "&#FF073AUpdated hologram timer");
                 }
             }.runTask((Plugin)this.plugin.getPlugin());
             return;
@@ -80,7 +80,7 @@ implements Listener {
             this.plugin.cfg.saveAll();
             new BukkitRunnable(){
                 public void run() {
-                    ChatInputListener.this.plugin.msg(p, "&#0fe30fRenamed key &f" + keyId + " &#0fe30fto: &f" + msg);
+                    ChatInputListener.this.plugin.msg(p, "&#FF073ARenamed key &f" + keyId + " &#FF073Ato: &f" + msg);
                     p.openInventory(ChatInputListener.this.plugin.guiKeyEditor.build(keyId));
                 }
             }.runTask((Plugin)this.plugin.getPlugin());
@@ -104,7 +104,7 @@ implements Listener {
                     p.openInventory(ChatInputListener.this.plugin.guiHologram.build(crate));
                 }
             }.runTask((Plugin)this.plugin.getPlugin());
-            this.plugin.msg(p, "&#0fe30fAdded hologram line: &f" + msg);
+            this.plugin.msg(p, "&#FF073AAdded hologram line: &f" + msg);
             return;
         }
         if (this.plugin.pendingRenameCrate.containsKey(uid)) {
@@ -150,7 +150,7 @@ implements Listener {
                 this.plugin.crateMgr.crateBlocks.put(newName, b);
             }
             this.plugin.crateMgr.saveBlocks();
-            this.plugin.msg(p, "&#0fe30fRenamed crate &f" + oldName + " &#0fe30f→ &f" + newName);
+            this.plugin.msg(p, "&#FF073ARenamed crate &f" + oldName + " &#FF073A→ &f" + newName);
             new BukkitRunnable(){
                 public void run() {
                     ChatInputListener.this.plugin.holoMgr.removeCrate(oldName);
@@ -199,7 +199,7 @@ implements Listener {
                 this.plugin.cfg.crates.set(base + ".item", (Object)it);
             }
             this.plugin.cfg.saveAll();
-            this.plugin.msg(p, "&#0fe30fSet display name to: &f" + msg);
+            this.plugin.msg(p, "&#FF073ASet display name to: &f" + msg);
         } else if (Boolean.TRUE.equals(loreFlag)) {
             ItemMeta im;
             ItemStack it;
@@ -212,7 +212,7 @@ implements Listener {
                 this.plugin.cfg.crates.set(base + ".item", (Object)it);
             }
             this.plugin.cfg.saveAll();
-            this.plugin.msg(p, "&#0fe30fAdded lore: &f" + msg);
+            this.plugin.msg(p, "&#FF073AAdded lore: &f" + msg);
         } else if (Boolean.TRUE.equals(chanceFlag)) {
             double val;
             String normalized = msg.replace(',', '.');
@@ -232,11 +232,11 @@ implements Listener {
             }
             this.plugin.cfg.crates.set(base + ".chance", (Object)val);
             this.plugin.cfg.saveAll();
-            this.plugin.msg(p, "&#0fe30fSet chance to &f" + val + "% &7for this reward.");
+            this.plugin.msg(p, "&#FF073ASet chance to &f" + val + "% &7for this reward.");
         } else if (loreFlag != null && !loreFlag.booleanValue()) {
             this.plugin.cfg.crates.set(base + ".command", (Object)msg);
             this.plugin.cfg.saveAll();
-            this.plugin.msg(p, "&#0fe30fSet command: &f" + msg);
+            this.plugin.msg(p, "&#FF073ASet command: &f" + msg);
         }
         new BukkitRunnable(){
             public void run() {

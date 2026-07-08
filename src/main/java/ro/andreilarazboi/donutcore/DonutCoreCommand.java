@@ -105,11 +105,11 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
 
     private void sendModuleList(CommandSender sender) {
         sendHelpLine(sender, "&7&m----------------------------");
-        sendHelpLine(sender, "&#0fe30fDonutCore Modules:");
+        sendHelpLine(sender, "&#FF073ADonutCore Modules:");
         for (String name : ALL_MODULES) {
             boolean active = isActive(name);
-            String status = active ? "&#0fe30fEnabled" : "&cDisabled";
-            sendHelpLine(sender, "&#0fe30f" + capitalize(name) + " &7- " + status);
+            String status = active ? "&#FF073AEnabled" : "&cDisabled";
+            sendHelpLine(sender, "&#FF073A" + capitalize(name) + " &7- " + status);
         }
         sendHelpLine(sender, "&7&m----------------------------");
     }
@@ -200,43 +200,43 @@ public class DonutCoreCommand implements CommandExecutor, TabCompleter {
 
     private void sendHelp(CommandSender sender) {
         sendHelpLine(sender, "&7&m----------------------------");
-        sendHelpLine(sender, "&#0fe30fDonutCore Help Menu:");
+        sendHelpLine(sender, "&#FF073ADonutCore Help Menu:");
         
         // --- Admin ---
         if (sender.hasPermission("donutcore.admin")) {
-            sendHelpLine(sender, "&#0fe30f/donutcore modules list &7- List all modules.");
-            sendHelpLine(sender, "&#0fe30f/donutcore modules enable <module|all> &7- Enable a module.");
-            sendHelpLine(sender, "&#0fe30f/donutcore modules disable <module|all> &7- Disable a module.");
-            sendHelpLine(sender, "&#0fe30f/donutcore help &7- Show this help menu.");
+            sendHelpLine(sender, "&#FF073A/donutcore modules list &7- List all modules.");
+            sendHelpLine(sender, "&#FF073A/donutcore modules enable <module|all> &7- Enable a module.");
+            sendHelpLine(sender, "&#FF073A/donutcore modules disable <module|all> &7- Disable a module.");
+            sendHelpLine(sender, "&#FF073A/donutcore help &7- Show this help menu.");
         }
 
         // --- Sell ---
         if (plugin.getSellModule().isActive() && (sender.hasPermission("donutcore.sell.use") || sender.hasPermission("donutcore.admin"))) {
-            sendHelpLine(sender, "&#0fe30f/sell &7- Open the sell GUI.");
-            sendHelpLine(sender, "&#0fe30f/sellmulti &7- Sell multiple items.");
-            sendHelpLine(sender, "&#0fe30f/worth &7- Check item worth.");
-            sendHelpLine(sender, "&#0fe30f/toggleworth &7- Toggle worth messages.");
-            sendHelpLine(sender, "&#0fe30f/sellhistory &7- View sell history.");
+            sendHelpLine(sender, "&#FF073A/sell &7- Open the sell GUI.");
+            sendHelpLine(sender, "&#FF073A/sellmulti &7- Sell multiple items.");
+            sendHelpLine(sender, "&#FF073A/worth &7- Check item worth.");
+            sendHelpLine(sender, "&#FF073A/toggleworth &7- Toggle worth messages.");
+            sendHelpLine(sender, "&#FF073A/sellhistory &7- View sell history.");
         }
 
         // --- Crates ---
         if (plugin.getCratesModule().isActive()) {
-            sendHelpLine(sender, "&#0fe30f/crate stats &7- Open crate stats GUI.");
+            sendHelpLine(sender, "&#FF073A/crate stats &7- Open crate stats GUI.");
             if (sender.hasPermission("donutcrate.admin") || sender.hasPermission("donutcore.admin")) {
-                sendHelpLine(sender, "&#0fe30f/crate editor &7- Open crate editor.");
-                sendHelpLine(sender, "&#0fe30f/crate preview <crate> &7- Preview a crate.");
-                sendHelpLine(sender, "&#0fe30f/crate reload &7- Reload crate data.");
-                sendHelpLine(sender, "&#0fe30f/crate key <give|giveall|remove|reset> ...");
+                sendHelpLine(sender, "&#FF073A/crate editor &7- Open crate editor.");
+                sendHelpLine(sender, "&#FF073A/crate preview <crate> &7- Preview a crate.");
+                sendHelpLine(sender, "&#FF073A/crate reload &7- Reload crate data.");
+                sendHelpLine(sender, "&#FF073A/crate key <give|giveall|remove|reset> ...");
             }
         }
 
         // --- EnderChest ---
         if (plugin.getEnderChestModule().isActive()) {
             if (sender.hasPermission("enderchest.command") || sender.hasPermission("donutcore.admin")) {
-                sendHelpLine(sender, "&#0fe30f/enderchest &7- Open your enderchest.");
+                sendHelpLine(sender, "&#FF073A/enderchest &7- Open your enderchest.");
             }
             if (sender.hasPermission("enderchest.clear") || sender.hasPermission("donutcore.admin")) {
-                sendHelpLine(sender, "&#0fe30f/clearechest <player> &7- Clear a player's enderchest.");
+                sendHelpLine(sender, "&#FF073A/clearechest <player> &7- Clear a player's enderchest.");
             }
         }
 

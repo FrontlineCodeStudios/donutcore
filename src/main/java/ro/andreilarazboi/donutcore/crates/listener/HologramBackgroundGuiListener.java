@@ -81,7 +81,7 @@ implements Listener {
         this.plugin.cfg.saveAll();
         this.plugin.holoMgr.refreshCrate(crate);
         GuiUtil.playClick(this.plugin, p);
-        this.plugin.msg(p, "&#0fe30fSelected background &f" + id.toLowerCase(Locale.ROOT).replace('_', ' ') + " &#0fe30ffor crate &f" + crate);
+        this.plugin.msg(p, "&#FF073ASelected background &f" + id.toLowerCase(Locale.ROOT).replace('_', ' ') + " &#FF073Afor crate &f" + crate);
         p.openInventory(this.plugin.guiHologram.build(crate));
     }
 }

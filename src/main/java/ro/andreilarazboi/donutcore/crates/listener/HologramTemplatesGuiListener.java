@@ -96,7 +96,7 @@ implements Listener {
         this.plugin.cfg.saveAll();
         this.plugin.holoMgr.refreshCrate(crate);
         GuiUtil.playClick(this.plugin, p);
-        this.plugin.msg(p, "&#0fe30fSelected hologram template &f" + templateId + " &#0fe30ffor crate &f" + crate);
+        this.plugin.msg(p, "&#FF073ASelected hologram template &f" + templateId + " &#FF073Afor crate &f" + crate);
         p.openInventory(this.plugin.guiHologram.build(crate));
     }
 }

@@ -99,7 +99,7 @@ public class CrateManager {
         this.saveBlocks();
         this.plugin.holoMgr.refreshCrate(name);
         if (p != null) {
-            this.plugin.msg(p, "&#0fe30fCreated crate &f" + name + " &#0fe30f at your target block.");
+            this.plugin.msg(p, "&#FF073ACreated crate &f" + name + " &#FF073A at your target block.");
         }
     }
 
@@ -107,7 +107,7 @@ public class CrateManager {
         String path = key + ".";
         items.createSection(key);
         items.set(path + "material", (Object)material);
-        items.set(path + "displayname", (Object)"&#0fe30fExample Reward");
+        items.set(path + "displayname", (Object)"&#FF073AExample Reward");
         items.set(path + "command", (Object)"");
         items.set(path + "amount", (Object)amount);
         items.set(path + "slot", (Object)slot);
@@ -134,7 +134,7 @@ public class CrateManager {
         this.saveBlocks();
         this.plugin.holoMgr.refreshCrate(name);
         if (p != null) {
-            this.plugin.msg(p, "&#0fe30fMoved crate &f" + name + " &#0fe30f to the new block.");
+            this.plugin.msg(p, "&#FF073AMoved crate &f" + name + " &#FF073A to the new block.");
         }
     }
 
@@ -217,7 +217,7 @@ public class CrateManager {
         this.plugin.cfg.crates.set(base + ".broadcast.enabled", (Object)false);
         this.plugin.cfg.saveAll();
         if (p != null) {
-            this.plugin.msg(p, "&#0fe30fAdded reward &f" + key + " &#0fe30f to crate &f" + crate);
+            this.plugin.msg(p, "&#FF073AAdded reward &f" + key + " &#FF073A to crate &f" + crate);
         }
     }
 
@@ -225,7 +225,7 @@ public class CrateManager {
         final ArrayList<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         final int batch = this.plugin.cfg.config.getInt("keygiveall.batch-size", 100);
         int period = this.plugin.cfg.config.getInt("keygiveall.ticks-per-batch", 1);
-        final String perTpl = this.plugin.cfg.config.getString("messages.keyreceive", "&#0fe30fYou received %amount% %crate% keys!");
+        final String perTpl = this.plugin.cfg.config.getString("messages.keyreceive", "&#FF073AYou received %amount% %crate% keys!");
         final String allTpl = this.plugin.cfg.config.getString("messages.keyall", "&#0f99e3A %crate% keyall has been given to %players% players");
         new BukkitRunnable(){
             int idx = 0;
@@ -246,7 +246,7 @@ public class CrateManager {
                         onlineP.sendMessage(broadcastMsg);
                     }
                     if (sender != null) {
-                        CrateManager.this.plugin.msg(sender, "&#0fe30fKeyall complete. &7(Players: " + players.size() + ")");
+                        CrateManager.this.plugin.msg(sender, "&#FF073AKeyall complete. &7(Players: " + players.size() + ")");
                     }
                     this.cancel();
                 }
@@ -362,7 +362,7 @@ public class CrateManager {
         String itemName = this.plugin.getRewardDisplayNameForChat(reward);
         double chanceVal = chosen.getDouble("chance", 0.0);
         String chanceStr = chanceVal > 0.0 ? String.format(Locale.US, "%.2f%%", chanceVal) : String.format(Locale.US, "%.2f%%", 100.0 / (double)sections.size());
-        String selfTpl = this.plugin.cfg.config.getString("messages.reward-self", "&#0fe30fYou opened &f{crate} &#0fe30fand received &f{item-name}&7!");
+        String selfTpl = this.plugin.cfg.config.getString("messages.reward-self", "&#FF073AYou opened &f{crate} &#FF073Aand received &f{item-name}&7!");
         String selfMsg = selfTpl.replace("{player}", p.getName()).replace("{crate}", crate).replace("{item-name}", itemName).replace("{item-chance}", chanceStr);
         this.plugin.msg(p, selfMsg);
         if (chosen.getBoolean("broadcast.enabled", false) && !(lines = this.plugin.cfg.config.getStringList("broadcast-message")).isEmpty()) {

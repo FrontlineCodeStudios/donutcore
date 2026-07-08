@@ -87,7 +87,7 @@ implements Listener {
                     catch (Throwable throwable) {
                         // empty catch block
                     }
-                    this.plugin.msg(p, "&#0fe30fDeleted key &f" + keyId + "&#0fe30f.");
+                    this.plugin.msg(p, "&#FF073ADeleted key &f" + keyId + "&#FF073A.");
                 }
                 this.clearDelete(uid);
                 p.openInventory(this.plugin.guiKeyList.build());

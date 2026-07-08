@@ -27,7 +27,7 @@ public class KeyEditorGUI {
         this.plugin.ensureKeyConfig(keyId);
         FileConfiguration saves = this.plugin.cfg.saves;
         String base = "keys." + keyId;
-        String name = saves.getString(base + ".displayname", "&#0fe30f" + keyId + " Key");
+        String name = saves.getString(base + ".displayname", "&#FF073A" + keyId + " Key");
         String mat = saves.getString(base + ".material", "TRIPWIRE_HOOK");
         boolean virt = saves.getBoolean(base + ".virtual", true);
         try {
@@ -72,9 +72,9 @@ public class KeyEditorGUI {
         }
         inv.setItem(10, keyItem);
         inv.setItem(12, this.item(Material.NAME_TAG, "&#f5f5f5Edit Key Displayname", "&#bfbfbfClick to edit the name using a sign.", "&#bfbfbfSupports & and &#RRGGBB colors."));
-        inv.setItem(14, this.item(virt ? Material.LIME_DYE : Material.RED_DYE, virt ? "&#f5f5f5Virtual Keys: &#0fe30fENABLED" : "&#f5f5f5Virtual Keys: &#d61111DISABLED", "&#bfbfbfIf enabled, keys are stored virtually", "&#bfbfbfin saves.yml (per player) instead of items."));
-        inv.setItem(16, this.item(Material.CHEST, "&#0fe30fReceive Key Item", "&#bfbfbfClick to receive one key item", "&#bfbfbfso you can clone it or test it."));
-        inv.setItem(18, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to the &#0fe30fKey Manager&#bfbfbf."));
+        inv.setItem(14, this.item(virt ? Material.LIME_DYE : Material.RED_DYE, virt ? "&#f5f5f5Virtual Keys: &#FF073AENABLED" : "&#f5f5f5Virtual Keys: &#d61111DISABLED", "&#bfbfbfIf enabled, keys are stored virtually", "&#bfbfbfin saves.yml (per player) instead of items."));
+        inv.setItem(16, this.item(Material.CHEST, "&#FF073AReceive Key Item", "&#bfbfbfClick to receive one key item", "&#bfbfbfso you can clone it or test it."));
+        inv.setItem(18, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to the &#FF073AKey Manager&#bfbfbf."));
         int usedBy = this.plugin.countCratesUsingKey(keyId);
         inv.setItem(26, this.item(Material.BARRIER, "&#d61111&lDelete Key", new String[]{"&#bfbfbfDeletes this key permanently.", usedBy > 0 ? "&#d61111Warning: &#bfbfbfUsed by &f" + usedBy + " &#bfbfbfcrates." : "&#bfbfbfNot used by any crate.", "", "&#d61111This action cannot be undone."}));
         return inv;

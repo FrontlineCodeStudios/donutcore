@@ -51,7 +51,7 @@ public class KeyListGUI {
         if (bm != null) {
             bm.displayName(Utils.toComponent("&#f5f5f5\u00ab Back"));
             ArrayList<Component> bl = new ArrayList<Component>();
-            bl.add(Utils.toComponent("&#bfbfbfReturn to the &#0fe30fCrates Editor&#bfbfbf."));
+            bl.add(Utils.toComponent("&#bfbfbfReturn to the &#FF073ACrates Editor&#bfbfbf."));
             bm.lore(bl);
             back.setItemMeta(bm);
         }
@@ -70,7 +70,7 @@ public class KeyListGUI {
             ItemStack icon = this.plugin.buildKeyItemById(keyId, 1);
             ItemMeta im = icon.getItemMeta();
             if (im == null) continue;
-            im.displayName(Utils.toComponent("&#0fe30fKey: &f" + keyId));
+            im.displayName(Utils.toComponent("&#FF073AKey: &f" + keyId));
             ArrayList<Component> lore = new ArrayList<Component>();
             lore.add(Utils.toComponent("&#bfbfbfClick to edit this key."));
             lore.add(Utils.toComponent("&#bfbfbfUsed by crates: &f" + this.plugin.countCratesUsingKey(keyId)));

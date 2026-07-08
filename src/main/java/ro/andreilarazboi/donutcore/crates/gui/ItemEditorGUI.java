@@ -58,16 +58,16 @@ public class ItemEditorGUI {
         inv.setItem(13, this.item(Material.NAME_TAG, "&#f5f5f5Edit Display Name", "&#bfbfbfClick, then type a new name in chat."));
         inv.setItem(14, this.item(Material.WRITABLE_BOOK, "&#f5f5f5Edit Lore", "&#bfbfbfClick to add a lore line in chat.", "&#bfbfbfShift-right-click to clear all lore."));
         boolean giveItem = sec.getBoolean("giveitem", true);
-        inv.setItem(15, this.item(giveItem ? Material.LIME_DYE : Material.RED_DYE, giveItem ? "&#f5f5f5Give Item: &#0fe30fENABLED" : "&#f5f5f5Give Item: &#d61111DISABLED", "&#bfbfbfIf disabled, only the command will run."));
+        inv.setItem(15, this.item(giveItem ? Material.LIME_DYE : Material.RED_DYE, giveItem ? "&#f5f5f5Give Item: &#FF073AENABLED" : "&#f5f5f5Give Item: &#d61111DISABLED", "&#bfbfbfIf disabled, only the command will run."));
         if (!giveItem) {
             String cmd = sec.getString("command", "");
             inv.setItem(16, this.item(Material.COMMAND_BLOCK, "&#f5f5f5Edit Command", new String[]{cmd.isEmpty() ? "&#bfbfbfClick, then type a command in chat." : "&#bfbfbfCurrent: &f" + cmd, "&#bfbfbfUse &f%player% &#bfbfbfto insert player name."}));
         }
         if (randomEnabled) {
             boolean broadcast = sec.getBoolean("broadcast", false);
-            inv.setItem(22, this.item(broadcast ? Material.LIME_DYE : Material.RED_DYE, broadcast ? "&#f5f5f5Broadcast: &#0fe30fENABLED" : "&#f5f5f5Broadcast: &#d61111DISABLED", "&#bfbfbfIf enabled, use &fconfig.yml", "&#bfbfbfsection &f'broadcast-message' &#bfbfbffor the format."));
+            inv.setItem(22, this.item(broadcast ? Material.LIME_DYE : Material.RED_DYE, broadcast ? "&#f5f5f5Broadcast: &#FF073AENABLED" : "&#f5f5f5Broadcast: &#d61111DISABLED", "&#bfbfbfIf enabled, use &fconfig.yml", "&#bfbfbfsection &f'broadcast-message' &#bfbfbffor the format."));
         }
-        inv.setItem(18, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to the &#0fe30fRewards&#bfbfbf list."));
+        inv.setItem(18, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to the &#FF073ARewards&#bfbfbf list."));
         inv.setItem(26, this.item(Material.BARRIER, "&#d61111Delete Reward", "&#bfbfbfClick to delete this reward."));
         return inv;
     }

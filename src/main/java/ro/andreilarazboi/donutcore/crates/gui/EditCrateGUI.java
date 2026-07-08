@@ -32,7 +32,7 @@ public class EditCrateGUI {
         for (int i = 0; i < inv.getSize(); ++i) {
             inv.setItem(i, filler);
         }
-        inv.setItem(10, this.item(Material.NETHER_STAR, "&#0fe30f&lCopy Crate", "&#bfbfbfClone this crate into a new one,", "&#bfbfbfthen left-click a block to choose", "&#bfbfbfthe new crate location."));
+        inv.setItem(10, this.item(Material.NETHER_STAR, "&#FF073A&lCopy Crate", "&#bfbfbfClone this crate into a new one,", "&#bfbfbfthen left-click a block to choose", "&#bfbfbfthe new crate location."));
         inv.setItem(11, this.item(Material.COMPASS, "&#f5f5f5&lMove Crate", "&#bfbfbfClick, then left-click a block", "&#bfbfbfto move this crate there."));
         inv.setItem(12, this.item(Material.BARRIER, "&#d61111&lDelete Crate", "&#bfbfbfOpen a confirmation dialog.", "&#d61111This action cannot be undone."));
         inv.setItem(13, this.item(Material.NAME_TAG, "&#f5f5f5&lRename Crate ID", "&#bfbfbfClick, then type a new &fID &#bfbfbfin chat.", "&#27B0F5Current: &f" + crateName));
@@ -40,8 +40,8 @@ public class EditCrateGUI {
         String displayPretty = this.plugin.getCrateDisplayNameFormatted(crateName);
         inv.setItem(15, this.item(Material.GLOW_ITEM_FRAME, "&#27B0F5&lDisplay Name", "&#27B0F5Current: &r" + displayPretty, "&#7f7f7f(raw: " + (displayRaw == null ? "default" : displayRaw) + ")", "", "&#bfbfbfClick to edit."));
         inv.setItem(14, this.item(Material.COMPARATOR, "&#f5f5f5&lRows", "&#bfbfbfChange how many rows the", "&#bfbfbfcrate preview uses.", "", "&#27B0F5Current: &f" + rows));
-        inv.setItem(16, this.item(randomEnabled ? Material.ENCHANTED_BOOK : Material.BOOK, randomEnabled ? "&#27B0F5&lRandom Rewards: &#0fe30fENABLED" : "&#27B0F5&lRandom Rewards: &#d61111DISABLED", "&#bfbfbfWhen enabled, opening this crate", "&#bfbfbfrolls a random reward based on", "&#bfbfbfper-item &#27B0F5chance&#bfbfbf values.", "", "&#bfbfbfClick to toggle."));
-        inv.setItem(18, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to the &#0fe30fCrate Settings&#bfbfbf."));
+        inv.setItem(16, this.item(randomEnabled ? Material.ENCHANTED_BOOK : Material.BOOK, randomEnabled ? "&#27B0F5&lRandom Rewards: &#FF073AENABLED" : "&#27B0F5&lRandom Rewards: &#d61111DISABLED", "&#bfbfbfWhen enabled, opening this crate", "&#bfbfbfrolls a random reward based on", "&#bfbfbfper-item &#27B0F5chance&#bfbfbf values.", "", "&#bfbfbfClick to toggle."));
+        inv.setItem(18, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to the &#FF073ACrate Settings&#bfbfbf."));
         return inv;
     }
 

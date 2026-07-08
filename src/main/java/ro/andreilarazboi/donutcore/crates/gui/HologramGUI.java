@@ -51,10 +51,10 @@ public class HologramGUI {
         }
         int lineCount = lines != null ? lines.size() : 0;
         inv.setItem(4, this.item(Material.BOOK, "&#0f99e3Hologram Editor", "&#bfbfbfCrate: &f" + crate, "&#bfbfbfLines: &f" + lineCount, "&#bfbfbfOffsetY: &f" + String.format(Locale.US, "%.2f", offsetY)));
-        inv.setItem(10, this.item(enabled ? Material.LIME_DYE : Material.RED_DYE, enabled ? "&#0fe30fHologram: ENABLED" : "&#d61111Hologram: DISABLED", "&#bfbfbfToggle the hologram visibility", "&#bfbfbfabove this crate.", "", "&#bfbfbfCurrent lines: &f" + lineCount));
+        inv.setItem(10, this.item(enabled ? Material.LIME_DYE : Material.RED_DYE, enabled ? "&#FF073AHologram: ENABLED" : "&#d61111Hologram: DISABLED", "&#bfbfbfToggle the hologram visibility", "&#bfbfbfabove this crate.", "", "&#bfbfbfCurrent lines: &f" + lineCount));
         inv.setItem(12, this.item(Material.ENDER_EYE, "&#0f99e3Hologram Template", "&#bfbfbfCurrent: &f" + (String)templateLabel, "", "&#bfbfbfClick to choose a hologram layout.", "&#bfbfbfTemplates are configured in &fconfig.yml"));
         inv.setItem(13, this.item(Material.WHITE_DYE, "&#0f99e3Background Color", "&#bfbfbfSelected: &f" + this.prettyBgName(bgId), "", "&#bfbfbfClick to choose background color."));
-        inv.setItem(14, this.item(Material.INK_SAC, shadow ? "&#0fe30fText Shadow: ENABLED" : "&#d61111Text Shadow: DISABLED", "&#bfbfbfToggles Minecraft's new", "&#bfbfbftext shadow on the hologram.", "", "&#bfbfbfClick to toggle."));
+        inv.setItem(14, this.item(Material.INK_SAC, shadow ? "&#FF073AText Shadow: ENABLED" : "&#d61111Text Shadow: DISABLED", "&#bfbfbfToggles Minecraft's new", "&#bfbfbftext shadow on the hologram.", "", "&#bfbfbfClick to toggle."));
         inv.setItem(16, this.item(Material.STONE_SLAB, "&#f5f5f5Offset Y -", "&#bfbfbfMove the hologram &f-0.25", "&#bfbfbfblocks &bdown&#bfbfbf.", "", "&#bfbfbfCurrent: &f" + String.format(Locale.US, "%.2f", offsetY)));
         inv.setItem(25, this.item(Material.STONE_SLAB, "&#f5f5f5Offset Y +", "&#bfbfbfMove the hologram &f+0.25", "&#bfbfbfblocks &bup&#bfbfbf.", "", "&#bfbfbfCurrent: &f" + String.format(Locale.US, "%.2f", offsetY)));
         inv.setItem(27, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to crate settings."));

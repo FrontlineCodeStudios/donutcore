@@ -112,7 +112,7 @@ implements Listener {
                 boolean current = this.plugin.cfg.crates.getBoolean(base, false);
                 this.plugin.cfg.crates.set(base, (Object)(!current ? 1 : 0));
                 this.plugin.cfg.saveAll();
-                this.plugin.msg(p, !current ? "&#0fe30fRandom rewards &fENABLED &7for crate &f" + crate : "&#d61111Random rewards &fDISABLED &7for crate &f" + crate);
+                this.plugin.msg(p, !current ? "&#FF073ARandom rewards &fENABLED &7for crate &f" + crate : "&#d61111Random rewards &fDISABLED &7for crate &f" + crate);
                 p.openInventory(this.plugin.guiCrateEdit.build(crate));
             }
         }

@@ -310,7 +310,7 @@ implements Listener {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), po.cmd.replace("%player%", p.getName()));
         }
         String crateDisplay = this.getCrateDisplayRaw(po.crate);
-        String selfTpl = this.plugin.cfg.config.getString("messages.reward-received", "&#0fe30fYou received &f%reward% &7from the &f%crate% &7crate!");
+        String selfTpl = this.plugin.cfg.config.getString("messages.reward-received", "&#FF073AYou received &f%reward% &7from the &f%crate% &7crate!");
         this.plugin.msg(p, selfTpl.replace("%crate%", crateDisplay).replace("%reward%", po.rewardName).replace("%player%", p.getName()));
         ConfigurationSection chosen = this.plugin.cfg.crates.getConfigurationSection("Crates." + po.crate + ".Items." + po.chosenKey);
         if (chosen != null && chosen.getBoolean("broadcast", false)) {

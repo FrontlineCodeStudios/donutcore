@@ -48,7 +48,7 @@ public class CrateStatsGUI {
 
     public Inventory buildHistory(Player player, String crate) {
         CrateStatsHolder holder = new CrateStatsHolder(crate, true);
-        Inventory inv = Bukkit.createInventory(holder, 54, Utils.toComponent("&#0fe30f" + crate + " Rewards"));
+        Inventory inv = Bukkit.createInventory(holder, 54, Utils.toComponent("&#FF073A" + crate + " Rewards"));
         holder.setInventory(inv);
         List<ItemStack> rewards = this.plugin.dataMgr.getRecentRewardItems(player.getUniqueId(), crate, 45);
         if (rewards.isEmpty()) {

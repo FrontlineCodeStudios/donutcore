@@ -27,8 +27,8 @@ public class RootEditorGUI {
         for (int i = 0; i < inv.getSize(); ++i) {
             inv.setItem(i, filler);
         }
-        inv.setItem(11, this.item(Material.CHEST, "&#0fe30f&lCrates", "&7Edit crates, rewards and settings."));
-        inv.setItem(15, this.item(Material.TRIPWIRE_HOOK, "&#0fe30f&lKeys", "&7Manage crate keys and key behaviour."));
+        inv.setItem(11, this.item(Material.CHEST, "&#FF073A&lCrates", "&7Edit crates, rewards and settings."));
+        inv.setItem(15, this.item(Material.TRIPWIRE_HOOK, "&#FF073A&lKeys", "&7Manage crate keys and key behaviour."));
         return inv;
     }
 

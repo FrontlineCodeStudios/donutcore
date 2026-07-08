@@ -33,12 +33,12 @@ public class DonutCrateCommand
             return true;
         }
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
-            this.plugin.msg(sender, "&#0fe30f/crate stats &7- Open crate stats GUI.");
+            this.plugin.msg(sender, "&#FF073A/crate stats &7- Open crate stats GUI.");
             if (sender.hasPermission("donutcrate.admin") || sender.hasPermission("donutcore.admin")) {
-                this.plugin.msg(sender, "&#0fe30f/crate editor &7- Open crate editor.");
-                this.plugin.msg(sender, "&#0fe30f/crate preview <crate> &7- Preview a crate.");
-                this.plugin.msg(sender, "&#0fe30f/crate reload &7- Reload crate data.");
-                this.plugin.msg(sender, "&#0fe30f/crate key <give|giveall|remove|reset> ...");
+                this.plugin.msg(sender, "&#FF073A/crate editor &7- Open crate editor.");
+                this.plugin.msg(sender, "&#FF073A/crate preview <crate> &7- Preview a crate.");
+                this.plugin.msg(sender, "&#FF073A/crate reload &7- Reload crate data.");
+                this.plugin.msg(sender, "&#FF073A/crate key <give|giveall|remove|reset> ...");
             }
             return true;
         }
@@ -128,11 +128,11 @@ public class DonutCrateCommand
                             }
                         }
                         String perTpl = this.plugin.cfg.config.getString("messages.keyreceive",
-                                "&#0fe30fYou received %amount% %crate% keys!");
+                                "&#FF073AYou received %amount% %crate% keys!");
                         perTpl = perTpl.replace("%amount%", String.valueOf(amount)).replace("%crate%", crate);
                         this.plugin.msg(target, perTpl);
-                        this.plugin.msg(sender, "&#0fe30fGave &#f5f5f5" + amount + " &#0fe30fkeys (&f" + keyId
-                                + "&#0fe30f) for crate &#f5f5f5" + crate + " &#0fe30fto &#f5f5f5" + target.getName());
+                        this.plugin.msg(sender, "&#FF073AGave &#f5f5f5" + amount + " &#FF073Akeys (&f" + keyId
+                                + "&#FF073A) for crate &#f5f5f5" + crate + " &#FF073Ato &#f5f5f5" + target.getName());
                         return true;
                     }
                     case "giveall": {
@@ -169,14 +169,14 @@ public class DonutCrateCommand
                                 }
                             }
                             String perTpl = this.plugin.cfg.config.getString("messages.keyreceive",
-                                    "&#0fe30fYou received %amount% %crate% keys!");
+                                    "&#FF073AYou received %amount% %crate% keys!");
                             perTpl = perTpl.replace("%amount%", String.valueOf(amount)).replace("%crate%", crate);
                             this.plugin.msg(p, perTpl);
                         }
                         this.plugin.msg(sender,
-                                "&#0fe30fGave &#f5f5f5" + amount + " &#0fe30fkeys (&f" + keyId
-                                        + "&#0fe30f) for crate &#f5f5f5" + crate + " &#0fe30fto &#f5f5f5" + players
-                                        + " &#0fe30fonline players.");
+                                "&#FF073AGave &#f5f5f5" + amount + " &#FF073Akeys (&f" + keyId
+                                        + "&#FF073A) for crate &#f5f5f5" + crate + " &#FF073Ato &#f5f5f5" + players
+                                        + " &#FF073Aonline players.");
                         return true;
                     }
                     case "remove": {
@@ -223,8 +223,8 @@ public class DonutCrateCommand
                         this.plugin.ensureKeyConfig(keyId);
                         if (who.equalsIgnoreCase("all")) {
                             this.plugin.dataMgr.resetKeysForAll(keyId);
-                            this.plugin.msg(sender, "&#0fe30fReset virtual keys for all players for crate &#f5f5f5"
-                                    + crate + " &#0fe30f(key &f" + keyId + "&#0fe30f)");
+                            this.plugin.msg(sender, "&#FF073AReset virtual keys for all players for crate &#f5f5f5"
+                                    + crate + " &#FF073A(key &f" + keyId + "&#FF073A)");
                             return true;
                         }
                         OfflinePlayer off = Bukkit.getOfflinePlayer(who);
@@ -233,8 +233,8 @@ public class DonutCrateCommand
                             return true;
                         }
                         this.plugin.dataMgr.resetKeysForPlayer(off.getUniqueId(), keyId);
-                        this.plugin.msg(sender, "&#0fe30fReset virtual keys for &#f5f5f5" + off.getName()
-                                + " &#0fe30ffor crate &#f5f5f5" + crate + " &#0fe30f(key &f" + keyId + "&#0fe30f)");
+                        this.plugin.msg(sender, "&#FF073AReset virtual keys for &#f5f5f5" + off.getName()
+                                + " &#FF073Afor crate &#f5f5f5" + crate + " &#FF073A(key &f" + keyId + "&#FF073A)");
                         return true;
                     }
                 }
@@ -249,7 +249,7 @@ public class DonutCrateCommand
                 for (String crate : this.plugin.crateMgr.crateBlocks.keySet()) {
                     this.plugin.holoMgr.refreshCrate(crate);
                 }
-                this.plugin.msg(sender, "&#0fe30fReloaded configuration and data.");
+                this.plugin.msg(sender, "&#FF073AReloaded configuration and data.");
                 return true;
             }
         }
@@ -257,12 +257,12 @@ public class DonutCrateCommand
     }
 
     private boolean syntax(CommandSender sender) {
-        this.plugin.msg(sender, "&#0fe30f/crate stats &7- Open crate stats GUI.");
+        this.plugin.msg(sender, "&#FF073A/crate stats &7- Open crate stats GUI.");
         if (sender.hasPermission("donutcrate.admin") || sender.hasPermission("donutcore.admin")) {
-            this.plugin.msg(sender, "&#0fe30f/crate editor &7- Open crate editor.");
-            this.plugin.msg(sender, "&#0fe30f/crate preview <crate> &7- Preview a crate.");
-            this.plugin.msg(sender, "&#0fe30f/crate reload &7- Reload crate data.");
-            this.plugin.msg(sender, "&#0fe30f/crate key <give|giveall|remove|reset> ...");
+            this.plugin.msg(sender, "&#FF073A/crate editor &7- Open crate editor.");
+            this.plugin.msg(sender, "&#FF073A/crate preview <crate> &7- Preview a crate.");
+            this.plugin.msg(sender, "&#FF073A/crate reload &7- Reload crate data.");
+            this.plugin.msg(sender, "&#FF073A/crate key <give|giveall|remove|reset> ...");
         }
         return true;
     }
@@ -335,13 +335,13 @@ public class DonutCrateCommand
         this.plugin.msg(payer,
                 this.plugin.cfg.config
                         .getString("messages.key-pay-sent",
-                                "&#0fe30fYou paid &f%amount% %crate% keys &#0fe30fto &f%target%&#0fe30f.")
+                                "&#FF073AYou paid &f%amount% %crate% keys &#FF073Ato &f%target%&#FF073A.")
                         .replace("%amount%", String.valueOf(amount)).replace("%crate%", crate)
                         .replace("%target%", target.getName()));
         this.plugin.msg(target,
                 this.plugin.cfg.config
                         .getString("messages.key-pay-received",
-                                "&#0fe30fYou received &f%amount% %crate% keys &#0fe30ffrom &f%player%&#0fe30f.")
+                                "&#FF073AYou received &f%amount% %crate% keys &#FF073Afrom &f%player%&#FF073A.")
                         .replace("%amount%", String.valueOf(amount)).replace("%crate%", crate)
                         .replace("%player%", payer.getName()));
         return true;

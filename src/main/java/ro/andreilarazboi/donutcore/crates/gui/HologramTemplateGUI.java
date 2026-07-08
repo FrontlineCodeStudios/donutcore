@@ -84,7 +84,7 @@ public class HologramTemplateGUI {
             ArrayList<Component> lore = new ArrayList<Component>();
             isSelected = currentTemplate != null && currentTemplate.equalsIgnoreCase(id);
             if (isSelected) {
-                lore.add(Utils.toComponent("&#0fe30f\u2714 Currently selected"));
+                lore.add(Utils.toComponent("&#FF073A\u2714 Currently selected"));
             } else {
                 lore.add(Utils.toComponent("&#bfbfbfClick to use this template."));
             }
@@ -102,7 +102,7 @@ public class HologramTemplateGUI {
             }
             ItemStack icon = new ItemStack(mat);
             ItemMeta im = icon.getItemMeta();
-            im.displayName(Utils.toComponent("&#0fe30fTemplate: &f" + id));
+            im.displayName(Utils.toComponent("&#FF073ATemplate: &f" + id));
             im.lore(lore);
             if (isSelected) {
                 im.addEnchant(Enchantment.UNBREAKING, 1, true);

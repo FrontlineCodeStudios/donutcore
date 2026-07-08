@@ -35,7 +35,7 @@ public class CrateDisplayNameGUI {
         String currentRaw = this.plugin.cfg.crates.getString("Crates." + crate + ".displayname", null);
         String preview = currentRaw == null || currentRaw.isBlank() ? Utils.formatColors("&7" + crate) : Utils.formatColors(currentRaw);
         inv.setItem(4, this.item(Material.NAME_TAG, "&#27B0F5&lCrate Display Name", "&#bfbfbfThis is what players see in chat/messages.", "", "&#27B0F5Current: &r" + preview, "&#7f7f7f(raw: " + (currentRaw == null ? "default" : currentRaw) + ")", "", "&#444444&#ffffff&lTip", "&#bfbfbf1) Set text first", "&#bfbfbf2) Then pick a color"));
-        inv.setItem(10, this.item(Material.OAK_SIGN, "&#0fe30f&lSet Text", "&#bfbfbfClick to type the name (no color codes)."));
+        inv.setItem(10, this.item(Material.OAK_SIGN, "&#FF073A&lSet Text", "&#bfbfbfClick to type the name (no color codes)."));
         inv.setItem(12, this.item(Material.LIME_DYE, "&#0f99e3&lPick Color", "&#bfbfbfClick to choose a Minecraft color."));
         inv.setItem(14, this.item(Material.AMETHYST_SHARD, "&#27B0F5&lHex Color", "&#bfbfbfClick to type a hex color"));
         inv.setItem(16, this.item(Material.BARRIER, "&#d61111&lReset to Default", "&#bfbfbfResets display name back to the crate ID.", "", "&#7f7f7f(Default = " + crate + ")"));

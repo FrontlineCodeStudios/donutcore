@@ -67,7 +67,7 @@ public class CrateRewardsGUI {
         ItemStack add = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
         ItemMeta am = add.getItemMeta();
         if (am != null) {
-            am.displayName(Utils.toComponent("&#0fe30fAdd Reward"));
+            am.displayName(Utils.toComponent("&#FF073AAdd Reward"));
             am.lore(List.of(Utils.toComponent("&#777777Drag an item here from your inventory"), Utils.toComponent("&#777777to add it as a new crate reward.")));
             add.setItemMeta(am);
         }

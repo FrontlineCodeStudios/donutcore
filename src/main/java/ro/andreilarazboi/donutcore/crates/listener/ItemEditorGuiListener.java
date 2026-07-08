@@ -102,7 +102,7 @@ implements Listener {
                         this.plugin.cfg.crates.set(base + ".item", (Object)it);
                     }
                     this.plugin.cfg.saveAll();
-                    this.plugin.msg(p, "&#0fe30fCleared all lore for &f" + key);
+                    this.plugin.msg(p, "&#FF073ACleared all lore for &f" + key);
                     p.openInventory(this.plugin.guiItemEditor.build(crate, key));
                     break;
                 }
@@ -122,7 +122,7 @@ implements Listener {
                 boolean give = this.plugin.cfg.crates.getBoolean(path, true);
                 this.plugin.cfg.crates.set(path, (Object)(!give ? 1 : 0));
                 this.plugin.cfg.saveAll();
-                this.plugin.msg(p, !give ? "&#0fe30fGive Item: &fENABLED" : "&#d61111Give Item: &fDISABLED");
+                this.plugin.msg(p, !give ? "&#FF073AGive Item: &fENABLED" : "&#d61111Give Item: &fDISABLED");
                 p.openInventory(this.plugin.guiItemEditor.build(crate, key));
                 break;
             }
@@ -173,7 +173,7 @@ implements Listener {
                         String path = "Crates." + crateName + ".Items." + itemKey + ".chance";
                         this.plugin.cfg.crates.set(path, (Object)chance);
                         this.plugin.cfg.saveAll();
-                        this.plugin.msg(playerRef, "&#0fe30fChance set to &f" + chance + "% &#0fe30ffor &f" + itemKey + "&#0fe30f.");
+                        this.plugin.msg(playerRef, "&#FF073AChance set to &f" + chance + "% &#FF073Afor &f" + itemKey + "&#FF073A.");
                         playerRef.openInventory(this.plugin.guiItemEditor.build(crateName, itemKey));
                     }));
                     break;
@@ -182,7 +182,7 @@ implements Listener {
                 String base = "Crates." + crate + ".Items." + key + ".chance";
                 this.plugin.cfg.crates.set(base, (Object)0.0);
                 this.plugin.cfg.saveAll();
-                this.plugin.msg(p, "&#0fe30fChance mode set to &fAUTO &7for this reward.");
+                this.plugin.msg(p, "&#FF073AChance mode set to &fAUTO &7for this reward.");
                 p.openInventory(this.plugin.guiItemEditor.build(crate, key));
                 break;
             }
@@ -195,7 +195,7 @@ implements Listener {
                 boolean current = this.plugin.cfg.crates.getBoolean(path, false);
                 this.plugin.cfg.crates.set(path, (Object)(!current ? 1 : 0));
                 this.plugin.cfg.saveAll();
-                this.plugin.msg(p, !current ? "&#0fe30fBroadcast &fENABLED &7for this reward." : "&#d61111Broadcast &fDISABLED &7for this reward.");
+                this.plugin.msg(p, !current ? "&#FF073ABroadcast &fENABLED &7for this reward." : "&#d61111Broadcast &fDISABLED &7for this reward.");
                 p.openInventory(this.plugin.guiItemEditor.build(crate, key));
             }
         }

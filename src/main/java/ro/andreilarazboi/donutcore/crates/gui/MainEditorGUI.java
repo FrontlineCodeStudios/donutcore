@@ -46,7 +46,7 @@ public class MainEditorGUI {
         ItemStack create = new ItemStack(Material.NETHER_STAR);
         ItemMeta cm = create.getItemMeta();
         if (cm != null) {
-            cm.displayName(Utils.toComponent("&#0fe30f&lCreate New Crate"));
+            cm.displayName(Utils.toComponent("&#FF073A&lCreate New Crate"));
             cm.lore(List.of(Utils.toComponent("&7Click, then left-click any block"), Utils.toComponent("&7to create a new crate there.")));
             create.setItemMeta(cm);
         }

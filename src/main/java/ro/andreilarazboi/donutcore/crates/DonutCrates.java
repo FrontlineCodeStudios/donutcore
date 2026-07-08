@@ -283,7 +283,7 @@ public final class DonutCrates {
     }
 
     public void reloadPrefix() {
-        String raw = this.cfg != null && this.cfg.config != null ? this.cfg.config.getString("prefix", "&#0fe30f[DonutCrates]&r ") : "&#0fe30f[DonutCrates]&r ";
+        String raw = this.cfg != null && this.cfg.config != null ? this.cfg.config.getString("prefix", "&#FF073A[DonutCrates]&r ") : "&#FF073A[DonutCrates]&r ";
         this.prefix = Utils.formatColors(raw);
     }
 
@@ -391,7 +391,7 @@ public final class DonutCrates {
             changed = true;
         }
         if (!sSec.isSet("displayname")) {
-            sSec.set("displayname", ("&#0fe30f" + keyId + " Key"));
+            sSec.set("displayname", ("&#FF073A" + keyId + " Key"));
             changed = true;
         }
         if (!sSec.isSet("virtual")) {
@@ -429,7 +429,7 @@ public final class DonutCrates {
         ItemMeta meta = keyItem.getItemMeta();
         if (meta != null) {
             if (!meta.hasDisplayName()) {
-                meta.displayName(Utils.toComponent(this.cfg.saves.getString(base + ".displayname", "&#0fe30f" + keyId + " Key")));
+                meta.displayName(Utils.toComponent(this.cfg.saves.getString(base + ".displayname", "&#FF073A" + keyId + " Key")));
             }
             if (meta.hasEnchants()) {
                 meta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});

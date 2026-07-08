@@ -98,12 +98,12 @@ public class HologramBackgroundGUI {
             boolean isSelected = opt.id.equalsIgnoreCase(selectedId);
             ItemStack icon = new ItemStack(opt.material);
             ItemMeta im = icon.getItemMeta();
-            im.displayName(Utils.toComponent(isSelected ? "&#0fe30f" + opt.name + " &7(Selected)" : "&#f5f5f5" + opt.name));
+            im.displayName(Utils.toComponent(isSelected ? "&#FF073A" + opt.name + " &7(Selected)" : "&#f5f5f5" + opt.name));
             ArrayList<Component> lore = new ArrayList<Component>();
             lore.add(Utils.toComponent("&#bfbfbf" + opt.description));
             lore.add(Utils.toComponent(""));
             if (isSelected) {
-                lore.add(Utils.toComponent("&#0fe30f\u2714 Currently selected"));
+                lore.add(Utils.toComponent("&#FF073A\u2714 Currently selected"));
                 im.addEnchant(Enchantment.UNBREAKING, 1, true);
                 im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
             } else {

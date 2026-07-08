@@ -39,14 +39,14 @@ public class CrateSettingsGUI {
         String typeId = this.plugin.cfg.crates.getString("Crates." + crateName + ".opening-animation.type", OpeningAnimationType.ROW_SPIN.id());
         OpeningAnimationType type = OpeningAnimationType.byId(typeId);
         inv.setItem(4, this.item(Material.BOOK, "&#0f99e3&lCrate Settings", "&#bfbfbfManage core crate features.", "&#7f7f7f(advanced actions are in Edit Crate)"));
-        inv.setItem(11, this.item(Material.CHEST, "&#0fe30f&lRewards", "&#bfbfbfEdit crate rewards in a separate menu."));
+        inv.setItem(11, this.item(Material.CHEST, "&#FF073A&lRewards", "&#bfbfbfEdit crate rewards in a separate menu."));
         inv.setItem(13, this.item(Material.ENDER_CHEST, "&#0f99e3&lPreview", "&#bfbfbfOpen a preview of this crate."));
         inv.setItem(15, this.item(Material.ENDER_EYE, "&#f5f5f5&lHologram", "&#bfbfbfConfigure hologram text and style."));
         inv.setItem(20, this.item(Material.NETHER_STAR, "&#f5f5f5&lEdit Crate", "&#bfbfbfRename ID, move, rows,", "&#bfbfbfdisplay name, random mode, copy/delete."));
         ArrayList<Component> animLore = new ArrayList<>();
         animLore.add(Utils.toComponent("&#bfbfbfChoose how the crate opens."));
         animLore.add(Utils.toComponent(""));
-        animLore.add(Utils.toComponent("&#27B0F5Enabled: " + (animEnabled ? "&#0fe30fYES" : "&#d61111NO")));
+        animLore.add(Utils.toComponent("&#27B0F5Enabled: " + (animEnabled ? "&#FF073AYES" : "&#d61111NO")));
         animLore.add(Utils.toComponent("&#27B0F5Selected: &f" + (type != null ? type.displayName() : "ROW_SPIN")));
         animLore.add(Utils.toComponent(""));
         animLore.add(Utils.toComponent("&#bfbfbfClick to configure."));
@@ -65,12 +65,12 @@ public class CrateSettingsGUI {
         ItemStack keyItem = new ItemStack(Material.TRIPWIRE_HOOK);
         ItemMeta kim = keyItem.getItemMeta();
         if (kim != null) {
-            kim.displayName(Utils.toComponent("&#0fe30f&lKey"));
+            kim.displayName(Utils.toComponent("&#FF073A&lKey"));
             kim.lore(keyLore);
             keyItem.setItemMeta(kim);
         }
         inv.setItem(24, keyItem);
-        inv.setItem(27, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to the &#0fe30fCrate Manager&#bfbfbf."));
+        inv.setItem(27, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to the &#FF073ACrate Manager&#bfbfbf."));
         return inv;
     }
 

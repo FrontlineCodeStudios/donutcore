@@ -38,7 +38,7 @@ public class RowEditorGUI {
             ItemMeta im = it.getItemMeta();
             im.displayName(Utils.toComponent("&#f5f5f5" + i + " Rows"));
             ArrayList<Component> lore = new ArrayList<Component>();
-            lore.add(Utils.toComponent(i == current ? "&#0fe30fCurrently selected." : "&#bfbfbfClick to use &f" + i + "&#bfbfbf rows."));
+            lore.add(Utils.toComponent(i == current ? "&#FF073ACurrently selected." : "&#bfbfbfClick to use &f" + i + "&#bfbfbf rows."));
             im.lore(lore);
             it.setItemMeta(im);
             inv.setItem(slot, it);

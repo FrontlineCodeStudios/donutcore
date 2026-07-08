@@ -131,7 +131,7 @@ implements Listener {
             this.plugin.cfg.crates.set("Crates." + crate + ".opening-animation.enabled", (Object)false);
             this.plugin.cfg.crates.set("Crates." + crate + ".opening-animation.type", (Object)"ROW_SPIN");
             this.plugin.cfg.saveAll();
-            this.plugin.msg(p, "&#0fe30fOpening animation &cdisabled &7for &f" + crate + "&#0fe30f.");
+            this.plugin.msg(p, "&#FF073AOpening animation &cdisabled &7for &f" + crate + "&#FF073A.");
             p.openInventory(this.plugin.guiOpeningAnimations.build(crate));
             return;
         }
@@ -142,7 +142,7 @@ implements Listener {
         this.plugin.cfg.crates.set("Crates." + crate + ".opening-animation.enabled", (Object)true);
         this.plugin.cfg.crates.set("Crates." + crate + ".opening-animation.type", (Object)type.id());
         this.plugin.cfg.saveAll();
-        this.plugin.msg(p, "&#0fe30fSelected: &fAnimation &7for &f" + crate + "&#0fe30f.");
+        this.plugin.msg(p, "&#FF073ASelected: &fAnimation &7for &f" + crate + "&#FF073A.");
         p.openInventory(this.plugin.guiOpeningAnimations.build(crate));
     }
 }

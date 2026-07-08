@@ -59,7 +59,7 @@ public class CrateNameColorGUI {
                 lore.add(Utils.toComponent("&#7f7f7fApplies to the display name."));
                 if (selected) {
                     lore.add(Utils.toComponent(""));
-                    lore.add(Utils.toComponent("&#0fe30f\u2714 Currently applied"));
+                    lore.add(Utils.toComponent("&#FF073A\u2714 Currently applied"));
                     im.addEnchant(Enchantment.UNBREAKING, 1, true);
                     im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
                 }

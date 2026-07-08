@@ -73,7 +73,7 @@ implements Listener {
                     this.plugin.cfg.saves.set(base + ".displayname", (Object)Utils.stripColor(newItem.getItemMeta().displayName()));
                 }
                 this.plugin.cfg.saveAll();
-                this.plugin.msg(p, "&#0fe30fUpdated key item for key &f" + keyId);
+                this.plugin.msg(p, "&#FF073AUpdated key item for key &f" + keyId);
                 p.openInventory(this.plugin.guiKeyEditor.build(keyId));
                 break;
             }
@@ -90,7 +90,7 @@ implements Listener {
                     }
                     this.plugin.cfg.saves.set("keys." + keyRef + ".displayname", (Object)value.trim());
                     this.plugin.cfg.saveAll();
-                    this.plugin.msg(playerRef, "&#0fe30fUpdated key name.");
+                    this.plugin.msg(playerRef, "&#FF073AUpdated key name.");
                     playerRef.openInventory(this.plugin.guiKeyEditor.build(keyRef));
                 }));
                 break;
@@ -100,7 +100,7 @@ implements Listener {
                 boolean virt = this.plugin.cfg.saves.getBoolean(base + ".virtual", true);
                 this.plugin.cfg.saves.set(base + ".virtual", (Object)(!virt ? 1 : 0));
                 this.plugin.cfg.saveAll();
-                this.plugin.msg(p, !virt ? "&#0fe30fVirtual keys &fENABLED &7for key &f" + keyId : "&#d61111Virtual keys &fDISABLED &7for key &f" + keyId);
+                this.plugin.msg(p, !virt ? "&#FF073AVirtual keys &fENABLED &7for key &f" + keyId : "&#d61111Virtual keys &fDISABLED &7for key &f" + keyId);
                 p.openInventory(this.plugin.guiKeyEditor.build(keyId));
                 break;
             }
@@ -111,7 +111,7 @@ implements Listener {
                 if (!left.isEmpty()) {
                     left.values().forEach(is -> p.getWorld().dropItemNaturally(p.getLocation(), is));
                 }
-                this.plugin.msg(p, "&#0fe30fYou received one &f" + keyId + " &#0fe30fkey item.");
+                this.plugin.msg(p, "&#FF073AYou received one &f" + keyId + " &#FF073Akey item.");
                 break;
             }
             case 26: {

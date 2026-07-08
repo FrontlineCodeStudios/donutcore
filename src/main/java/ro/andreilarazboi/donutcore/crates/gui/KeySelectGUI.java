@@ -67,7 +67,7 @@ public class KeySelectGUI {
             ItemStack icon = this.plugin.buildKeyItemById(keyId, 1);
             ItemMeta im = icon.getItemMeta();
             if (im == null) continue;
-            im.displayName(Utils.toComponent("&#0fe30fKey: &f" + keyId));
+            im.displayName(Utils.toComponent("&#FF073AKey: &f" + keyId));
             ArrayList<Component> lore = im.hasLore() && im.lore() != null ? new ArrayList<>(im.lore()) : new ArrayList<>();
             lore.removeIf(c -> {
                 String s = LegacyComponentSerializer.legacySection().serialize(c);
@@ -77,7 +77,7 @@ public class KeySelectGUI {
             });
             lore.add(Utils.toComponent(""));
             if (isSelected) {
-                lore.add(Utils.toComponent("&#0fe30f\u2714 Currently selected"));
+                lore.add(Utils.toComponent("&#FF073A\u2714 Currently selected"));
                 lore.add(Utils.toComponent("&#bfbfbfThis key will open &f" + crate));
                 im.addEnchant(Enchantment.UNBREAKING, 1, true);
                 im.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});

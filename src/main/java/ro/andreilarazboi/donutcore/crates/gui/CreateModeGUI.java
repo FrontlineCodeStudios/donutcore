@@ -31,7 +31,7 @@ public class CreateModeGUI {
             inv.setItem(i, filler);
         }
         inv.setItem(11, this.item(Material.ENCHANTED_BOOK, "&#27B0F5&lRandom Reward", "&#bfbfbfClick to choose this option!"));
-        inv.setItem(15, this.item(Material.CHEST, "&#0fe30f&lChoose Reward", "&#bfbfbfClick to choose this option!"));
+        inv.setItem(15, this.item(Material.CHEST, "&#FF073A&lChoose Reward", "&#bfbfbfClick to choose this option!"));
         inv.setItem(18, this.item(Material.ARROW, "&#f5f5f5\u00ab Back", "&#bfbfbfReturn to crate manager."));
         return inv;
     }
