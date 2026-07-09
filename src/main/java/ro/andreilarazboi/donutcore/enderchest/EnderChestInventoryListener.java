@@ -70,6 +70,15 @@ public class EnderChestInventoryListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getInventory().getHolder() instanceof EnderChestHolder holder)) return;
+
+        org.bukkit.block.Block clickedBlock = holder.getClickedBlock();
+        if (clickedBlock != null && clickedBlock.getType() == org.bukkit.Material.ENDER_CHEST) {
+            org.bukkit.block.BlockState state = clickedBlock.getState();
+            if (state instanceof org.bukkit.block.Lidded lidded) {
+                lidded.close();
+            }
+        }
+
         if (holder.isReadOnly()) return;
 
         UUID ownerUUID = holder.getOwnerUUID();

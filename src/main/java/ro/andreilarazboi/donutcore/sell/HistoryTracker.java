@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class HistoryTracker {
-    private final Map<UUID, Integer> pages = new HashMap<>();
-    private final Map<UUID, SortOrder> orders = new HashMap<>();
-    private final Map<UUID, String> filters = new HashMap<>();
+    private final Map<UUID, Integer> pages = new HashMap<UUID, Integer>();
+    private final Map<UUID, SortOrder> orders = new HashMap<UUID, SortOrder>();
+    private final Map<UUID, String> filters = new HashMap<UUID, String>();
 
     public void setPage(UUID player, int page) {
         this.pages.put(player, page);
@@ -27,14 +27,12 @@ public class HistoryTracker {
 
     public void cycleOrder(UUID player) {
         SortOrder cur = this.getOrder(player);
-        SortOrder next;
-        switch (cur) {
-            case HIGH: next = SortOrder.LOW; break;
-            case LOW: next = SortOrder.NAME; break;
-            case NAME: next = SortOrder.HIGH; break;
-            default: next = SortOrder.HIGH;
-        }
-        this.orders.put(player, next);
+        this.orders.put(player, switch (cur.ordinal()) {
+            case 0 -> SortOrder.LOW;
+            case 1 -> SortOrder.NAME;
+            case 2 -> SortOrder.HIGH;
+            default -> SortOrder.HIGH;
+        });
     }
 
     public void setFilter(UUID player, String filter) {
@@ -59,9 +57,11 @@ public class HistoryTracker {
         this.filters.remove(player);
     }
 
-    public enum SortOrder {
+    public static enum SortOrder {
         HIGH,
         LOW,
-        NAME
+        NAME;
+
     }
 }
+

@@ -14,9 +14,11 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
-public class InventoryClickListener implements Listener {
+@SuppressWarnings({"deprecation", "removal"})
+public class InventoryClickListener
+implements Listener {
     private final DonutSell plugin;
-    private final Set<UUID> suppressClear = new HashSet<>();
+    private final Set<UUID> suppressClear = new HashSet<UUID>();
 
     public InventoryClickListener(DonutSell plugin) {
         this.plugin = plugin;
@@ -24,14 +26,22 @@ public class InventoryClickListener implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        if (!this.plugin.isModuleActive()) return;
+        if (!(e.getWhoClicked() instanceof Player)) {
+            return;
+        }
+        Player p = (Player)e.getWhoClicked();
         UUID uuid = p.getUniqueId();
         ViewTracker vt = this.plugin.getViewTracker();
-        if (!vt.isTracked(uuid)) return;
+        if (!vt.isTracked(uuid)) {
+            return;
+        }
         Inventory top = e.getView().getTopInventory();
-        if (e.getClickedInventory() != top) return;
+        if (e.getClickedInventory() != top) {
+            return;
+        }
         e.setCancelled(true);
-        Sound clickSound = Utils.resolveSound(this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"), Sound.UI_BUTTON_CLICK);
+        Sound clickSound = Sound.valueOf((String)this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"));
         p.playSound(p.getLocation(), clickSound, 1.0f, 1.0f);
         int slot = e.getRawSlot();
         int page = vt.getPage(uuid);
@@ -55,7 +65,7 @@ public class InventoryClickListener implements Listener {
             String cur = vt.getFilter(uuid);
             int idx = options.indexOf(cur == null ? "all" : cur);
             idx = (idx + 1) % options.size();
-            String nextCat = options.get(idx);
+            String nextCat = (String)options.get(idx);
             vt.setFilter(uuid, nextCat.equalsIgnoreCase("all") ? null : nextCat);
             this.suppressClear.add(uuid);
             this.plugin.getItemPricesMenu().open(p, page);
@@ -68,18 +78,24 @@ public class InventoryClickListener implements Listener {
 
     @EventHandler
     public void onDrag(InventoryDragEvent e) {
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        if (!this.plugin.isModuleActive()) return;
+        if (!(e.getWhoClicked() instanceof Player)) {
+            return;
+        }
+        Player p = (Player)e.getWhoClicked();
         UUID uuid = p.getUniqueId();
         ViewTracker vt = this.plugin.getViewTracker();
-        if (!vt.isTracked(uuid)) return;
+        if (!vt.isTracked(uuid)) {
+            return;
+        }
         Inventory top = e.getView().getTopInventory();
         int size = top.getSize();
         Iterator<Integer> iterator = e.getRawSlots().iterator();
         while (iterator.hasNext()) {
-            int raw = iterator.next();
+            int raw = (Integer)iterator.next();
             if (raw < 0 || raw >= size) continue;
             e.setCancelled(true);
-            Sound clickSound = Utils.resolveSound(this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"), Sound.UI_BUTTON_CLICK);
+            Sound clickSound = Sound.valueOf((String)this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"));
             p.playSound(p.getLocation(), clickSound, 1.0f, 1.0f);
             return;
         }
@@ -87,13 +103,24 @@ public class InventoryClickListener implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent e) {
-        if (!(e.getPlayer() instanceof Player p)) return;
+        if (!this.plugin.isModuleActive()) return;
+        if (!(e.getPlayer() instanceof Player)) {
+            return;
+        }
+        Player p = (Player)e.getPlayer();
         UUID uuid = p.getUniqueId();
         ViewTracker vt = this.plugin.getViewTracker();
-        if (!vt.isTracked(uuid)) return;
-        if (this.suppressClear.remove(uuid)) return;
+        if (!vt.isTracked(uuid)) {
+            return;
+        }
+        if (this.suppressClear.remove(uuid)) {
+            return;
+        }
         String filter = vt.getFilter(uuid);
-        if (filter != null && filter.isEmpty()) return;
+        if (filter != null && filter.isEmpty()) {
+            return;
+        }
         vt.clear(uuid);
     }
 }
+

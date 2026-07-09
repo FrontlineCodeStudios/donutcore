@@ -2,12 +2,8 @@ package ro.andreilarazboi.donutcore.sell;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import java.io.File;
-import java.time.Duration;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -21,8 +17,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -45,6 +41,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -56,56 +53,29 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitTask;
-import ro.andreilarazboi.donutcore.DonutCore;
 
+@SuppressWarnings({"deprecation", "unchecked", "rawtypes", "unused", "null", "removal"})
 public final class DonutSell implements Listener {
     private final JavaPlugin parent;
     private FileConfiguration sellConfig;
     private File sellConfigFile;
 
-    private SellPacketListener packetListenerInstance;
-    private CleanupListener cleanupListener;
-    private ViewTracker viewTracker;
-    private ItemPricesMenu itemPricesMenu;
-    private AdminPriceEditorMenu adminPriceEditorMenu;
-    private SellGui sellGui;
-    private ProgressGui progressGui;
-    private HistoryTracker historyTracker;
-    private SellHistoryGui sellHistoryGui;
-    private ResetConfirmationGui resetConfirmationGui;
-    private Economy econ;
-    private final Map<UUID, Double> totalSold = new HashMap<>();
-    private final Map<UUID, Map<String, Double>> soldByCategory = new HashMap<>();
-    private final Map<UUID, Map<String, Stats>> itemHistory = new HashMap<>();
-    public final Map<String, List<String>> categoryItems = new HashMap<>();
-    private final Map<String, Double> itemValues = new HashMap<>();
-    private File saveFile;
-    private FileConfiguration saveConfig;
-    private File worthFile;
-    private FileConfiguration worthConfig;
-    private File messagesFile;
-    private FileConfiguration messagesConfig;
-    private File mysqlFile;
-    private FileConfiguration mysqlConfig;
-    private File menusFile;
-    private FileConfiguration menusConfig;
-    private SellMySQL mysql;
-    private boolean usingMySQL = false;
-    private CancellableTask restartWarningTask;
-    private Boolean lastKnownUseNewSellMenu;
-    private NamespacedKey sellAxeKey;
-    private NamespacedKey expiryKey;
-    private final Set<UUID> toggleWorthDisabled = new HashSet<>();
-    private final Set<String> disabledItemsUpper = new HashSet<>();
-
     public DonutSell(JavaPlugin parent) {
         this.parent = parent;
+        instance = this;
     }
 
     public JavaPlugin getPlugin() {
         return this.parent;
+    }
+
+    public FileConfiguration getConfig() {
+        return this.sellConfig;
+    }
+
+    public void reloadConfig() {
+        this.sellConfig = YamlConfiguration.loadConfiguration(this.sellConfigFile);
     }
 
     public java.util.logging.Logger getLogger() {
@@ -120,81 +90,253 @@ public final class DonutSell implements Listener {
         return this.parent.getCommand(name);
     }
 
-    public io.papermc.paper.plugin.configuration.PluginMeta getPluginMeta() {
-        return this.parent.getPluginMeta();
+    public File getDataFolder() {
+        return this.parent.getDataFolder();
     }
 
-    public FileConfiguration getConfig() {
-        return this.sellConfig;
+    public org.bukkit.plugin.PluginDescriptionFile getDescription() {
+        return this.parent.getDescription();
+    }
+    private SellPacketListener packetListenerInstance;
+    private CleanupListener cleanupListener;
+    private ViewTracker viewTracker;
+    private ItemPricesMenu itemPricesMenu;
+    private AdminPriceEditorMenu adminPriceEditorMenu;
+    private SellGui sellGui;
+    private ProgressGui progressGui;
+    private HistoryTracker historyTracker;
+    private SellHistoryGui sellHistoryGui;
+    private ResetConfirmationGui resetConfirmationGui;
+    private Economy econ;
+    private final Map<UUID, Double> totalSold = new HashMap<UUID, Double>();
+    private final Map<UUID, Map<String, Double>> soldByCategory = new HashMap<UUID, Map<String, Double>>();
+    private final Map<UUID, Map<String, Stats>> itemHistory = new HashMap<UUID, Map<String, Stats>>();
+    public final Map<String, List<String>> categoryItems = new HashMap<String, List<String>>();
+    private final Map<String, Double> itemValues = new HashMap<String, Double>();
+    private File saveFile;
+    private FileConfiguration saveConfig;
+    private File worthFile;
+    private FileConfiguration worthConfig;
+    private File messagesFile;
+    private FileConfiguration messagesConfig;
+    private File mysqlFile;
+    private FileConfiguration mysqlConfig;
+    private File menusFile;
+    private FileConfiguration menusConfig;
+    private SellMySQL mysql;
+    private boolean usingMySQL = false;
+    private CancellableTask restartWarningTask;
+    private String lastKnownSellMenuOption;
+    private final Set<UUID> actionMenuTransfers = new HashSet<UUID>();
+    private NamespacedKey sellAxeKey;
+    private NamespacedKey expiryKey;
+    private NamespacedKey usesRemainingKey;
+    private final Set<UUID> toggleWorthDisabled = new HashSet<UUID>();
+    private final Set<String> disabledItemsUpper = new HashSet<String>();
+    private static DonutSell instance;
+
+    public static DonutSell getInstance() {
+        return instance;
     }
 
-    public void reloadConfig() {
-        this.sellConfig = YamlConfiguration.loadConfiguration(this.sellConfigFile);
-    }
-
-    private void saveResource(String name, boolean replace) {
-        File dest = new File(this.parent.getDataFolder(), name);
-        if (dest.exists() && !replace) return;
-        try (InputStream in = this.parent.getResource(name)) {
-            if (in == null) {
-                this.parent.getLogger().warning("[DonutCore] Resource '" + name + "' not found in jar.");
-                return;
-            }
-            dest.getParentFile().mkdirs();
-            Files.copy(in, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            this.parent.getLogger().log(Level.WARNING, "[DonutCore] Failed to save resource " + name, e);
+    /**
+     * Returns {@code true} if the sell module is currently enabled and active.
+     * Used as a guard in commands and listeners to prevent execution when the module is disabled.
+     */
+    public boolean isModuleActive() {
+        try {
+            return ro.andreilarazboi.donutcore.DonutCore.getInstance().getSellModule().isActive();
+        } catch (Exception e) {
+            return false;
         }
     }
 
+    public CleanupListener getCleanupListener() {
+        return this.cleanupListener;
+    }
+
+    public ResetConfirmationGui getResetConfirmationGui() {
+        return this.resetConfirmationGui;
+    }
+
+    public boolean isUsingMySQL() {
+        return this.usingMySQL;
+    }
+
     private boolean isFolia() {
-        return Bukkit.getServer().getName().equalsIgnoreCase("Folia");
+        String serverName = Bukkit.getServer().getName();
+        return serverName.equalsIgnoreCase("Folia") || serverName.equalsIgnoreCase("Canvas");
+    }
+
+    private void runSyncRegionized(Runnable runnable) {
+        Bukkit.getGlobalRegionScheduler().execute(this.parent, runnable);
+    }
+
+    private void runAsyncRegionized(Runnable runnable) {
+        Bukkit.getAsyncScheduler().runNow(this.parent, task -> runnable.run());
+    }
+
+    private void runLaterGlobalRegionized(Runnable runnable, long delayTicks) {
+        Bukkit.getGlobalRegionScheduler().runDelayed(this.parent, task -> runnable.run(), Math.max(1L, delayTicks));
     }
 
     public void runSync(Runnable runnable) {
-        if (this.isFolia()) { Bukkit.getGlobalRegionScheduler().execute(this.parent, runnable); return; }
-        Bukkit.getScheduler().runTask(this.parent, runnable);
+        if (this.isFolia()) {
+            this.runSyncRegionized(runnable);
+            return;
+        }
+        try {
+            Bukkit.getScheduler().runTask(this.parent, runnable);
+        }
+        catch (UnsupportedOperationException ex) {
+            this.runSyncRegionized(runnable);
+        }
     }
 
     public void runAsync(Runnable runnable) {
-        if (this.isFolia()) { Bukkit.getAsyncScheduler().runNow(this.parent, task -> runnable.run()); return; }
-        Bukkit.getScheduler().runTaskAsynchronously(this.parent, runnable);
+        if (this.isFolia()) {
+            this.runAsyncRegionized(runnable);
+            return;
+        }
+        try {
+            Bukkit.getScheduler().runTaskAsynchronously(this.parent, runnable);
+        }
+        catch (UnsupportedOperationException ex) {
+            this.runAsyncRegionized(runnable);
+        }
     }
 
     public void runLaterGlobal(Runnable runnable, long delayTicks) {
-        if (this.isFolia()) { Bukkit.getGlobalRegionScheduler().runDelayed(this.parent, task -> runnable.run(), delayTicks); return; }
-        Bukkit.getScheduler().runTaskLater(this.parent, runnable, delayTicks);
+        if (this.isFolia()) {
+            this.runLaterGlobalRegionized(runnable, delayTicks);
+            return;
+        }
+        try {
+            Bukkit.getScheduler().runTaskLater(this.parent, runnable, delayTicks);
+        }
+        catch (UnsupportedOperationException ex) {
+            this.runLaterGlobalRegionized(runnable, delayTicks);
+        }
     }
 
     public CancellableTask runRepeatingGlobal(Runnable runnable, long delayTicks, long periodTicks) {
         if (this.isFolia()) {
-            long fd = Math.max(1L, delayTicks);
-            ScheduledTask task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(this.parent, t -> runnable.run(), fd, periodTicks);
-            return task::cancel;
+            long foliaDelayTicks = Math.max(1L, delayTicks);
+            ScheduledTask task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(this.parent, t -> runnable.run(), foliaDelayTicks, periodTicks);
+            return () -> ((ScheduledTask)task).cancel();
         }
-        BukkitTask task = Bukkit.getScheduler().runTaskTimer(this.parent, runnable, delayTicks, periodTicks);
-        return task::cancel;
+        try {
+            BukkitTask task = Bukkit.getScheduler().runTaskTimer(this.parent, runnable, delayTicks, periodTicks);
+            return () -> ((BukkitTask)task).cancel();
+        }
+        catch (UnsupportedOperationException ex) {
+            long foliaDelayTicks = Math.max(1L, delayTicks);
+            ScheduledTask task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(this.parent, t -> runnable.run(), foliaDelayTicks, periodTicks);
+            return () -> ((ScheduledTask)task).cancel();
+        }
     }
 
     public void runAtPlayer(Player player, Runnable runnable) {
-        if (this.isFolia()) { player.getScheduler().execute(this.parent, runnable, null, 1L); return; }
-        Bukkit.getScheduler().runTask(this.parent, runnable);
+        if (this.isFolia()) {
+            player.getScheduler().execute(this.parent, runnable, null, 1L);
+            return;
+        }
+        try {
+            Bukkit.getScheduler().runTask(this.parent, runnable);
+        }
+        catch (UnsupportedOperationException ex) {
+            player.getScheduler().execute(this.parent, runnable, null, 1L);
+        }
     }
 
     public void runAtPlayerLater(Player player, Runnable runnable, long delayTicks) {
-        if (this.isFolia()) { player.getScheduler().runDelayed(this.parent, task -> runnable.run(), null, delayTicks); return; }
-        Bukkit.getScheduler().runTaskLater(this.parent, runnable, delayTicks);
+        if (this.isFolia()) {
+            player.getScheduler().runDelayed(this.parent, task -> runnable.run(), null, Math.max(1L, delayTicks));
+            return;
+        }
+        try {
+            Bukkit.getScheduler().runTaskLater(this.parent, runnable, delayTicks);
+        }
+        catch (UnsupportedOperationException ex) {
+            player.getScheduler().runDelayed(this.parent, task -> runnable.run(), null, Math.max(1L, delayTicks));
+        }
     }
 
-    public CleanupListener getCleanupListener() { return this.cleanupListener; }
-    public ResetConfirmationGui getResetConfirmationGui() { return this.resetConfirmationGui; }
-    public boolean isUsingMySQL() { return this.usingMySQL; }
+    private EnumSet<SellNotifyMode> getNotifyModes() {
+        EnumSet<SellNotifyMode> modes = EnumSet.noneOf(SellNotifyMode.class);
+        Object raw = this.sellConfig.get("sell-notify-mode");
+        if (raw == null) {
+            raw = this.sellConfig.get("sell-shower");
+        }
+        if (raw instanceof String) {
+            String s = (String)raw;
+            this.addModesFromString(s, modes);
+        } else if (raw instanceof List) {
+            List<?> list = (List<?>)raw;
+            for (Object o : list) {
+                this.addModesFromString(String.valueOf(o), modes);
+            }
+        } else if (raw != null) {
+            this.addModesFromString(String.valueOf(raw), modes);
+        }
+        if (modes.isEmpty()) {
+            modes.add(SellNotifyMode.ACTIONBAR);
+        }
+        return modes;
+    }
+
+    private void addModesFromString(String s, EnumSet<SellNotifyMode> modes) {
+        if (s == null) {
+            return;
+        }
+        for (String p : s.split("[,;\\s]+")) {
+            String t = p.trim();
+            if (t.isEmpty()) continue;
+            try {
+                modes.add(SellNotifyMode.valueOf(t.toUpperCase(Locale.ROOT)));
+            }
+            catch (IllegalArgumentException illegalArgumentException) {
+                // empty catch block
+            }
+        }
+    }
+
+    public void notifySale(Player p, double moneyEarned, long itemsSold) {
+        EnumSet<SellNotifyMode> modes = this.getNotifyModes();
+        String amt = Utils.abbreviateNumber(moneyEarned);
+        String itemsStr = String.valueOf(itemsSold);
+        if (modes.contains((Object)SellNotifyMode.CHAT)) {
+            String chatMsg = Utils.formatColors(this.getMenusConfig().getString("sell-menu.chat-message", "&#34ee80+$%amount%")).replace("%amount%", amt).replace("%items%", itemsStr);
+            p.sendMessage(chatMsg);
+        }
+        if (modes.contains((Object)SellNotifyMode.ACTIONBAR)) {
+            String actionbar = Utils.formatColors(this.getMenusConfig().getString("sell-menu.actionbar-message", "&#34ee80+$%amount%")).replace("%amount%", amt).replace("%items%", itemsStr);
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText((String)actionbar));
+        }
+        if (modes.contains((Object)SellNotifyMode.TITLE)) {
+            String title = Utils.formatColors(this.sellConfig.getString("sell-notify.screen.title", "&a+$%amount%")).replace("%amount%", amt).replace("%items%", itemsStr);
+            String subtitle = Utils.formatColors(this.sellConfig.getString("sell-notify.screen.subtitle", "&7You sold %items% items")).replace("%amount%", amt).replace("%items%", itemsStr);
+            int fadeIn = this.sellConfig.getInt("sell-notify.screen.fade-in", 5);
+            int stay = this.sellConfig.getInt("sell-notify.screen.stay", 40);
+            int fadeOut = this.sellConfig.getInt("sell-notify.screen.fade-out", 10);
+            p.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
+        }
+    }
 
     public void enable() {
-        this.sellConfigFile = new File(this.parent.getDataFolder(), "sell/config.yml");
-        if (!this.sellConfigFile.exists()) this.saveResource("sell/config.yml", false);
-        this.sellConfig = YamlConfiguration.loadConfiguration(this.sellConfigFile);
-
+        instance = this;
+        try {
+            this.parent.getServer().getServicesManager().register(
+                    andreilarazboi.lifestealorder.api.DonutOrderApi.class,
+                    new andreilarazboi.lifestealorder.api.DonutOrderApi(),
+                    this.parent,
+                    org.bukkit.plugin.ServicePriority.Normal
+            );
+            this.parent.getLogger().info("Successfully registered DonutOrderApi service internally.");
+        } catch (Throwable t) {
+            this.parent.getLogger().log(java.util.logging.Level.SEVERE, "Failed to register DonutOrderApi service", t);
+        }
+        this.sellConfigFile = new File(this.parent.getDataFolder(), "sell/config.yml"); if (!this.sellConfigFile.exists()) this.saveResource("sell/config.yml", false); this.sellConfig = YamlConfiguration.loadConfiguration(this.sellConfigFile);
         this.setupMessagesFile();
         this.setupMysqlFile();
         this.setupMenusFile();
@@ -202,81 +344,243 @@ public final class DonutSell implements Listener {
         this.buildCategoryItems();
         this.setupStorage();
         this.rebuildDisabledItemsCache();
-
+        if (!this.setupVault()) {
+            this.parent.getLogger().severe("Vault not found, disabling plugin.");
+            this.parent.getServer().getPluginManager().disablePlugin(this.parent);
+            return;
+        }
+        if (this.isSellMultiMenuEnabled()) {
+            Objects.requireNonNull(this.parent.getCommand("sellmulti")).setExecutor((sender, cmd, lbl, args) -> {
+                if (!this.isModuleActive()) {
+                    sender.sendMessage("\u00a7cThis module is currently disabled.");
+                    return true;
+                }
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage("\u00a7cOnly players can use this command.");
+                    return true;
+                }
+                this.getSellGui().openNew((Player)sender);
+                return true;
+            });
+        } else {
+            this.unregisterSellMultiCommand();
+        }
         this.cleanupListener = new CleanupListener(this);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)this.cleanupListener, this.parent);
         for (Player p : this.parent.getServer().getOnlinePlayers()) {
             this.cleanupListener.stripAllLore(p);
             p.updateInventory();
         }
-
         this.viewTracker = new ViewTracker();
         this.itemPricesMenu = new ItemPricesMenu(this);
         this.adminPriceEditorMenu = new AdminPriceEditorMenu(this);
-        Bukkit.getPluginManager().registerEvents(new InventoryClickListener(this), this.parent);
-        Bukkit.getPluginManager().registerEvents(new ChatInputListener(this), this.parent);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)this.itemPricesMenu, this.parent);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)this.adminPriceEditorMenu, this.parent);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)new InventoryClickListener(this), this.parent);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)new ChatInputListener(this), this.parent);
         this.sellGui = new SellGui(this);
         this.progressGui = new ProgressGui(this);
-        Bukkit.getPluginManager().registerEvents(this, this.parent);
-        Bukkit.getPluginManager().registerEvents(new SellMenuClickListener(this), this.parent);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)this, this.parent);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)new SellMenuClickListener(this), this.parent);
         this.historyTracker = new HistoryTracker();
         this.sellHistoryGui = new SellHistoryGui(this);
-        Bukkit.getPluginManager().registerEvents(new HistoryClickListener(this), this.parent);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)new HistoryClickListener(this), this.parent);
         new SellHistoryCommand(this);
         new SellPlaceholderExpansion(this).register();
         new SellCommand(this);
         new WorthCommand(this);
         this.resetConfirmationGui = new ResetConfirmationGui(this);
-        Bukkit.getPluginManager().registerEvents(new GuiClickListener(this), this.parent);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)new SellConfirmationGui(this), this.parent);
+        this.parent.getServer().getPluginManager().registerEvents((Listener)new GuiClickListener(this), this.parent);
         this.sellAxeKey = new NamespacedKey(this.parent, "sell_wand");
         this.expiryKey = new NamespacedKey(this.parent, "sell_wand_expiry");
-        new SellAxeCommand(this, this.sellAxeKey, this.expiryKey);
-        new SellAxe(this, this.sellAxeKey, this.expiryKey);
+        this.usesRemainingKey = new NamespacedKey(this.parent, "sell_wand_uses_remaining");
+        new SellAxeCommand(this, this.sellAxeKey, this.expiryKey, this.usesRemainingKey);
+        new SellAxe(this, this.sellAxeKey, this.expiryKey, this.usesRemainingKey);
         new VaultMoneyPlaceholder(this).register();
         this.unregisterOtherSellCommands();
         new ToggleWorthCommand(this);
-
-        if (!this.setupVault()) {
-            this.parent.getLogger().severe("[DonutCore] Vault not found — economy features disabled. Install Vault + an economy plugin.");
-        }
-
-        if (this.getConfig().getBoolean("sell-axe.use-countdown", true)) {
+        boolean useCountdown = this.sellConfig.getBoolean("sell-axe.use-countdown", true);
+        if (useCountdown) {
             this.runRepeatingGlobal(() -> {
                 long now = System.currentTimeMillis();
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     this.runAtPlayer(player, () -> {
                         PlayerInventory inv = player.getInventory();
                         for (int slot = 0; slot < inv.getSize(); ++slot) {
+                            Long expiry;
+                            PersistentDataContainer pdc;
+                            Byte marker;
+                            ItemMeta meta;
                             ItemStack item = inv.getItem(slot);
-                            if (item == null || item.getType().isAir()) continue;
-                            ItemMeta meta = item.getItemMeta();
-                            if (meta == null) continue;
-                            PersistentDataContainer pdc = meta.getPersistentDataContainer();
-                            Byte marker = pdc.get(this.sellAxeKey, PersistentDataType.BYTE);
-                            if (marker == null || marker != 1) continue;
-                            Long expiry = pdc.get(this.expiryKey, PersistentDataType.LONG);
-                            if (expiry == null) continue;
+                            if (item == null || item.getType().isAir() || (meta = item.getItemMeta()) == null || (marker = (Byte)(pdc = meta.getPersistentDataContainer()).get(this.sellAxeKey, PersistentDataType.BYTE)) == null || marker != 1 || (expiry = (Long)pdc.get(this.expiryKey, PersistentDataType.LONG)) == null) continue;
                             if (now >= expiry) {
                                 inv.setItem(slot, null);
-                                player.sendMessage(Utils.toComponent("&cYour Sell Wand has expired and been removed."));
+                                player.sendMessage(Utils.formatColors("&cYour Sell Wand has expired and been removed."));
                                 continue;
                             }
-                            String formatted = this.formatDuration(expiry - now);
-                            List<String> template = this.getConfig().getStringList("sell-axe.lore");
-                            ArrayList<Component> newLore = new ArrayList<>();
-                            for (String line : template) newLore.add(Utils.toComponent(line.replace("%countdown%", formatted)));
-                            meta.lore(newLore);
+                            long remainingMillis = expiry - now;
+                            String formatted = this.formatDuration(remainingMillis);
+                            this.updateSellAxeMeta(item, meta, formatted);
                             item.setItemMeta(meta);
                         }
                     });
                 }
             }, 0L, 200L);
         }
-
         this.setupPacketLoreHook();
         this.scheduleRestartWarningIfNeeded();
-        this.parent.getLogger().info("[DonutCore] Sell module enabled.");
+        this.parent.getLogger().info("Sell plugin enabled.");
     }
 
+    private void setupStorage() {
+        this.setupSaveFile();
+        String storageType = this.sellConfig.getString("storage.type", "SQLITE").toUpperCase(Locale.ROOT);
+        if ("MYSQL".equals(storageType)) {
+            this.mysql = new SellMySQL(this, SellMySQL.StorageMode.MYSQL);
+            if (this.mysql.init()) {
+                this.usingMySQL = true;
+                this.mysql.loadAll(this.totalSold, this.soldByCategory, this.itemHistory, this.toggleWorthDisabled);
+                this.parent.getLogger().info("[DonutSell] MySQL connection established. Using database storage.");
+                return;
+            }
+            this.parent.getLogger().severe("[DonutSell] MySQL connection failed. Falling back to SQLite/YAML.");
+        }
+        if (!"YAML".equals(storageType)) {
+            this.mysql = new SellMySQL(this, SellMySQL.StorageMode.SQLITE);
+            if (this.mysql.init()) {
+                this.usingMySQL = true;
+                this.mysql.loadAll(this.totalSold, this.soldByCategory, this.itemHistory, this.toggleWorthDisabled);
+                this.parent.getLogger().info("[DonutSell] SQLite initialized. Using database storage.");
+                return;
+            }
+            this.parent.getLogger().severe("[DonutSell] SQLite connection failed. Falling back to saves.yml.");
+        }
+        this.loadHistory();
+        this.loadToggleWorthFromSave();
+        this.parent.getLogger().info("[DonutSell] Using saves.yml storage.");
+    }
+
+    @EventHandler
+    public void onPluginEnableNormalize(PluginEnableEvent e) {
+        if (!this.isModuleActive()) return;
+        if (!e.getPlugin().getName().equals(this.parent.getName())) {
+            return;
+        }
+        for (Player p : this.parent.getServer().getOnlinePlayers()) {
+            this.cleanupListener.stripAllLore(p);
+            p.updateInventory();
+            this.runAtPlayerLater(p, () -> ((Player)p).updateInventory(), 1L);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoinStrip(PlayerJoinEvent e) {
+        if (!this.isModuleActive()) return;
+        Player p = e.getPlayer();
+        this.cleanupListener.stripAllLore(p);
+        p.updateInventory();
+        this.runAtPlayerLater(p, () -> ((Player)p).updateInventory(), 1L);
+        if (this.usingMySQL && this.mysql != null) {
+            UUID id = p.getUniqueId();
+            this.runAsync(() -> {
+                SellMySQL.PlayerSnapshot snap = this.mysql.loadPlayerData(id);
+                if (snap == null) {
+                    return;
+                }
+                this.runAtPlayer(p, () -> {
+                    this.totalSold.put(id, snap.total);
+                    this.soldByCategory.put(id, snap.categories);
+                    this.itemHistory.put(id, snap.items);
+                    if (snap.toggleDisabled) {
+                        this.toggleWorthDisabled.add(id);
+                    } else {
+                        this.toggleWorthDisabled.remove(id);
+                    }
+                });
+            });
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuitStrip(PlayerQuitEvent e) {
+        if (!this.isModuleActive()) return;
+        Player p = e.getPlayer();
+        this.cleanupListener.stripAllLore(p);
+        p.updateInventory();
+    }
+
+    private void unregisterOtherSellCommands() {
+        try {
+            Field cmdMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            cmdMapField.setAccessible(true);
+            SimpleCommandMap cmdMap = (SimpleCommandMap)cmdMapField.get(Bukkit.getServer());
+            Field knownCmdsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            knownCmdsField.setAccessible(true);
+            Map<?, ?> known = (Map<?, ?>)knownCmdsField.get(cmdMap);
+            Iterator<?> it = known.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<?, ?> entry = (Map.Entry<?, ?>)it.next();
+                String key = (String)entry.getKey();
+                Command cmd = (Command)entry.getValue();
+                if (key.equalsIgnoreCase("sell") || cmd instanceof PluginCommand && ((PluginCommand)cmd).getName().equalsIgnoreCase("sell")) {
+                    it.remove();
+                }
+                if (!key.toLowerCase(Locale.ROOT).endsWith(":sell")) continue;
+                it.remove();
+            }
+        }
+        catch (Exception e) {
+            this.parent.getLogger().warning("Failed to unregister other /sell commands: " + e.getMessage());
+        }
+    }
+
+    private void unregisterSellMultiCommand() {
+        try {
+            Field cmdMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            cmdMapField.setAccessible(true);
+            SimpleCommandMap cmdMap = (SimpleCommandMap)cmdMapField.get(Bukkit.getServer());
+            Field knownCmdsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            knownCmdsField.setAccessible(true);
+            Map<?, ?> known = (Map<?, ?>)knownCmdsField.get(cmdMap);
+            Iterator<?> it = known.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<?, ?> entry = (Map.Entry<?, ?>)it.next();
+                String key = (String)entry.getKey();
+                Command cmd = (Command)entry.getValue();
+                if (!key.equalsIgnoreCase("sellmulti") && !key.toLowerCase(Locale.ROOT).endsWith(":sellmulti") && (!(cmd instanceof PluginCommand) || !((PluginCommand)cmd).getName().equalsIgnoreCase("sellmulti"))) continue;
+                it.remove();
+            }
+        }
+        catch (Exception e) {
+            this.parent.getLogger().warning("Failed to unregister /sellmulti command: " + e.getMessage());
+        }
+    }
+
+    private void saveResource(String name, boolean replace) {
+        File dest = new File(this.parent.getDataFolder(), name);
+        if (dest.exists() && !replace) return;
+        java.io.InputStream in = this.parent.getResource(name);
+        if (in == null && !name.startsWith("sell/")) {
+            in = this.parent.getResource("sell/" + name);
+        }
+        if (in == null) {
+            this.parent.getLogger().warning("[DonutCore] Resource '" + name + "' not found in jar.");
+            return;
+        }
+        try {
+            dest.getParentFile().mkdirs();
+            java.nio.file.Files.copy(in, dest.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            this.parent.getLogger().log(java.util.logging.Level.WARNING, "[DonutCore] Failed to save resource " + name, e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {}
+            }
+        }
+    }
     public void disable() {
         if (this.restartWarningTask != null) {
             this.restartWarningTask.cancel();
@@ -293,11 +597,11 @@ public final class DonutSell implements Listener {
             this.saveHistory();
             this.saveToggleWorthToSave();
         }
-        this.parent.getLogger().info("[DonutCore] Sell module disabled.");
+        this.parent.getLogger().info("Sell plugin disabled.");
     }
 
     public void reloadPlugin() {
-        this.reloadConfig();
+        this.sellConfig = YamlConfiguration.loadConfiguration(this.sellConfigFile);
         this.reloadWorthConfig();
         this.reloadMessagesConfig();
         this.reloadMysqlConfig();
@@ -315,238 +619,208 @@ public final class DonutSell implements Listener {
             p.updateInventory();
         }
         this.scheduleRestartWarningIfNeeded();
-        this.parent.getLogger().info("[DonutCore] Sell config reloaded.");
+        this.parent.getLogger().info("Sell config reloaded.");
     }
 
     private void scheduleRestartWarningIfNeeded() {
-        boolean current = this.getConfig().getBoolean("use-new-sell-menu", false);
-        if (this.lastKnownUseNewSellMenu == null) { this.lastKnownUseNewSellMenu = current; return; }
-        if (!this.lastKnownUseNewSellMenu.equals(current)) {
-            if (this.restartWarningTask != null) this.restartWarningTask.cancel();
+        String current = this.getSellMenuOption();
+        if (this.lastKnownSellMenuOption == null) {
+            this.lastKnownSellMenuOption = current;
+            return;
+        }
+        if (!this.lastKnownSellMenuOption.equalsIgnoreCase(current)) {
+            if (this.restartWarningTask != null) {
+                this.restartWarningTask.cancel();
+            }
             this.restartWarningTask = this.runRepeatingGlobal(() -> {
                 for (Player online : Bukkit.getOnlinePlayers()) {
                     this.runAtPlayer(online, () -> {
-                        if (online.hasPermission("sell.admin"))
-                            online.sendMessage(Utils.toComponent("&cWARNING: You changed use-new-sell-menu. Please restart your server!"));
+                        if (online.hasPermission("sell.admin")) {
+                            online.sendMessage(Utils.formatColors("&cWARNING: You changed sell-menu-option. Please restart your server now!"));
+                        }
                     });
                 }
             }, 0L, 100L);
         }
-        this.lastKnownUseNewSellMenu = current;
+        this.lastKnownSellMenuOption = current;
     }
 
     private boolean setupVault() {
-        if (this.parent.getServer().getPluginManager().getPlugin("Vault") == null) return false;
-        RegisteredServiceProvider<Economy> rsp = this.parent.getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) return false;
-        this.econ = rsp.getProvider();
+        if (this.parent.getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider rsp = this.parent.getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        this.econ = (Economy)rsp.getProvider();
         return this.econ != null;
     }
 
     private void setupSaveFile() {
-        this.saveFile = new File(this.parent.getDataFolder(), "sell/saves.yml");
-        if (!this.saveFile.exists()) { this.saveFile.getParentFile().mkdirs(); this.saveResource("sell/saves.yml", false); }
-        this.saveConfig = YamlConfiguration.loadConfiguration(this.saveFile);
+        this.saveFile = new File(this.parent.getDataFolder(), "saves.yml");
+        if (!this.saveFile.exists()) {
+            this.saveFile.getParentFile().mkdirs();
+            this.saveResource("saves.yml", false);
+        }
+        this.saveConfig = YamlConfiguration.loadConfiguration((File)this.saveFile);
     }
 
     private void setupWorthFile() {
-        this.worthFile = new File(this.parent.getDataFolder(), "sell/worth.yml");
-        boolean created = !this.worthFile.exists();
-        if (created) { this.worthFile.getParentFile().mkdirs(); this.saveResource("sell/worth.yml", false); }
-        this.worthConfig = YamlConfiguration.loadConfiguration(this.worthFile);
-        if (created && this.getConfig().isConfigurationSection("categories") && !this.worthConfig.isConfigurationSection("categories")) {
-            this.worthConfig.set("categories", this.getConfig().get("categories"));
+        this.worthFile = new File(this.parent.getDataFolder(), "worth.yml");
+        boolean created = false;
+        if (!this.worthFile.exists()) {
+            this.worthFile.getParentFile().mkdirs();
+            this.saveResource("worth.yml", false);
+            created = true;
+        }
+        this.worthConfig = YamlConfiguration.loadConfiguration((File)this.worthFile);
+        if (created && this.sellConfig.isConfigurationSection("categories") && !this.worthConfig.isConfigurationSection("categories")) {
+            this.worthConfig.set("categories", this.sellConfig.get("categories"));
             this.saveWorthConfig();
         }
     }
 
     private void setupMessagesFile() {
-        this.messagesFile = new File(this.parent.getDataFolder(), "sell/messages.yml");
-        boolean created = !this.messagesFile.exists();
-        if (created) { this.messagesFile.getParentFile().mkdirs(); this.saveResource("sell/messages.yml", false); }
-        this.messagesConfig = YamlConfiguration.loadConfiguration(this.messagesFile);
-        if (created && this.getConfig().isConfigurationSection("messages") && !this.messagesConfig.isConfigurationSection("messages")) {
-            ConfigurationSection sec = this.getConfig().getConfigurationSection("messages");
-            if (sec != null) this.messagesConfig.set("messages", sec.getValues(true));
-            this.saveYaml(this.messagesConfig, this.messagesFile, "sell/messages.yml");
+        this.messagesFile = new File(this.parent.getDataFolder(), "messages.yml");
+        boolean created = false;
+        if (!this.messagesFile.exists()) {
+            this.messagesFile.getParentFile().mkdirs();
+            this.saveResource("messages.yml", false);
+            created = true;
+        }
+        this.messagesConfig = YamlConfiguration.loadConfiguration((File)this.messagesFile);
+        if (created && this.sellConfig.isConfigurationSection("messages") && !this.messagesConfig.isConfigurationSection("messages")) {
+            this.messagesConfig.set("messages", this.sellConfig.getConfigurationSection("messages").getValues(true));
+            this.saveYaml(this.messagesConfig, this.messagesFile, "messages.yml");
         }
     }
 
     private void setupMysqlFile() {
-        this.mysqlFile = new File(this.parent.getDataFolder(), "sell/mysql.yml");
-        boolean created = !this.mysqlFile.exists();
-        if (created) { this.mysqlFile.getParentFile().mkdirs(); this.saveResource("sell/mysql.yml", false); }
-        this.mysqlConfig = YamlConfiguration.loadConfiguration(this.mysqlFile);
-        if (created && this.getConfig().isConfigurationSection("mysql") && !this.mysqlConfig.isConfigurationSection("mysql")) {
-            ConfigurationSection sec = this.getConfig().getConfigurationSection("mysql");
-            if (sec != null) this.mysqlConfig.set("mysql", sec.getValues(true));
-            this.saveYaml(this.mysqlConfig, this.mysqlFile, "sell/mysql.yml");
+        this.mysqlFile = new File(this.parent.getDataFolder(), "mysql.yml");
+        boolean created = false;
+        if (!this.mysqlFile.exists()) {
+            this.mysqlFile.getParentFile().mkdirs();
+            this.saveResource("mysql.yml", false);
+            created = true;
+        }
+        this.mysqlConfig = YamlConfiguration.loadConfiguration((File)this.mysqlFile);
+        if (created && this.sellConfig.isConfigurationSection("mysql") && !this.mysqlConfig.isConfigurationSection("mysql")) {
+            this.mysqlConfig.set("mysql", this.sellConfig.getConfigurationSection("mysql").getValues(true));
+            this.saveYaml(this.mysqlConfig, this.mysqlFile, "mysql.yml");
         }
     }
 
     private void setupMenusFile() {
-        this.menusFile = new File(this.parent.getDataFolder(), "sell/menus.yml");
-        boolean created = !this.menusFile.exists();
-        if (created) { this.menusFile.getParentFile().mkdirs(); this.saveResource("sell/menus.yml", false); }
-        this.menusConfig = YamlConfiguration.loadConfiguration(this.menusFile);
-        if (created) {
-            this.copyMissingSection(this.getConfig(), this.menusConfig, "sell-menu");
-            this.copyMissingSection(this.getConfig(), this.menusConfig, "new-sell-menu");
-            this.copyMissingSection(this.getConfig(), this.menusConfig, "category-menu");
-            this.copyMissingSection(this.getConfig(), this.menusConfig, "progress-menu");
-            this.copyMissingSection(this.getConfig(), this.menusConfig, "sellhistory-menu");
-            this.copyMissingSection(this.getConfig(), this.menusConfig, "item-prices-menu");
-            this.saveYaml(this.menusConfig, this.menusFile, "sell/menus.yml");
+        this.menusFile = new File(this.parent.getDataFolder(), "menus.yml");
+        boolean created = false;
+        if (!this.menusFile.exists()) {
+            this.menusFile.getParentFile().mkdirs();
+            this.saveResource("menus.yml", false);
+            created = true;
+        }
+        this.menusConfig = YamlConfiguration.loadConfiguration((File)this.menusFile);
+        java.io.InputStream defStream = this.parent.getResource("sell/menus.yml");
+        if (defStream != null) {
+            FileConfiguration defConfig = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(defStream, java.nio.charset.StandardCharsets.UTF_8));
+            boolean dirty = false;
+            String[] sections = {"sell-menu", "new-sell-menu", "category-menu", "progress-menu", "sellhistory-menu", "item-prices-menu"};
+            for (String section : sections) {
+                if (!this.menusConfig.isSet(section)) {
+                    this.copyMissingSection(defConfig, this.menusConfig, section);
+                    dirty = true;
+                }
+            }
+            if (dirty) {
+                this.saveYaml(this.menusConfig, this.menusFile, "menus.yml");
+            }
         }
     }
 
-    public FileConfiguration getWorthConfig() { return this.worthConfig; }
-    public FileConfiguration getMessagesConfig() { return this.messagesConfig; }
-    public FileConfiguration getMysqlConfig() { return this.mysqlConfig; }
-    public FileConfiguration getMenusConfig() { return this.menusConfig; }
+    public FileConfiguration getWorthConfig() {
+        return this.worthConfig;
+    }
+
+    public FileConfiguration getMessagesConfig() {
+        return this.messagesConfig;
+    }
+
+    public FileConfiguration getMysqlConfig() {
+        return this.mysqlConfig;
+    }
+
+    public FileConfiguration getMenusConfig() {
+        return this.menusConfig;
+    }
 
     public void saveWorthConfig() {
-        if (this.worthFile == null || this.worthConfig == null) return;
-        try { this.worthConfig.save(this.worthFile); }
-        catch (IOException e) { this.parent.getLogger().log(Level.WARNING, "Failed to save worth.yml: " + e.getMessage(), e); }
+        if (this.worthFile == null || this.worthConfig == null) {
+            return;
+        }
+        try {
+            this.worthConfig.save(this.worthFile);
+        }
+        catch (IOException e) {
+            this.parent.getLogger().log(Level.WARNING, "Failed to save worth.yml: " + e.getMessage(), e);
+        }
     }
 
     private void reloadWorthConfig() {
-        if (this.worthFile == null) { this.setupWorthFile(); return; }
-        this.worthConfig = YamlConfiguration.loadConfiguration(this.worthFile);
+        if (this.worthFile == null) {
+            this.setupWorthFile();
+            return;
+        }
+        this.worthConfig = YamlConfiguration.loadConfiguration((File)this.worthFile);
     }
-    private void reloadMessagesConfig() { this.messagesConfig = YamlConfiguration.loadConfiguration(this.messagesFile); }
-    private void reloadMysqlConfig() { this.mysqlConfig = YamlConfiguration.loadConfiguration(this.mysqlFile); }
-    private void reloadMenusConfig() { this.menusConfig = YamlConfiguration.loadConfiguration(this.menusFile); }
+
+    private void reloadMessagesConfig() {
+        this.messagesConfig = YamlConfiguration.loadConfiguration((File)this.messagesFile);
+    }
+
+    private void reloadMysqlConfig() {
+        this.mysqlConfig = YamlConfiguration.loadConfiguration((File)this.mysqlFile);
+    }
+
+    private void reloadMenusConfig() {
+        this.menusConfig = YamlConfiguration.loadConfiguration((File)this.menusFile);
+    }
 
     private void copyMissingSection(FileConfiguration src, FileConfiguration dst, String path) {
-        if (!src.isSet(path) || dst.isSet(path)) return;
+        if (!src.isSet(path) || dst.isSet(path)) {
+            return;
+        }
         dst.set(path, src.get(path));
     }
 
     private void saveYaml(FileConfiguration cfg, File file, String name) {
-        try { cfg.save(file); }
-        catch (IOException e) { this.parent.getLogger().log(Level.WARNING, "Failed to save " + name + ": " + e.getMessage(), e); }
-    }
-
-    private void setupStorage() {
-        this.setupSaveFile();
-        String storageType = this.getConfig().getString("storage.type", "SQLITE").toUpperCase(Locale.ROOT);
-        if ("MYSQL".equals(storageType)) {
-            this.mysql = new SellMySQL(this, SellMySQL.StorageMode.MYSQL);
-            if (this.mysql.init()) {
-                this.usingMySQL = true;
-                this.mysql.loadAll(this.totalSold, this.soldByCategory, this.itemHistory, this.toggleWorthDisabled);
-                this.parent.getLogger().info("[DonutCore] MySQL connection established.");
-                return;
-            }
-            this.parent.getLogger().severe("[DonutCore] MySQL connection failed. Falling back to SQLite/YAML.");
-        }
-        if (!"YAML".equals(storageType)) {
-            this.mysql = new SellMySQL(this, SellMySQL.StorageMode.SQLITE);
-            if (this.mysql.init()) {
-                this.usingMySQL = true;
-                this.mysql.loadAll(this.totalSold, this.soldByCategory, this.itemHistory, this.toggleWorthDisabled);
-                this.parent.getLogger().info("[DonutCore] SQLite initialized.");
-                return;
-            }
-            this.parent.getLogger().severe("[DonutCore] SQLite connection failed. Falling back to saves.yml.");
-        }
-        this.loadHistory();
-        this.loadToggleWorthFromSave();
-        this.parent.getLogger().info("[DonutCore] Using saves.yml storage.");
-    }
-
-    @EventHandler
-    public void onPlayerJoinStrip(PlayerJoinEvent e) {
-        Player p = e.getPlayer();
-        this.cleanupListener.stripAllLore(p);
-        p.updateInventory();
-        this.runAtPlayerLater(p, p::updateInventory, 1L);
-        if (this.usingMySQL && this.mysql != null) {
-            UUID id = p.getUniqueId();
-            this.runAsync(() -> {
-                SellMySQL.PlayerSnapshot snap = this.mysql.loadPlayerData(id);
-                if (snap == null) return;
-                this.runAtPlayer(p, () -> {
-                    this.totalSold.put(id, snap.total);
-                    this.soldByCategory.put(id, snap.categories);
-                    this.itemHistory.put(id, snap.items);
-                    if (snap.toggleDisabled) this.toggleWorthDisabled.add(id);
-                    else this.toggleWorthDisabled.remove(id);
-                });
-            });
-        }
-    }
-
-    @EventHandler
-    public void onPlayerQuitStrip(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        this.cleanupListener.stripAllLore(p);
-        p.updateInventory();
-    }
-
-    private void unregisterOtherSellCommands() {
         try {
-            Field cmdMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            cmdMapField.setAccessible(true);
-            SimpleCommandMap cmdMap = (SimpleCommandMap) cmdMapField.get(Bukkit.getServer());
-            Field knownCmdsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
-            knownCmdsField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            Map<String, Command> known = (Map<String, Command>) knownCmdsField.get(cmdMap);
-            PluginCommand ourSell = this.parent.getCommand("sell");
-            Iterator<Map.Entry<String, Command>> it = known.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, Command> entry = it.next();
-                String key = entry.getKey();
-                Command cmd = entry.getValue();
-                if (cmd == ourSell) continue;
-                if (key.equalsIgnoreCase("sell") || key.toLowerCase(Locale.ROOT).endsWith(":sell")) it.remove();
-            }
-            if (ourSell != null) known.putIfAbsent("sell", ourSell);
-        } catch (Exception e) {
-            this.parent.getLogger().warning("Failed to unregister other /sell commands: " + e.getMessage());
+            cfg.save(file);
         }
-    }
-
-    private void unregisterSellMultiCommand() {
-        try {
-            Field cmdMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            cmdMapField.setAccessible(true);
-            SimpleCommandMap cmdMap = (SimpleCommandMap) cmdMapField.get(Bukkit.getServer());
-            Field knownCmdsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
-            knownCmdsField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            Map<String, Command> known = (Map<String, Command>) knownCmdsField.get(cmdMap);
-            Iterator<Map.Entry<String, Command>> it = known.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, Command> entry = it.next();
-                String key = entry.getKey();
-                Command cmd = entry.getValue();
-                if (key.equalsIgnoreCase("sellmulti") || key.toLowerCase(Locale.ROOT).endsWith(":sellmulti")
-                        || (cmd instanceof PluginCommand pc && pc.getName().equalsIgnoreCase("sellmulti"))) {
-                    it.remove();
-                }
-            }
-        } catch (Exception e) {
-            this.parent.getLogger().warning("Failed to unregister /sellmulti command: " + e.getMessage());
+        catch (IOException e) {
+            this.parent.getLogger().log(Level.WARNING, "Failed to save " + name + ": " + e.getMessage(), e);
         }
     }
 
     private void loadHistory() {
         for (String root : this.saveConfig.getKeys(false)) {
-            if ("toggleworth-disabled".equalsIgnoreCase(root)) continue;
             UUID uuid;
-            try { uuid = UUID.fromString(root); } catch (IllegalArgumentException e) { continue; }
+            if ("toggleworth-disabled".equalsIgnoreCase(root)) continue;
+            try {
+                uuid = UUID.fromString(root);
+            }
+            catch (IllegalArgumentException e) {
+                continue;
+            }
             this.totalSold.put(uuid, this.saveConfig.getDouble(root + ".total", 0.0));
-            HashMap<String, Double> catMap = new HashMap<>();
+            HashMap<String, Double> catMap = new HashMap<String, Double>();
             if (this.saveConfig.isConfigurationSection(root + ".categories")) {
                 ConfigurationSection sec = this.saveConfig.getConfigurationSection(root + ".categories");
-                for (String cat : sec.getKeys(false)) catMap.put(cat, sec.getDouble(cat, 0.0));
+                for (String cat : sec.getKeys(false)) {
+                    catMap.put(cat, sec.getDouble(cat, 0.0));
+                }
             }
             this.soldByCategory.put(uuid, catMap);
-            HashMap<String, Stats> itemMap = new HashMap<>();
+            HashMap<String, Stats> itemMap = new HashMap<String, Stats>();
             if (this.saveConfig.isConfigurationSection(root + ".items")) {
                 ConfigurationSection sec = this.saveConfig.getConfigurationSection(root + ".items");
                 for (String key : sec.getKeys(false)) {
@@ -560,66 +834,101 @@ public final class DonutSell implements Listener {
     }
 
     private void saveHistory() {
-        for (Map.Entry<UUID, Double> entry : this.totalSold.entrySet())
-            this.saveConfig.set(entry.getKey().toString() + ".total", entry.getValue());
+        String u;
+        for (Map.Entry<UUID, Double> entry : this.totalSold.entrySet()) {
+            this.saveConfig.set(String.valueOf(entry.getKey()) + ".total", entry.getValue());
+        }
         for (Map.Entry<UUID, Map<String, Double>> entry : this.soldByCategory.entrySet()) {
-            String u = entry.getKey().toString();
-            for (Map.Entry<String, Double> ec : entry.getValue().entrySet())
+            u = entry.getKey().toString();
+            for (Map.Entry<String, Double> ec : entry.getValue().entrySet()) {
                 this.saveConfig.set(u + ".categories." + ec.getKey(), ec.getValue());
+            }
         }
         for (Map.Entry<UUID, Map<String, Stats>> entry : this.itemHistory.entrySet()) {
-            String u = entry.getKey().toString();
+            u = entry.getKey().toString();
             for (Map.Entry<String, Stats> es : entry.getValue().entrySet()) {
                 this.saveConfig.set(u + ".items." + es.getKey() + ".count", es.getValue().count);
                 this.saveConfig.set(u + ".items." + es.getKey() + ".revenue", es.getValue().revenue);
             }
         }
-        try { this.saveConfig.save(this.saveFile); } catch (IOException ex) { ex.printStackTrace(); }
+        try {
+            this.saveConfig.save(this.saveFile);
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void loadToggleWorthFromSave() {
         this.toggleWorthDisabled.clear();
-        for (String s : this.saveConfig.getStringList("toggleworth-disabled")) {
-            try { this.toggleWorthDisabled.add(UUID.fromString(s)); } catch (IllegalArgumentException ignored) {}
+        List<String> raw = this.saveConfig.getStringList("toggleworth-disabled");
+        if (raw == null) {
+            return;
+        }
+        for (String s : raw) {
+            try {
+                this.toggleWorthDisabled.add(UUID.fromString(s));
+            }
+            catch (IllegalArgumentException illegalArgumentException) {}
         }
     }
 
     private void saveToggleWorthToSave() {
-        this.saveConfig.set("toggleworth-disabled", this.toggleWorthDisabled.stream().map(u -> u.toString()).toList());
-        try { this.saveConfig.save(this.saveFile); } catch (IOException e) { e.printStackTrace(); }
+        List<String> raw = this.toggleWorthDisabled.stream().map(UUID::toString).toList();
+        this.saveConfig.set("toggleworth-disabled", raw);
+        try {
+            this.saveConfig.save(this.saveFile);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public boolean isWorthEnabled(UUID id) { return !this.toggleWorthDisabled.contains(id); }
+    public boolean isWorthEnabled(UUID id) {
+        return !this.toggleWorthDisabled.contains(id);
+    }
 
     public void setWorthEnabled(UUID id, boolean enabled) {
-        if (enabled) this.toggleWorthDisabled.remove(id);
-        else this.toggleWorthDisabled.add(id);
-        if (this.usingMySQL && this.mysql != null) this.mysql.setToggleWorthDisabled(id, !enabled);
-        else this.saveToggleWorthToSave();
+        if (enabled) {
+            this.toggleWorthDisabled.remove(id);
+        } else {
+            this.toggleWorthDisabled.add(id);
+        }
+        if (this.usingMySQL && this.mysql != null) {
+            this.mysql.setToggleWorthDisabled(id, !enabled);
+        } else {
+            this.saveToggleWorthToSave();
+        }
     }
 
     private void buildCategoryItems() {
         this.itemValues.clear();
         this.categoryItems.clear();
         ConfigurationSection cats = this.getWorthConfig().getConfigurationSection("categories");
-        if (cats == null) return;
+        if (cats == null) {
+            return;
+        }
         for (String cat : cats.getKeys(false)) {
             List<?> raw = this.getWorthConfig().getList("categories." + cat);
-            ArrayList<String> mats = new ArrayList<>();
+            ArrayList<String> mats = new ArrayList<String>();
             if (raw != null) {
                 for (Object o : raw) {
-                    if (!(o instanceof Map<?, ?> map)) continue;
+                    if (!(o instanceof Map)) continue;
+                    Map<?, ?> map = (Map<?, ?>)o;
                     for (Map.Entry<?, ?> me : map.entrySet()) {
-                        String entryKey = me.getKey().toString().trim();
                         double price;
-                        try { price = Double.parseDouble(me.getValue().toString()); }
+                        String entryKey = me.getKey().toString().trim();
+                        try {
+                            price = Double.parseDouble(me.getValue().toString());
+                        }
                         catch (NumberFormatException ex) {
                             this.parent.getLogger().warning("Invalid price for '" + entryKey + "' in category '" + cat + "'");
                             continue;
                         }
                         String lowerKey = entryKey.toLowerCase(Locale.ROOT);
                         this.itemValues.put(lowerKey, price);
-                        mats.add(lowerKey.replaceAll("(?i)-value$", "").toUpperCase(Locale.ROOT));
+                        String matName = lowerKey.replaceAll("(?i)-value$", "").toUpperCase(Locale.ROOT);
+                        mats.add(matName);
                     }
                 }
             }
@@ -628,21 +937,27 @@ public final class DonutSell implements Listener {
     }
 
     public double getPrice(String key) {
-        return this.itemValues.getOrDefault(key.toLowerCase(Locale.ROOT), this.getConfig().getDouble("default-value", 0.1));
+        return this.itemValues.getOrDefault(key.toLowerCase(Locale.ROOT), this.sellConfig.getDouble("default-value", 0.1));
     }
 
     public String getLookupKey(ItemStack item) {
-        if (item == null || item.getType().isAir()) return null;
+        BlockState blockState;
+        if (item == null || item.getType().isAir()) {
+            return null;
+        }
         ItemMeta im = item.getItemMeta();
-        if (item.getType() == Material.SPAWNER && im instanceof BlockStateMeta bsm && bsm.getBlockState() instanceof CreatureSpawner cs) {
+        if (item.getType() == Material.SPAWNER && im instanceof BlockStateMeta bsm && (blockState = bsm.getBlockState()) instanceof CreatureSpawner) {
+            CreatureSpawner cs = (CreatureSpawner)blockState;
             return cs.getSpawnedType().name().toLowerCase(Locale.ROOT) + "_spawner-value";
         }
         if (item.getType() == Material.ENCHANTED_BOOK && im instanceof EnchantmentStorageMeta esm && esm.getStoredEnchants().size() == 1) {
             Map.Entry<Enchantment, Integer> e = esm.getStoredEnchants().entrySet().iterator().next();
-            return e.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + e.getValue() + "-value";
+            return e.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + String.valueOf(e.getValue()) + "-value";
         }
         String potionKey = this.getPotionKey(item);
-        if (potionKey != null) return potionKey + "-value";
+        if (potionKey != null) {
+            return potionKey + "-value";
+        }
         return item.getType().name().toLowerCase(Locale.ROOT) + "-value";
     }
 
@@ -652,19 +967,258 @@ public final class DonutSell implements Listener {
     }
 
     public void promptPriceEdit(Player player, ItemStack clicked) {
-        if (this.adminPriceEditorMenu == null || !player.hasPermission("sell.admin")) return;
-        if (this.getLookupKey(clicked) == null) return;
+        if (this.adminPriceEditorMenu == null) {
+            return;
+        }
+        if (!player.hasPermission("sell.admin")) {
+            return;
+        }
+        String key = this.getLookupKey(clicked);
+        if (key == null) {
+            return;
+        }
         player.closeInventory();
-        player.sendMessage(Utils.toComponent("&ePlease use &f/donutsell prices &eto edit prices."));
+        player.sendMessage(Utils.formatColors("&ePlease use &f/donutsell prices &eto edit prices."));
     }
 
     public boolean isSellable(ItemStack item) {
-        if (item == null || item.getType().isAir()) return false;
-        if (this.disabledItemsUpper.contains(item.getType().name().toUpperCase(Locale.ROOT))) return false;
-        return !this.getConfig().getBoolean("missing-price-not-sellable", false) || this.hasListedPrice(item);
+        if (item == null || item.getType().isAir()) {
+            return false;
+        }
+        if (this.disabledItemsUpper.contains(item.getType().name().toUpperCase(Locale.ROOT))) {
+            return false;
+        }
+        return !this.sellConfig.getBoolean("missing-price-not-sellable", false) || this.hasListedPrice(item);
     }
 
-    public Map<String, Double> getItemValues() { return Collections.unmodifiableMap(this.itemValues); }
+    public String getSellMenuOption() {
+        String configured = this.sellConfig.getString("sell-menu-option", null);
+        if (configured == null || configured.isBlank()) {
+            return this.sellConfig.getBoolean("use-new-sell-menu", false) ? "Option2" : "Option1";
+        }
+        String normalized = configured.trim();
+        if (normalized.equalsIgnoreCase("1") || normalized.equalsIgnoreCase("option1")) {
+            return "Option1";
+        }
+        if (normalized.equalsIgnoreCase("2") || normalized.equalsIgnoreCase("option2")) {
+            return "Option2";
+        }
+        if (normalized.equalsIgnoreCase("3") || normalized.equalsIgnoreCase("option3")) {
+            return "Option3";
+        }
+        this.parent.getLogger().warning("Unknown sell-menu-option '" + configured + "', falling back to Option1.");
+        return "Option1";
+    }
+
+    public boolean isSellMultiMenuEnabled() {
+        String option = this.getSellMenuOption();
+        return option.equalsIgnoreCase("Option2") || option.equalsIgnoreCase("Option3");
+    }
+
+    public boolean isActionSellMenuEnabled() {
+        return this.getSellMenuOption().equalsIgnoreCase("Option3");
+    }
+
+    public int getActionSellButtonSlot() {
+        int rows = this.getMenusConfig().getInt("action-sell-menu.rows", 6);
+        int max = Math.max(9, rows * 9) - 1;
+        int slot = this.getMenusConfig().getInt("action-sell-menu.sell-button.slot", max);
+        return Math.max(0, Math.min(max, slot));
+    }
+
+    public boolean isActionSellTitle(String title) {
+        String actionTitle = Utils.formatColors(this.getMenusConfig().getString("action-sell-menu.title", ""));
+        return title != null && title.equals(actionTitle);
+    }
+
+    public boolean isSellConfirmationTitle(String title) {
+        String confirmTitle = Utils.formatColors(this.getMenusConfig().getString("action-sell-menu.confirmation.title", "Confirm sale"));
+        return title != null && title.equals(confirmTitle);
+    }
+
+    public void markActionMenuTransfer(UUID uuid) {
+        if (uuid != null) {
+            this.actionMenuTransfers.add(uuid);
+        }
+    }
+
+    public boolean consumeActionMenuTransfer(UUID uuid) {
+        return uuid != null && this.actionMenuTransfers.remove(uuid);
+    }
+
+    public String formatSellAxeUses(int remainingUses) {
+        if (remainingUses < 0) {
+            return this.sellConfig.getString("sell-axe.infinite-placeholder", "\u221e");
+        }
+        return String.valueOf(remainingUses);
+    }
+
+    public String replaceSellAxePlaceholders(String line, String countdown, int remainingUses) {
+        String formattedUses = this.formatSellAxeUses(remainingUses);
+        String result = line == null ? "" : line;
+        result = result.replace("%countdown%", countdown == null ? "" : countdown).replace("{countdown}", countdown == null ? "" : countdown).replace("{amount-used}", formattedUses).replace("%amount-used%", formattedUses).replace("{amount_remaining}", formattedUses).replace("%amount_remaining%", formattedUses);
+        return result;
+    }
+
+    public void updateSellAxeMeta(ItemStack item, ItemMeta meta, String countdown) {
+        if (item == null || meta == null) {
+            return;
+        }
+        int remainingUses = this.getSellAxeUsesRemaining(meta);
+        String rawName = this.sellConfig.getString("sell-axe.display-name", "&aSell Wand");
+        meta.setDisplayName(Utils.formatColors(this.replaceSellAxePlaceholders(rawName, countdown, remainingUses)));
+        ArrayList<String> newLore = new ArrayList<String>();
+        for (String line : this.sellConfig.getStringList("sell-axe.lore")) {
+            newLore.add(Utils.formatColors(this.replaceSellAxePlaceholders(line, countdown, remainingUses)));
+        }
+        meta.setLore(newLore);
+    }
+
+    public int getSellAxeUsesRemaining(ItemMeta meta) {
+        if (meta == null || this.usesRemainingKey == null) {
+            return this.sellConfig.getInt("sell-axe.amount", -1);
+        }
+        Integer value = (Integer)meta.getPersistentDataContainer().get(this.usesRemainingKey, PersistentDataType.INTEGER);
+        return value == null ? this.sellConfig.getInt("sell-axe.amount", -1) : value.intValue();
+    }
+
+    public NamespacedKey getSellAxeUsesRemainingKey() {
+        return this.usesRemainingKey;
+    }
+
+    public DonutOrderBridge.Result trySellToBetterOrder(Player player, ItemStack item, double normalWorth, boolean requireFullAmount) {
+        String category;
+        if (player == null || item == null || item.getType().isAir() || item.getAmount() <= 0) {
+            return DonutOrderBridge.Result.empty();
+        }
+        if (!Double.isFinite(normalWorth) || normalWorth <= 0.0) {
+            return DonutOrderBridge.Result.empty();
+        }
+        double multiplier = 1.0;
+        if (this.isUseMultipliers() && (category = (String)this.categoryItems.entrySet().stream().filter(entry -> ((List)entry.getValue()).contains(item.getType().name())).map(Map.Entry::getKey).findFirst().orElse(null)) != null) {
+            multiplier = this.getSellMultiplier(player.getUniqueId(), category);
+        }
+        double minimumPriceEach = normalWorth / (double)Math.max(1, item.getAmount()) * multiplier;
+        return DonutOrderBridge.fillBestOrder(this, player, item, minimumPriceEach, requireFullAmount);
+    }
+
+    public double getWorthLoreValue(UUID playerId, ItemStack item, double normalUnitValue, boolean perItem) {
+        if (item == null || item.getAmount() <= 0) {
+            return 0.0;
+        }
+        ItemStack quotedStack = item.clone();
+        if (perItem) {
+            quotedStack.setAmount(1);
+        }
+        int amount = quotedStack.getAmount();
+        DonutOrderBridge.Result quote = DonutOrderBridge.quoteBestOrder(this, playerId, quotedStack, normalUnitValue);
+        int normalAmount = Math.max(0, amount - quote.filledAmount());
+        return quote.totalPayout() + (double)normalAmount * normalUnitValue;
+    }
+
+    public SellQuote quoteSellInventory(Player player, Inventory inv, int reservedSlot) {
+        if (player == null || inv == null) {
+            return new SellQuote(0.0, 0L);
+        }
+        double total = 0.0;
+        long items = 0L;
+        for (int slot = 0; slot < inv.getSize(); ++slot) {
+            double rawWorth;
+            ItemStack item;
+            if (slot == reservedSlot || !this.isSellable(item = inv.getItem(slot)) || !Double.isFinite(rawWorth = this.calculateItemWorth(item)) || rawWorth <= 0.0) continue;
+            double multiplier = this.multiplierForItem(player.getUniqueId(), item);
+            double normalUnitValue = rawWorth / (double)Math.max(1, item.getAmount()) * multiplier;
+            total += this.getWorthLoreValue(player.getUniqueId(), item, normalUnitValue, false);
+            items += (long)item.getAmount();
+        }
+        return new SellQuote(total, items);
+    }
+
+    public SellQuote sellActionInventory(Player player, Inventory inv, int reservedSlot) {
+        double payout;
+        if (player == null || inv == null) {
+            return new SellQuote(0.0, 0L);
+        }
+        HashMap<String, Stats> sold = new HashMap<String, Stats>();
+        HashMap<String, Double> revCats = new HashMap<String, Double>();
+        double orderPayout = 0.0;
+        long orderItemsSold = 0L;
+        for (int slot = 0; slot < inv.getSize(); ++slot) {
+            double normalRaw;
+            double rawWorth;
+            ItemStack item;
+            if (slot == reservedSlot || !this.isSellable(item = inv.getItem(slot)) || !Double.isFinite(rawWorth = this.calculateItemWorth(item)) || rawWorth <= 0.0) continue;
+            ItemStack remaining = item.clone();
+            DonutOrderBridge.Result orderResult = this.trySellToBetterOrder(player, remaining, rawWorth, false);
+            if (orderResult.wasFilled()) {
+                orderPayout += orderResult.totalPayout();
+                orderItemsSold += (long)orderResult.filledAmount();
+                if (orderResult.filledAmount() >= remaining.getAmount()) {
+                    inv.setItem(slot, null);
+                    continue;
+                }
+                remaining.setAmount(remaining.getAmount() - orderResult.filledAmount());
+            }
+            if ((normalRaw = this.calculateItemWorth(remaining)) <= 0.0) {
+                inv.setItem(slot, null);
+                continue;
+            }
+            String key = remaining.getType().name().toLowerCase(Locale.ROOT);
+            sold.merge(key, new Stats(remaining.getAmount(), normalRaw), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
+            for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
+                if (!cat.getValue().contains(remaining.getType().name())) continue;
+                revCats.merge(cat.getKey(), normalRaw, Double::sum);
+            }
+            inv.setItem(slot, null);
+        }
+        if (!sold.isEmpty()) {
+            this.recordSale(player, sold);
+        }
+        if (this.isUseMultipliers()) {
+            double categorized = revCats.entrySet().stream().mapToDouble(e -> (Double)e.getValue() * this.getSellMultiplier(player.getUniqueId(), (String)e.getKey())).sum();
+            double uncategorized = sold.entrySet().stream().filter(e -> this.categoryItems.values().stream().noneMatch(list -> list.contains(((String)e.getKey()).toUpperCase(Locale.ROOT)))).mapToDouble(e -> ((Stats)e.getValue()).revenue).sum();
+            payout = categorized + uncategorized;
+        } else {
+            payout = sold.values().stream().mapToDouble(s -> s.revenue).sum();
+        }
+        if (payout > 0.0) {
+            this.getEconomy().depositPlayer((OfflinePlayer)player, payout);
+        }
+        long itemsSold = orderItemsSold + Math.round(sold.values().stream().mapToDouble(s -> s.count).sum());
+        double totalPayout = payout + orderPayout;
+        if (totalPayout > 0.0 || itemsSold > 0L) {
+            Sound sound = Sound.valueOf((String)this.getMenusConfig().getString("sell-menu.sound-on-close", "ENTITY_EXPERIENCE_ORB_PICKUP"));
+            player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
+            this.notifySale(player, totalPayout, itemsSold);
+        }
+        return new SellQuote(totalPayout, itemsSold);
+    }
+
+    public void returnActionSellItems(Player player, Inventory inv) {
+        if (player == null || inv == null) {
+            return;
+        }
+        int reservedSlot = this.getActionSellButtonSlot();
+        for (int i = 0; i < inv.getSize(); ++i) {
+            ItemStack item;
+            if (i == reservedSlot || (item = inv.getItem(i)) == null || item.getType().isAir()) continue;
+            Map<Integer, ItemStack> leftover = player.getInventory().addItem(item);
+            leftover.values().forEach(d -> player.getWorld().dropItemNaturally(player.getLocation(), d));
+            inv.setItem(i, null);
+        }
+    }
+
+    private double multiplierForItem(UUID playerId, ItemStack item) {
+        if (!this.isUseMultipliers() || item == null) {
+            return 1.0;
+        }
+        String category = this.categoryItems.entrySet().stream().filter(entry -> entry.getValue().contains(item.getType().name())).map(Map.Entry::getKey).findFirst().orElse(null);
+        return category == null ? 1.0 : this.getSellMultiplier(playerId, category);
+    }
+
+    public Map<String, Double> getItemValues() {
+        return Collections.unmodifiableMap(this.itemValues);
+    }
 
     public void recordSale(Player p, Map<String, Stats> sold) {
         UUID id = p.getUniqueId();
@@ -674,21 +1228,19 @@ public final class DonutSell implements Listener {
             this.itemHistory.get(id).put(k, new Stats(old.count + st.count, old.revenue + st.revenue));
         });
         double sum = sold.values().stream().mapToDouble(s -> s.revenue).sum();
-        this.totalSold.merge(id, sum, (a, b) -> a + b);
+        this.totalSold.merge(id, sum, Double::sum);
         Map<String, Double> cmap = this.soldByCategory.computeIfAbsent(id, k -> new HashMap<>());
-        HashMap<String, Double> catDelta = new HashMap<>();
+        HashMap<String, Double> catDelta = new HashMap<String, Double>();
         for (Map.Entry<String, List<String>> entry : this.categoryItems.entrySet()) {
             String catName = entry.getKey();
-            double catSum = sold.entrySet().stream()
-                    .filter(e -> entry.getValue().contains(e.getKey().toUpperCase(Locale.ROOT)))
-                    .mapToDouble(e -> e.getValue().revenue).sum();
+            double catSum = sold.entrySet().stream().filter(e2 -> entry.getValue().contains(e2.getKey().toUpperCase(Locale.ROOT))).mapToDouble(e2 -> e2.getValue().revenue).sum();
             if (!(catSum > 0.0)) continue;
-            cmap.merge(catName, catSum, (a, b) -> a + b);
+            cmap.merge(catName, catSum, Double::sum);
             catDelta.put(catName, catSum);
         }
         if (this.usingMySQL && this.mysql != null && sum > 0.0) {
-            HashMap<String, Double> catDeltaCopy = new HashMap<>(catDelta);
-            HashMap<String, Stats> soldCopy = new HashMap<>();
+            HashMap catDeltaCopy = new HashMap(catDelta);
+            HashMap soldCopy = new HashMap();
             sold.forEach((k, st) -> soldCopy.put(k, new Stats(st.count, st.revenue)));
             this.runAsync(() -> this.mysql.applySaleDelta(id, sum, catDeltaCopy, soldCopy));
         }
@@ -696,73 +1248,112 @@ public final class DonutSell implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!DonutCore.getInstance().getSellModule().isActive()) return;
-        Player p = (Player) event.getPlayer();
-        String openTitle = Utils.stripColor(event.getView().title());
-        String classicTitle = Utils.stripColor(Utils.formatColors(this.getMenusConfig().getString("sell-menu.title", "&aSell Items")));
-        if (!openTitle.equals(classicTitle)) return;
-
+        if (!this.isModuleActive()) return;
+        double payout;
+        boolean isShulkerBox;
+        String mat;
+        ItemStack item;
+        int i;
+        Player p = (Player)event.getPlayer();
+        String openTitle = event.getView().getTitle();
+        String classicTitle = Utils.formatColors(this.getMenusConfig().getString("sell-menu.title", "&aSell Items"));
+        String newTitle = Utils.formatColors(this.getMenusConfig().getString("new-sell-menu.title", "&aSell Items"));
+        if (this.isActionSellTitle(openTitle)) {
+            int reservedSlot;
+            if (this.consumeActionMenuTransfer(p.getUniqueId())) {
+                return;
+            }
+            Inventory inv = event.getInventory();
+            SellQuote quote = this.quoteSellInventory(p, inv, reservedSlot = this.getActionSellButtonSlot());
+            if (quote.payout() <= 0.0 || quote.items() <= 0L) {
+                this.returnActionSellItems(p, inv);
+                return;
+            }
+            boolean confirmEnabled = this.sellConfig.getBoolean("sale-confirmation.enabled", true);
+            double threshold = this.sellConfig.getDouble("sale-confirmation.threshold", Double.MAX_VALUE);
+            if (confirmEnabled && quote.payout() >= threshold) {
+                this.runAtPlayerLater(p, () -> SellConfirmationGui.open(this, p, inv, quote, false), 1L);
+                return;
+            }
+            this.sellActionInventory(p, inv, reservedSlot);
+            this.returnActionSellItems(p, inv);
+            return;
+        }
+        if (openTitle.equals(newTitle)) {
+            return;
+        }
+        if (!openTitle.equals(classicTitle)) {
+            return;
+        }
         Inventory inv = event.getInventory();
-        boolean useNewFlag = this.getConfig().getBoolean("use-new-sell-menu", false);
+        boolean useNewFlag = this.isSellMultiMenuEnabled();
         boolean excludeBottomRow = !useNewFlag && this.isUseMultipliers();
         int sellableSlots = inv.getSize() - (excludeBottomRow ? 9 : 0);
         Set<String> disabledSet = this.disabledItemsUpper;
-        Sound declineSound = Utils.resolveSound(this.getConfig().getString("sounds.declined", "ENTITY_VILLAGER_NO"), Sound.ENTITY_VILLAGER_NO);
+        Sound declineSound = Sound.valueOf((String)this.sellConfig.getString("sounds.declined", "ENTITY_VILLAGER_NO"));
         String declineMsg = Utils.formatColors(this.getMessagesConfig().getString("messages.cannot-sell", "&cYou cannot sell that item!"));
-        HashMap<String, Stats> sold = new HashMap<>();
-        HashMap<String, Double> revCats = new HashMap<>();
+        HashMap<String, Stats> sold = new HashMap<String, Stats>();
+        HashMap<String, Double> revCats = new HashMap<String, Double>();
         boolean notifiedDecline = false;
-
-        // Pass 1: return blocked items
-        for (int i = 0; i < sellableSlots; ++i) {
-            ItemStack item = inv.getItem(i);
+        double orderPayout = 0.0;
+        long orderItemsSold = 0L;
+        for (i = 0; i < sellableSlots; ++i) {
+            boolean missingPriceBlocked;
+            item = inv.getItem(i);
             if (item == null || item.getType().isAir()) continue;
-            String mat = item.getType().name();
-            boolean isShulkerBox = mat.endsWith("_SHULKER_BOX") || item.getType() == Material.SHULKER_BOX;
-            boolean missingPriceBlocked = this.getConfig().getBoolean("missing-price-not-sellable", false) && !this.hasListedPrice(item);
-            if ((!disabledSet.contains(mat) && !missingPriceBlocked) || isShulkerBox) continue;
+            mat = item.getType().name();
+            isShulkerBox = mat.endsWith("_SHULKER_BOX") || item.getType() == Material.SHULKER_BOX;
+            missingPriceBlocked = this.sellConfig.getBoolean("missing-price-not-sellable", false) && !this.hasListedPrice(item);
+            if (!disabledSet.contains(mat) && !missingPriceBlocked || isShulkerBox) continue;
             Map<Integer, ItemStack> leftover = p.getInventory().addItem(item);
             leftover.values().forEach(d -> p.getWorld().dropItemNaturally(p.getLocation(), d));
             inv.setItem(i, null);
-            if (!notifiedDecline) {
-                p.playSound(p.getLocation(), declineSound, 1.0f, 1.0f);
-                p.sendMessage(declineMsg);
-                notifiedDecline = true;
-            }
+            if (notifiedDecline) continue;
+            p.playSound(p.getLocation(), declineSound, 1.0f, 1.0f);
+            p.sendMessage(declineMsg);
+            notifiedDecline = true;
         }
-
-        // Pass 2: process sellable items
-        for (int i = 0; i < sellableSlots; ++i) {
-            ItemStack item = inv.getItem(i);
+        for (i = 0; i < sellableSlots; ++i) {
+            ShulkerBox boxState;
+            item = inv.getItem(i);
             if (item == null || item.getType().isAir()) continue;
-            String mat = item.getType().name();
-            boolean isShulkerBox = mat.endsWith("_SHULKER_BOX") || item.getType() == Material.SHULKER_BOX;
-            if (this.getConfig().getBoolean("missing-price-not-sellable", false) && !this.hasListedPrice(item)) continue;
-
+            mat = item.getType().name();
+            isShulkerBox = mat.endsWith("_SHULKER_BOX") || item.getType() == Material.SHULKER_BOX;
+            if (this.sellConfig.getBoolean("missing-price-not-sellable", false) && !this.hasListedPrice(item)) continue;
             if (isShulkerBox && disabledSet.contains(mat)) {
+                BlockState blockState;
                 ItemMeta meta = item.getItemMeta();
-                if (!(meta instanceof BlockStateMeta bsm) || !(bsm.getBlockState() instanceof ShulkerBox boxState)) { inv.setItem(i, null); continue; }
-                for (ItemStack inside : boxState.getInventory().getContents()) {
-                    if (inside == null || inside.getType().isAir() || disabledSet.contains(inside.getType().name())) continue;
-                    ItemMeta insideMeta = inside.getItemMeta();
-                    if (inside.getType() == Material.ENCHANTED_BOOK && insideMeta instanceof EnchantmentStorageMeta innerESM) {
-                        for (Map.Entry<Enchantment, Integer> entry : innerESM.getStoredEnchants().entrySet()) {
-                            String keyName = entry.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + entry.getValue();
-                            double totalRev = this.getPrice(keyName + "-value") * inside.getAmount();
-                            sold.merge(keyName, new Stats(inside.getAmount(), totalRev), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
+                if (!(meta instanceof BlockStateMeta blockStateMeta) || !((blockState = blockStateMeta.getBlockState()) instanceof ShulkerBox)) {
+                    inv.setItem(i, null);
+                    continue;
+                }
+                boxState = (ShulkerBox)blockState;
+                Inventory shulkerInventory = boxState.getInventory();
+                for (ItemStack itemStack : shulkerInventory.getContents()) {
+                    if (itemStack == null || itemStack.getType().isAir() || disabledSet.contains(itemStack.getType().name())) continue;
+                    ItemMeta insideMeta = itemStack.getItemMeta();
+                    if (itemStack.getType() == Material.ENCHANTED_BOOK && insideMeta instanceof EnchantmentStorageMeta) {
+                        EnchantmentStorageMeta innerESM = (EnchantmentStorageMeta)insideMeta;
+                        for (Map.Entry<Enchantment, Integer> eEntry : innerESM.getStoredEnchants().entrySet()) {
+                            Enchantment enc = eEntry.getKey();
+                            int n = eEntry.getValue();
+                            String keyName = enc.getKey().getKey().toLowerCase(Locale.ROOT) + n;
+                            double singlePrice = this.getPrice(keyName + "-value");
+                            double totalRev = singlePrice * (double)itemStack.getAmount();
+                            sold.merge(keyName, new Stats(itemStack.getAmount(), totalRev), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                             for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                                 if (!cat.getValue().contains(keyName.toUpperCase(Locale.ROOT))) continue;
-                                revCats.merge(cat.getKey(), totalRev, (a, b) -> a + b);
+                                revCats.merge(cat.getKey(), totalRev, Double::sum);
                             }
                         }
                         continue;
                     }
-                    String insideKey = inside.getType().name().toLowerCase(Locale.ROOT);
-                    double d = this.calculateItemWorth(inside);
-                    sold.merge(insideKey, new Stats(inside.getAmount(), d), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
+                    String insideKey = itemStack.getType().name().toLowerCase(Locale.ROOT);
+                    double insideValue = this.calculateItemWorth(itemStack);
+                    sold.merge(insideKey, new Stats(itemStack.getAmount(), insideValue), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                     for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
-                        if (!cat.getValue().contains(inside.getType().name())) continue;
-                        revCats.merge(cat.getKey(), d, (a, b) -> a + b);
+                        if (!cat.getValue().contains(itemStack.getType().name())) continue;
+                        revCats.merge(cat.getKey(), insideValue, Double::sum);
                     }
                 }
                 ItemStack emptyBox = new ItemStack(item.getType(), item.getAmount());
@@ -771,53 +1362,74 @@ public final class DonutSell implements Listener {
                 returned.values().forEach(d -> p.getWorld().dropItemNaturally(p.getLocation(), d));
                 continue;
             }
-
             if (isShulkerBox) {
                 ItemMeta meta = item.getItemMeta();
-                if (!(meta instanceof BlockStateMeta bsm) || !(bsm.getBlockState() instanceof ShulkerBox boxState)) continue;
+                BlockState blockState;
+                if (!(meta instanceof BlockStateMeta blockStateMeta) || !((blockState = blockStateMeta.getBlockState()) instanceof ShulkerBox)) continue;
+                boxState = (ShulkerBox)blockState;
                 String boxKey = item.getType().name().toLowerCase(Locale.ROOT);
-                double boxValue = this.getPrice(boxKey + "-value") * item.getAmount();
+                double boxValue = this.getPrice(boxKey + "-value") * (double)item.getAmount();
                 sold.merge(boxKey, new Stats(item.getAmount(), boxValue), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                 for (Map.Entry<String, List<String>> entry : this.categoryItems.entrySet()) {
                     if (!entry.getValue().contains(item.getType().name())) continue;
-                    revCats.merge(entry.getKey(), boxValue, (a, b) -> a + b);
+                    revCats.merge(entry.getKey(), boxValue, Double::sum);
                 }
-                for (ItemStack inside : boxState.getInventory().getContents()) {
+                Inventory boxInv2 = boxState.getInventory();
+                for (ItemStack inside : boxInv2.getContents()) {
                     if (inside == null || inside.getType().isAir()) continue;
                     ItemMeta insideMeta = inside.getItemMeta();
-                    if (inside.getType() == Material.ENCHANTED_BOOK && insideMeta instanceof EnchantmentStorageMeta esm) {
-                        for (Map.Entry<Enchantment, Integer> entry : esm.getStoredEnchants().entrySet()) {
-                            String keyName = entry.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + entry.getValue();
-                            double totalRev = this.getPrice(keyName + "-value") * inside.getAmount();
+                    if (inside.getType() == Material.ENCHANTED_BOOK && insideMeta instanceof EnchantmentStorageMeta) {
+                        EnchantmentStorageMeta innerESM = (EnchantmentStorageMeta)insideMeta;
+                        for (Map.Entry<Enchantment, Integer> eEntry : innerESM.getStoredEnchants().entrySet()) {
+                            Enchantment enc = eEntry.getKey();
+                            int lvl = eEntry.getValue();
+                            String keyName = enc.getKey().getKey().toLowerCase(Locale.ROOT) + lvl;
+                            double singlePrice = this.getPrice(keyName + "-value");
+                            double totalRev = singlePrice * (double)inside.getAmount();
                             sold.merge(keyName, new Stats(inside.getAmount(), totalRev), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                             for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                                 if (!cat.getValue().contains(keyName.toUpperCase(Locale.ROOT))) continue;
-                                revCats.merge(cat.getKey(), totalRev, (a, b) -> a + b);
+                                revCats.merge(cat.getKey(), totalRev, Double::sum);
                             }
                         }
                         continue;
                     }
                     String insideKey = inside.getType().name().toLowerCase(Locale.ROOT);
-                    double d = this.calculateItemWorth(inside);
-                    sold.merge(insideKey, new Stats(inside.getAmount(), d), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
+                    double d2 = this.calculateItemWorth(inside);
+                    sold.merge(insideKey, new Stats(inside.getAmount(), d2), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                     for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                         if (!cat.getValue().contains(inside.getType().name())) continue;
-                        revCats.merge(cat.getKey(), d, (a, b) -> a + b);
+                        revCats.merge(cat.getKey(), d2, Double::sum);
                     }
                 }
                 continue;
             }
-
             if (disabledSet.contains(mat)) continue;
+            double orderWorth = this.calculateItemWorth(item);
+            DonutOrderBridge.Result orderResult = this.trySellToBetterOrder(p, item, orderWorth, false);
+            if (orderResult.wasFilled()) {
+                orderPayout += orderResult.totalPayout();
+                orderItemsSold += (long)orderResult.filledAmount();
+                if (orderResult.filledAmount() >= item.getAmount()) {
+                    inv.setItem(i, null);
+                    continue;
+                }
+                item.setAmount(item.getAmount() - orderResult.filledAmount());
+                inv.setItem(i, item);
+            }
             ItemMeta im = item.getItemMeta();
-            if (item.getType() == Material.ENCHANTED_BOOK && im instanceof EnchantmentStorageMeta esm) {
-                for (Map.Entry<Enchantment, Integer> eEntry : esm.getStoredEnchants().entrySet()) {
-                    String keyName = eEntry.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + eEntry.getValue();
-                    double totalRev = this.getPrice(keyName + "-value") * item.getAmount();
+            if (item.getType() == Material.ENCHANTED_BOOK && im instanceof EnchantmentStorageMeta) {
+                EnchantmentStorageMeta esm = (EnchantmentStorageMeta)im;
+                for (Map.Entry eEntry : esm.getStoredEnchants().entrySet()) {
+                    Enchantment enchantment = (Enchantment)eEntry.getKey();
+                    int lvl = (Integer)eEntry.getValue();
+                    String keyName = enchantment.getKey().getKey().toLowerCase(Locale.ROOT) + lvl;
+                    double singlePrice = this.getPrice(keyName + "-value");
+                    double totalRev = singlePrice * (double)item.getAmount();
                     sold.merge(keyName, new Stats(item.getAmount(), totalRev), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
                     for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                         if (!cat.getValue().contains(keyName.toUpperCase(Locale.ROOT))) continue;
-                        revCats.merge(cat.getKey(), totalRev, (a, b) -> a + b);
+                        revCats.merge(cat.getKey(), totalRev, Double::sum);
                     }
                 }
                 continue;
@@ -827,126 +1439,113 @@ public final class DonutSell implements Listener {
             sold.merge(key, new Stats(item.getAmount(), raw), (a, b) -> new Stats(a.count + b.count, a.revenue + b.revenue));
             for (Map.Entry<String, List<String>> cat : this.categoryItems.entrySet()) {
                 if (!cat.getValue().contains(item.getType().name())) continue;
-                revCats.merge(cat.getKey(), raw, (a, b) -> a + b);
+                revCats.merge(cat.getKey(), raw, Double::sum);
             }
         }
-
-        if (sold.isEmpty()) return;
-        this.recordSale(p, sold);
-        double payout;
+        if (sold.isEmpty() && orderItemsSold <= 0L) {
+            return;
+        }
+        if (!sold.isEmpty()) {
+            this.recordSale(p, sold);
+        }
         if (this.isUseMultipliers()) {
-            double categorized = revCats.entrySet().stream().mapToDouble(e -> e.getValue() * this.getSellMultiplier(p.getUniqueId(), e.getKey())).sum();
-            double uncategorized = sold.entrySet().stream()
-                    .filter(e -> this.categoryItems.values().stream().noneMatch(list -> list.contains(e.getKey().toUpperCase(Locale.ROOT))))
-                    .mapToDouble(e -> e.getValue().revenue).sum();
+            double categorized = revCats.entrySet().stream().mapToDouble(e -> (Double)e.getValue() * this.getSellMultiplier(p.getUniqueId(), (String)e.getKey())).sum();
+            double uncategorized = sold.entrySet().stream().filter(e -> this.categoryItems.values().stream().noneMatch(list -> list.contains(((String)e.getKey()).toUpperCase(Locale.ROOT)))).mapToDouble(e -> ((Stats)e.getValue()).revenue).sum();
             payout = categorized + uncategorized;
         } else {
             payout = sold.values().stream().mapToDouble(s -> s.revenue).sum();
         }
-        this.getEconomy().depositPlayer((OfflinePlayer) p, payout);
-        Sound soundOnClose = Utils.resolveSound(this.getMenusConfig().getString("sell-menu.sound-on-close", "ENTITY_EXPERIENCE_ORB_PICKUP"), Sound.ENTITY_EXPERIENCE_ORB_PICKUP);
+        if (payout > 0.0) {
+            this.getEconomy().depositPlayer((OfflinePlayer)p, payout);
+        }
+        Sound soundOnClose = Sound.valueOf((String)this.getMenusConfig().getString("sell-menu.sound-on-close", "ENTITY_EXPERIENCE_ORB_PICKUP"));
         p.playSound(p.getLocation(), soundOnClose, 1.0f, 1.0f);
-        long itemsSold = Math.round(sold.values().stream().mapToDouble(s -> s.count).sum());
-        this.notifySale(p, payout, itemsSold);
-    }
-
-    private EnumSet<SellNotifyMode> getNotifyModes() {
-        EnumSet<SellNotifyMode> modes = EnumSet.noneOf(SellNotifyMode.class);
-        Object raw = this.getConfig().get("sell-notify-mode");
-        if (raw == null) raw = this.getConfig().get("sell-shower");
-        if (raw instanceof String s) this.addModesFromString(s, modes);
-        else if (raw instanceof List<?> list) { for (Object o : list) this.addModesFromString(String.valueOf(o), modes); }
-        else if (raw != null) this.addModesFromString(String.valueOf(raw), modes);
-        if (modes.isEmpty()) modes.add(SellNotifyMode.ACTIONBAR);
-        return modes;
-    }
-
-    private void addModesFromString(String s, EnumSet<SellNotifyMode> modes) {
-        if (s == null) return;
-        for (String p : s.split("[,;\\s]+")) {
-            String t = p.trim();
-            if (t.isEmpty()) continue;
-            try { modes.add(SellNotifyMode.valueOf(t.toUpperCase(Locale.ROOT))); } catch (IllegalArgumentException ignored) {}
-        }
-    }
-
-    private void notifySale(Player p, double moneyEarned, long itemsSold) {
-        EnumSet<SellNotifyMode> modes = this.getNotifyModes();
-        String amt = Utils.abbreviateNumber(moneyEarned);
-        String itemsStr = String.valueOf(itemsSold);
-        if (modes.contains(SellNotifyMode.CHAT)) {
-            String chatMsg = Utils.formatColors(this.getMenusConfig().getString("sell-menu.chat-message", "&#34ee80+$%amount%")).replace("%amount%", amt).replace("%items%", itemsStr);
-            p.sendMessage(Utils.toComponent(chatMsg));
-        }
-        if (modes.contains(SellNotifyMode.ACTIONBAR)) {
-            String actionbar = Utils.formatColors(this.getMenusConfig().getString("sell-menu.actionbar-message", "&#34ee80+$%amount%")).replace("%amount%", amt).replace("%items%", itemsStr);
-            p.sendActionBar(Utils.toComponent(actionbar));
-        }
-        if (modes.contains(SellNotifyMode.TITLE)) {
-            String title = Utils.formatColors(this.getConfig().getString("sell-notify.screen.title", "&a+$%amount%")).replace("%amount%", amt).replace("%items%", itemsStr);
-            String subtitle = Utils.formatColors(this.getConfig().getString("sell-notify.screen.subtitle", "&7You sold %items% items")).replace("%amount%", amt).replace("%items%", itemsStr);
-            p.showTitle(Title.title(
-                Utils.toComponent(title),
-                Utils.toComponent(subtitle),
-                Title.Times.times(
-                    Duration.ofMillis(this.getConfig().getInt("sell-notify.screen.fade-in", 5) * 50L),
-                    Duration.ofMillis(this.getConfig().getInt("sell-notify.screen.stay", 40) * 50L),
-                    Duration.ofMillis(this.getConfig().getInt("sell-notify.screen.fade-out", 10) * 50L)
-                )
-            ));
-        }
+        long itemsSold = orderItemsSold + Math.round(sold.values().stream().mapToDouble(s -> s.count).sum());
+        this.notifySale(p, payout + orderPayout, itemsSold);
     }
 
     private String getPotionKey(ItemStack item) {
-        if (!(item.getItemMeta() instanceof PotionMeta pm)) return null;
-        PotionType potionType = pm.getBasePotionType();
-        if (potionType == null) return null;
-        String base = potionType.name().toLowerCase(Locale.ROOT);
-        if (item.getType() == Material.SPLASH_POTION) base = "splash_" + base;
-        else if (item.getType() == Material.LINGERING_POTION) base = "lingering_" + base;
+        Material mat;
+        ItemMeta itemMeta = item.getItemMeta();
+        if (!(itemMeta instanceof PotionMeta)) {
+            return null;
+        }
+        PotionMeta pm = (PotionMeta)itemMeta;
+        String base = pm.getBasePotionData().getType().name().toLowerCase(Locale.ROOT);
+        if (pm.getBasePotionData().isExtended()) {
+            base = "long_" + base;
+        }
+        if (pm.getBasePotionData().isUpgraded()) {
+            base = "strong_" + base;
+        }
+        if ((mat = item.getType()) == Material.SPLASH_POTION) {
+            base = "splash_" + base;
+        } else if (mat == Material.LINGERING_POTION) {
+            base = "lingering_" + base;
+        }
         return base;
     }
 
     public double calculateItemWorth(ItemStack item) {
-        ItemMeta im = item.getItemMeta();
-        boolean missingNotSellable = this.getConfig().getBoolean("missing-price-not-sellable", false);
         double base;
-        if (item.getType() == Material.SPAWNER && im instanceof BlockStateMeta bsm) {
-            BlockState blockState = bsm.getBlockState();
-            if (blockState instanceof CreatureSpawner cs) {
+        ItemMeta im = item.getItemMeta();
+        boolean missingNotSellable = this.sellConfig.getBoolean("missing-price-not-sellable", false);
+        if (item.getType() == Material.SPAWNER && im instanceof BlockStateMeta) {
+            BlockStateMeta bsm2 = (BlockStateMeta)im;
+            BlockState blockState = bsm2.getBlockState();
+            if (blockState instanceof CreatureSpawner) {
+                CreatureSpawner cs = (CreatureSpawner)blockState;
                 String spawned = cs.getSpawnedType().name().toLowerCase(Locale.ROOT);
-                String key = spawned + "_spawner-value";
-                base = this.getPrice(key);
-                if (missingNotSellable && !this.itemValues.containsKey(key.toLowerCase(Locale.ROOT))) return 0.0;
+                String string = spawned + "_spawner-value";
+                base = this.getPrice(string);
+                if (missingNotSellable && !this.itemValues.containsKey(string.toLowerCase(Locale.ROOT))) {
+                    return 0.0;
+                }
             } else {
                 base = this.getPrice("spawner-value");
-                if (missingNotSellable && !this.itemValues.containsKey("spawner-value")) return 0.0;
+                if (missingNotSellable && !this.itemValues.containsKey("spawner-value")) {
+                    return 0.0;
+                }
             }
         } else {
             String potionKey = this.getPotionKey(item);
             if (potionKey != null) {
                 base = this.getPrice(potionKey + "-value");
-                if (missingNotSellable && !this.itemValues.containsKey((potionKey + "-value").toLowerCase(Locale.ROOT))) return 0.0;
+                if (missingNotSellable && !this.itemValues.containsKey((potionKey + "-value").toLowerCase(Locale.ROOT))) {
+                    return 0.0;
+                }
             } else {
                 String baseKey = item.getType().name().toLowerCase(Locale.ROOT) + "-value";
                 base = this.getPrice(baseKey);
-                if (missingNotSellable && !this.itemValues.containsKey(baseKey)) return 0.0;
+                if (missingNotSellable && !this.itemValues.containsKey(baseKey)) {
+                    return 0.0;
+                }
             }
         }
         double ench = 0.0;
-        if (im instanceof EnchantmentStorageMeta esm) {
-            for (Map.Entry<Enchantment, Integer> entry : esm.getStoredEnchants().entrySet())
-                ench += this.getPrice(entry.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + entry.getValue() + "-value");
+        if (im instanceof EnchantmentStorageMeta) {
+            EnchantmentStorageMeta esm = (EnchantmentStorageMeta)im;
+            for (Map.Entry entry : esm.getStoredEnchants().entrySet()) {
+                String k = ((Enchantment)entry.getKey()).getKey().getKey().toLowerCase(Locale.ROOT) + String.valueOf(entry.getValue()) + "-value";
+                ench += this.getPrice(k);
+            }
         }
         if (im != null) {
-            for (Map.Entry<Enchantment, Integer> entry : im.getEnchants().entrySet())
-                ench += this.getPrice(entry.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + entry.getValue() + "-value");
+            for (Map.Entry entry : im.getEnchants().entrySet()) {
+                String string = ((Enchantment)entry.getKey()).getKey().getKey().toLowerCase(Locale.ROOT) + String.valueOf(entry.getValue()) + "-value";
+                ench += this.getPrice(string);
+            }
         }
-        double total = (base + ench) * item.getAmount();
-        if (im instanceof BlockStateMeta bsmTotal && bsmTotal.getBlockState() instanceof ShulkerBox box) {
-            for (ItemStack inside : box.getInventory().getContents()) {
-                if (inside == null || inside.getType() == Material.AIR) continue;
-                total += this.calculateItemWorth(inside);
+        double total = (base + ench) * (double)item.getAmount();
+        if (im instanceof BlockStateMeta) {
+            BlockStateMeta bsm = (BlockStateMeta) im;
+            BlockState blockState = bsm.getBlockState();
+            if (blockState instanceof ShulkerBox) {
+                ShulkerBox box = (ShulkerBox) blockState;
+                for (ItemStack inside : box.getInventory().getContents()) {
+                    if (inside == null || inside.getType() == Material.AIR) continue;
+                    total += this.calculateItemWorth(inside);
+                }
             }
         }
         return total;
@@ -959,38 +1558,79 @@ public final class DonutSell implements Listener {
         this.toggleWorthDisabled.remove(uuid);
         this.saveConfig.set(uuid.toString(), null);
         if (!this.usingMySQL) {
-            try { this.saveConfig.save(this.saveFile); }
-            catch (IOException e) { this.parent.getLogger().severe("Could not save resets for " + uuid + ": " + e.getMessage()); }
+            try {
+                this.saveConfig.save(this.saveFile);
+            }
+            catch (IOException e) {
+                this.parent.getLogger().severe("Could not save resets for " + String.valueOf(uuid) + ": " + e.getMessage());
+            }
         }
-        if (this.usingMySQL && this.mysql != null) this.mysql.resetPlayerData(uuid);
+        if (this.usingMySQL && this.mysql != null) {
+            this.mysql.resetPlayerData(uuid);
+        }
     }
 
     public double getSellMultiplier(UUID u, String cat) {
-        ConfigurationSection levels = this.getMenusConfig().getConfigurationSection("progress-menu.levels");
-        if (levels == null) return 1.0;
-        double soldInCategory = this.soldByCategory.getOrDefault(u, Collections.emptyMap()).getOrDefault(cat, 0.0);
         double multiplier = 1.0;
+        ConfigurationSection levels = this.getMenusConfig().getConfigurationSection("progress-menu.levels");
+        if (levels == null) {
+            return 1.0;
+        }
+        double soldInCategory = this.soldByCategory.getOrDefault(u, Collections.emptyMap()).getOrDefault(cat, 0.0);
         for (String key : levels.getKeys(false)) {
             ConfigurationSection lvlSec = levels.getConfigurationSection(key);
             if (lvlSec == null) continue;
             double needed = lvlSec.getDouble("amountNeeded", Double.MAX_VALUE);
             double multi = lvlSec.getDouble("multi", 1.0);
-            if (soldInCategory >= needed) multiplier = multi;
+            if (!(soldInCategory >= needed)) continue;
+            multiplier = multi;
         }
         return multiplier;
     }
 
-    public ViewTracker getViewTracker() { return this.viewTracker; }
-    public ItemPricesMenu getItemPricesMenu() { return this.itemPricesMenu; }
-    public AdminPriceEditorMenu getAdminPriceEditorMenu() { return this.adminPriceEditorMenu; }
-    public SellGui getSellGui() { return this.sellGui; }
-    public ProgressGui getProgressGui() { return this.progressGui; }
-    public Economy getEconomy() { return this.econ; }
-    public HistoryTracker getHistoryTracker() { return this.historyTracker; }
-    public SellHistoryGui getSellHistoryGui() { return this.sellHistoryGui; }
-    public Map<String, Stats> getHistory(UUID u) { return this.itemHistory.getOrDefault(u, Collections.emptyMap()); }
-    public String getFormattedTotalSold(UUID u) { return Utils.abbreviateNumber(this.totalSold.getOrDefault(u, 0.0)); }
-    public double getRawTotalSold(UUID u, String cat) { return this.soldByCategory.getOrDefault(u, Collections.emptyMap()).getOrDefault(cat, 0.0); }
+    public ViewTracker getViewTracker() {
+        return this.viewTracker;
+    }
+
+    public ItemPricesMenu getItemPricesMenu() {
+        return this.itemPricesMenu;
+    }
+
+    public AdminPriceEditorMenu getAdminPriceEditorMenu() {
+        return this.adminPriceEditorMenu;
+    }
+
+    public SellGui getSellGui() {
+        return this.sellGui;
+    }
+
+    public ProgressGui getProgressGui() {
+        return this.progressGui;
+    }
+
+    public Economy getEconomy() {
+        return this.econ;
+    }
+
+    public HistoryTracker getHistoryTracker() {
+        return this.historyTracker;
+    }
+
+    public SellHistoryGui getSellHistoryGui() {
+        return this.sellHistoryGui;
+    }
+
+    public Map<String, Stats> getHistory(UUID u) {
+        return this.itemHistory.getOrDefault(u, Collections.emptyMap());
+    }
+
+    public String getFormattedTotalSold(UUID u) {
+        return Utils.abbreviateNumber(this.totalSold.getOrDefault(u, 0.0));
+    }
+
+    public double getRawTotalSold(UUID u, String cat) {
+        return this.soldByCategory.getOrDefault(u, Collections.emptyMap()).getOrDefault(cat, 0.0);
+    }
 
     public double sumInventory(Inventory inv) {
         double t = 0.0;
@@ -1003,52 +1643,102 @@ public final class DonutSell implements Listener {
 
     private String formatDuration(long ms) {
         long totalSeconds = ms / 1000L;
-        return (totalSeconds / 86400L) + "d " + (totalSeconds % 86400L / 3600L) + "h "
-                + (totalSeconds % 3600L / 60L) + "m " + (totalSeconds % 60L) + "s";
+        long days = totalSeconds / 86400L;
+        long hours = totalSeconds % 86400L / 3600L;
+        long minutes = totalSeconds % 3600L / 60L;
+        long seconds = totalSeconds % 60L;
+        return days + "d " + hours + "h " + minutes + "m " + seconds + "s";
     }
 
-    public boolean isUseMultipliers() { return this.getConfig().getBoolean("use-multipliers", true); }
+    public boolean isUseMultipliers() {
+        return this.sellConfig.getBoolean("use-multipliers", true);
+    }
 
     private void rebuildDisabledItemsCache() {
         this.disabledItemsUpper.clear();
-        for (String s : this.getConfig().getStringList("disabled-items")) {
-            if (s != null) this.disabledItemsUpper.add(s.toUpperCase(Locale.ROOT));
+        List<String> raw = this.sellConfig.getStringList("disabled-items");
+        if (raw == null) {
+            return;
+        }
+        for (String s : raw) {
+            if (s == null) continue;
+            this.disabledItemsUpper.add(s.toUpperCase(Locale.ROOT));
         }
     }
 
     private void setupPacketLoreHook() {
         try {
             this.packetListenerInstance = new SellPacketListener(this);
-            Bukkit.getPluginManager().registerEvents(new WorthListener(this.packetListenerInstance), this.parent);
+            this.parent.getServer().getPluginManager().registerEvents((Listener)new WorthListener(this.packetListenerInstance), this.parent);
             this.packetListenerInstance.injectOnlinePlayers();
-            this.parent.getLogger().info("[DonutCore] Worth-lore packet hook enabled.");
-        } catch (Throwable t) {
+            this.parent.getLogger().info("[DonutSell] Worth-lore packet hook enabled.");
+        }
+        catch (Throwable t) {
             this.packetListenerInstance = null;
-            this.parent.getLogger().log(Level.WARNING, "[DonutCore] Failed to initialize worth-lore packet hook: " + t.getMessage(), t);
+            this.parent.getLogger().log(Level.WARNING, "[DonutSell] Failed to initialize worth-lore packet hook. Worth-lore via packets disabled. Error: " + t.getMessage(), t);
         }
     }
 
     private void teardownPacketLoreHook() {
-        if (this.packetListenerInstance == null) return;
-        try { this.packetListenerInstance.shutdown(); }
-        catch (Throwable t) { this.parent.getLogger().log(Level.WARNING, "[DonutCore] Failed to tear down packet hook: " + t.getMessage(), t); }
-        finally { this.packetListenerInstance = null; }
+        if (this.packetListenerInstance == null) {
+            return;
+        }
+        try {
+            this.packetListenerInstance.shutdown();
+        }
+        catch (Throwable t) {
+            this.parent.getLogger().log(Level.WARNING, "[DonutSell] Failed to tear down worth-lore packet hook cleanly: " + t.getMessage(), t);
+        }
+        finally {
+            this.packetListenerInstance = null;
+        }
     }
 
     private void reloadPacketLoreConfig() {
-        if (this.packetListenerInstance == null) return;
-        try { this.packetListenerInstance.reloadConfigData(); }
-        catch (Throwable t) { this.parent.getLogger().log(Level.WARNING, "[DonutCore] Failed to reload packet lore config: " + t.getMessage(), t); }
+        if (this.packetListenerInstance == null) {
+            return;
+        }
+        try {
+            this.packetListenerInstance.reloadConfigData();
+        }
+        catch (Throwable t) {
+            this.parent.getLogger().log(Level.WARNING, "[DonutSell] Failed to reload packet lore listener config: " + t.getMessage(), t);
+        }
     }
 
     @FunctionalInterface
-    interface CancellableTask { void cancel(); }
+    private static interface CancellableTask {
+        public void cancel();
+    }
 
-    private enum SellNotifyMode { TITLE, ACTIONBAR, CHAT }
+
 
     public static class Stats {
         public double count;
         public double revenue;
-        public Stats(double count, double revenue) { this.count = count; this.revenue = revenue; }
+
+        public Stats(double count, double revenue) {
+            this.count = count;
+            this.revenue = revenue;
+        }
+    }
+
+    public static class SellQuote {
+        private final double payout;
+        private final long items;
+
+        public SellQuote(double payout, long items) {
+            this.payout = Math.max(0.0, payout);
+            this.items = Math.max(0L, items);
+        }
+
+        public double payout() {
+            return this.payout;
+        }
+
+        public long items() {
+            return this.items;
+        }
     }
 }
+

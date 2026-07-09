@@ -33,6 +33,6 @@ public class EnderChestListener implements Listener {
         }
 
         event.setCancelled(true);
-        plugin.getEnderChestManager().openOwnChest(player);
+        plugin.getEnderChestManager().openOwnChest(player, event.getClickedBlock());
     }
 }

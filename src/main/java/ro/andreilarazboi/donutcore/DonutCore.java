@@ -34,19 +34,19 @@ public final class DonutCore extends JavaPlugin {
         cratesModule = new CratesModule(this);
         if (getConfig().getBoolean("modules.crates", true)) {
             try { cratesModule.enable(); cratesOk = true; }
-            catch (Throwable t) { getLogger().severe("Crates module failed: " + t.getMessage()); }
+            catch (Throwable t) { getLogger().log(java.util.logging.Level.SEVERE, "Crates module failed to load", t); }
         }
 
         sellModule = new SellModule(this);
         if (getConfig().getBoolean("modules.sell", true)) {
             try { sellModule.enable(); sellOk = true; }
-            catch (Throwable t) { getLogger().severe("Sell module failed: " + t.getMessage()); }
+            catch (Throwable t) { getLogger().log(java.util.logging.Level.SEVERE, "Sell module failed to load", t); }
         }
 
         enderChestModule = new EnderChestModule(this);
         if (getConfig().getBoolean("modules.enderchest", true)) {
             try { enderChestModule.enable(); enderChestOk = true; }
-            catch (Throwable t) { getLogger().severe("EnderChest module failed: " + t.getMessage()); }
+            catch (Throwable t) { getLogger().log(java.util.logging.Level.SEVERE, "EnderChest module failed to load", t); }
         }
 
         DonutCoreCommand donutCoreCmd = new DonutCoreCommand(this);

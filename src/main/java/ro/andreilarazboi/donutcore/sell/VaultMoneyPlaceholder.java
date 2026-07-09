@@ -9,7 +9,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-public class VaultMoneyPlaceholder extends PlaceholderExpansion {
+@SuppressWarnings({"deprecation", "removal", "unchecked", "rawtypes"})
+public class VaultMoneyPlaceholder
+extends PlaceholderExpansion {
     private final DonutSell plugin;
     private final Economy econ;
     private final DecimalFormat twoDecimals = new DecimalFormat("#.##");
@@ -27,7 +29,7 @@ public class VaultMoneyPlaceholder extends PlaceholderExpansion {
         if (section != null) {
             section.getKeys(false).forEach(key -> {
                 double value = section.getDouble(key);
-                this.suffixes.put(key, value);
+                this.suffixes.put((String)key, value);
             });
         } else {
             this.suffixes.put("K", 1000.0);
@@ -50,23 +52,25 @@ public class VaultMoneyPlaceholder extends PlaceholderExpansion {
     }
 
     public String getAuthor() {
-        return String.join(", ", this.plugin.getPluginMeta().getAuthors());
+        return String.join((CharSequence)", ", this.plugin.getDescription().getAuthors());
     }
 
     public String getVersion() {
-        return this.plugin.getPluginMeta().getVersion();
+        return this.plugin.getDescription().getVersion();
     }
 
     public String onPlaceholderRequest(Player player, String identifier) {
         if (player == null) {
             return "";
         }
-        double balance = this.econ.getBalance((OfflinePlayer) player);
+        double balance = this.econ.getBalance((OfflinePlayer)player);
         switch (identifier) {
-            case "sell_money":
+            case "sell_money": {
                 return this.twoDecimals.format(balance);
-            case "sell_money_formatted":
+            }
+            case "sell_money_formatted": {
                 return this.abbreviate(balance);
+            }
         }
         return null;
     }
@@ -88,3 +92,4 @@ public class VaultMoneyPlaceholder extends PlaceholderExpansion {
         this.loadSuffixes();
     }
 }
+

@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ViewTracker {
-    private final Map<UUID, Integer> pages = new HashMap<>();
-    private final Map<UUID, SortOrder> order = new HashMap<>();
-    private final Map<UUID, String> filters = new HashMap<>();
+    private final Map<UUID, Integer> pages = new HashMap<UUID, Integer>();
+    private final Map<UUID, SortOrder> order = new HashMap<UUID, SortOrder>();
+    private final Map<UUID, String> filters = new HashMap<UUID, String>();
 
     public void setPage(UUID player, int page) {
         this.pages.put(player, page);
@@ -27,15 +27,14 @@ public class ViewTracker {
 
     public void cycleOrder(UUID player) {
         SortOrder cur = this.getOrder(player);
-        SortOrder next;
-        switch (cur) {
-            case HIGH_TO_LOW: next = SortOrder.LOW_TO_HIGH; break;
-            case LOW_TO_HIGH: next = SortOrder.A_TO_Z; break;
-            case A_TO_Z: next = SortOrder.HIGH_TO_LOW; break;
-            case Z_TO_A: next = SortOrder.HIGH_TO_LOW; break;
-            case NAME: next = SortOrder.HIGH_TO_LOW; break;
-            default: next = SortOrder.HIGH_TO_LOW;
-        }
+        SortOrder next = switch (cur.ordinal()) {
+            default -> throw new IncompatibleClassChangeError();
+            case 0 -> SortOrder.LOW_TO_HIGH;
+            case 1 -> SortOrder.A_TO_Z;
+            case 3 -> SortOrder.Z_TO_A;
+            case 4 -> SortOrder.HIGH_TO_LOW;
+            case 2 -> SortOrder.HIGH_TO_LOW;
+        };
         this.order.put(player, next);
     }
 
@@ -61,11 +60,13 @@ public class ViewTracker {
         return this.pages.containsKey(player);
     }
 
-    public enum SortOrder {
+    public static enum SortOrder {
         HIGH_TO_LOW,
         LOW_TO_HIGH,
         NAME,
         A_TO_Z,
-        Z_TO_A
+        Z_TO_A;
+
     }
 }
+

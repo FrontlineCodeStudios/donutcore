@@ -1,10 +1,13 @@
 package ro.andreilarazboi.donutcore.sell;
 
 import java.util.UUID;
+import ro.andreilarazboi.donutcore.sell.DonutSell;
+import ro.andreilarazboi.donutcore.sell.Utils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
-public class SellPlaceholderExpansion extends PlaceholderExpansion {
+public class SellPlaceholderExpansion
+extends PlaceholderExpansion {
     private final DonutSell plugin;
 
     public SellPlaceholderExpansion(DonutSell plugin) {
@@ -24,11 +27,11 @@ public class SellPlaceholderExpansion extends PlaceholderExpansion {
     }
 
     public String getAuthor() {
-        return this.plugin.getPluginMeta().getAuthors().toString();
+        return this.plugin.getDescription().getAuthors().toString();
     }
 
     public String getVersion() {
-        return this.plugin.getPluginMeta().getVersion();
+        return this.plugin.getDescription().getVersion();
     }
 
     public String onPlaceholderRequest(Player player, String identifier) {
@@ -39,6 +42,13 @@ public class SellPlaceholderExpansion extends PlaceholderExpansion {
             UUID uuid = player.getUniqueId();
             return this.plugin.getFormattedTotalSold(uuid);
         }
+        if (identifier.equalsIgnoreCase("toggleworth_status") || identifier.equalsIgnoreCase("worth_status")) {
+            boolean enabled = this.plugin.isWorthEnabled(player.getUniqueId());
+            String path = enabled ? "placeholders.toggleworth-status.enabled" : "placeholders.toggleworth-status.disabled";
+            String fallback = enabled ? "&aON" : "&cOFF";
+            return Utils.formatColors(this.plugin.getConfig().getString(path, fallback));
+        }
         return null;
     }
 }
+

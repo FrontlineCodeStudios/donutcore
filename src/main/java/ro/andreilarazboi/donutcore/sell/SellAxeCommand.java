@@ -1,7 +1,6 @@
 package ro.andreilarazboi.donutcore.sell;
 
 import java.util.ArrayList;
-import net.kyori.adventure.text.Component;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,8 +8,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -32,122 +29,144 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import ro.andreilarazboi.donutcore.DonutCore;
 
-public final class SellAxeCommand implements CommandExecutor, TabCompleter {
+@SuppressWarnings({"deprecation", "removal"})
+public class SellAxeCommand
+implements CommandExecutor,
+TabCompleter {
     private final DonutSell plugin;
     private final NamespacedKey sellAxeKey;
     private final NamespacedKey expiryKey;
+    private final NamespacedKey usesRemainingKey;
 
-    public SellAxeCommand(DonutSell plugin, NamespacedKey sellAxeKey, NamespacedKey expiryKey) {
+    public SellAxeCommand(DonutSell plugin, NamespacedKey sellAxeKey, NamespacedKey expiryKey, NamespacedKey usesRemainingKey) {
         this.plugin = plugin;
         this.sellAxeKey = sellAxeKey;
         this.expiryKey = expiryKey;
-        plugin.getPlugin().getCommand("donutsell").setExecutor(this);
-        plugin.getPlugin().getCommand("donutsell").setTabCompleter(this);
+        this.usesRemainingKey = usesRemainingKey;
+        plugin.getCommand("donutsell").setExecutor((CommandExecutor)this);
+        plugin.getCommand("donutsell").setTabCompleter((TabCompleter)this);
     }
 
-    @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!DonutCore.getInstance().getSellModule().isActive()) {
-            if (sender.hasPermission("donutcore.admin") || sender.isOp()) {
-                sender.sendMessage(Utils.toComponent("&cThe Sell module is currently disabled."));
-            }
+        if (!this.plugin.isModuleActive()) {
+            sender.sendMessage(Utils.formatColors("&cThis module is currently disabled."));
             return true;
         }
         if (!sender.hasPermission("sell.admin")) {
-            sender.sendMessage(Utils.toComponent("&cYou do not have permission."));
+            sender.sendMessage(Utils.formatColors("&cYou do not have permission."));
             return true;
         }
         if (args.length == 0) {
-            sender.sendMessage(Utils.toComponent("&cUsage: /donutsell <givesellwand|reload|resetall|addhanditem|prices>"));
+            sender.sendMessage(Utils.formatColors("&cUsage: /donutsell <givesellwand|reload|resetall|addhanditem|prices>"));
             return true;
         }
         if (args[0].equalsIgnoreCase("reload")) {
             this.plugin.reloadPlugin();
-            sender.sendMessage(Utils.toComponent("&aSell config reloaded."));
+            sender.sendMessage(Utils.formatColors("&aSell config reloaded."));
             return true;
         }
         if (args[0].equalsIgnoreCase("prices")) {
-            if (!(sender instanceof Player p)) {
-                sender.sendMessage(Utils.toComponent("&cOnly players can open the price editor."));
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(Utils.formatColors("&cOnly players can open the price editor."));
                 return true;
             }
+            Player p = (Player)sender;
             this.plugin.getAdminPriceEditorMenu().open(p, 1);
             return true;
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("resetall")) {
             String targetName = args[1];
-            OfflinePlayer offline = Bukkit.getOfflinePlayer(targetName);
-            if (!offline.hasPlayedBefore() && Bukkit.getPlayerExact(targetName) == null) {
-                sender.sendMessage(Utils.toComponent("&cPlayer &e" + targetName + " &cnot found."));
+            OfflinePlayer offline = Bukkit.getOfflinePlayer((String)targetName);
+            if (!offline.hasPlayedBefore() && Bukkit.getPlayerExact((String)targetName) == null) {
+                sender.sendMessage(Utils.formatColors("&cPlayer &e" + targetName + " &cnot found."));
                 return true;
             }
-            if (sender instanceof Player adminPlayer) {
+            if (sender instanceof Player) {
+                Player adminPlayer = (Player)sender;
                 this.plugin.getResetConfirmationGui().open(adminPlayer, offline);
             } else {
-                sender.sendMessage(Utils.toComponent("&cOnly in-game players can confirm a reset."));
+                sender.sendMessage(Utils.formatColors("&cOnly in-game players can confirm a reset."));
             }
             return true;
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("addhanditem")) {
-            if (!(sender instanceof Player player)) {
-                sender.sendMessage(Utils.toComponent("&cOnly players can use this."));
+            double price;
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(Utils.formatColors("&cOnly players can use this."));
                 return true;
             }
+            Player player = (Player)sender;
             String category = args[1].toLowerCase(Locale.ROOT);
             FileConfiguration cfg = this.plugin.getWorthConfig();
             ConfigurationSection catsSection = cfg.getConfigurationSection("categories");
             if (catsSection == null || !catsSection.getKeys(false).contains(category)) {
-                sender.sendMessage(Utils.toComponent("&cUnknown category: " + category));
+                sender.sendMessage(Utils.formatColors("&cUnknown category: " + category));
                 return true;
             }
-            double price;
             try {
                 price = Double.parseDouble(args[2]);
-                if (price < 0.0) throw new NumberFormatException();
-            } catch (NumberFormatException e) {
-                sender.sendMessage(Utils.toComponent("&cPlease specify a valid non-negative number for price."));
+                if (price < 0.0) {
+                    throw new NumberFormatException();
+                }
+            }
+            catch (NumberFormatException e) {
+                sender.sendMessage(Utils.formatColors("&cPlease specify a valid non-negative number for price."));
                 return true;
             }
             ItemStack hand = player.getInventory().getItemInMainHand();
             if (hand == null || hand.getType().isAir()) {
-                sender.sendMessage(Utils.toComponent("&cHold an item to set its price."));
+                sender.sendMessage(Utils.formatColors("&cHold an item to set its price."));
                 return true;
             }
             String entryKey;
-            ItemMeta handMeta = hand.getItemMeta();
-            if (hand.getType() == Material.SPAWNER && handMeta instanceof BlockStateMeta bsm) {
+            if (hand.getType() == Material.SPAWNER && hand.getItemMeta() instanceof BlockStateMeta) {
+                BlockStateMeta bsm = (BlockStateMeta) hand.getItemMeta();
                 BlockState blockState = bsm.getBlockState();
-                if (blockState instanceof CreatureSpawner cs) {
+                if (blockState instanceof CreatureSpawner) {
+                    CreatureSpawner cs = (CreatureSpawner) blockState;
                     entryKey = cs.getSpawnedType().name().toLowerCase(Locale.ROOT) + "_spawner-value";
                 } else {
                     entryKey = "spawner-value";
                 }
-            } else if (hand.getType() == Material.ENCHANTED_BOOK && handMeta instanceof EnchantmentStorageMeta esm) {
+            } else if (hand.getType() == Material.ENCHANTED_BOOK && hand.getItemMeta() instanceof EnchantmentStorageMeta) {
+                EnchantmentStorageMeta esm = (EnchantmentStorageMeta) hand.getItemMeta();
                 if (esm.getStoredEnchants().size() != 1) {
-                    sender.sendMessage(Utils.toComponent("&cHold an enchanted book with exactly one enchantment."));
+                    sender.sendMessage(Utils.formatColors("&cHold an enchanted book with exactly one enchantment."));
                     return true;
                 }
-                Map.Entry<Enchantment, Integer> e = esm.getStoredEnchants().entrySet().iterator().next();
-                entryKey = e.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + e.getValue() + "-value";
-            } else if (handMeta instanceof PotionMeta pm) {
-                String base = pm.getBasePotionType().getKey().getKey();
-                if (hand.getType() == Material.SPLASH_POTION) base = "splash_" + base;
-                else if (hand.getType() == Material.LINGERING_POTION) base = "lingering_" + base;
-                entryKey = base + "-value";
+                Map.Entry<Enchantment, Integer> entry = esm.getStoredEnchants().entrySet().iterator().next();
+                entryKey = entry.getKey().getKey().getKey().toLowerCase(Locale.ROOT) + String.valueOf(entry.getValue()) + "-value";
             } else {
-                entryKey = hand.getType().name().toLowerCase(Locale.ROOT) + "-value";
+                ItemMeta meta = hand.getItemMeta();
+                if (meta instanceof PotionMeta) {
+                    PotionMeta pm = (PotionMeta) meta;
+                    String base = pm.getBasePotionData().getType().name().toLowerCase(Locale.ROOT);
+                    if (pm.getBasePotionData().isExtended()) {
+                        base = "long_" + base;
+                    }
+                    if (pm.getBasePotionData().isUpgraded()) {
+                        base = "strong_" + base;
+                    }
+                    if (hand.getType() == Material.SPLASH_POTION) {
+                        base = "splash_" + base;
+                    } else if (hand.getType() == Material.LINGERING_POTION) {
+                        base = "lingering_" + base;
+                    }
+                    entryKey = base + "-value";
+                } else {
+                    entryKey = hand.getType().name().toLowerCase(Locale.ROOT) + "-value";
+                }
             }
             String path = "categories." + category;
             List<Map<?, ?>> rawList = cfg.getMapList(path);
-            ArrayList<Map<String, Object>> newList = new ArrayList<>();
+            List<Map<String, Object>> newList = new ArrayList<>();
             for (Map<?, ?> m : rawList) {
-                HashMap<String, Object> copy = new HashMap<>();
+                Map<String, Object> hashMap = new HashMap<>();
                 for (Map.Entry<?, ?> en : m.entrySet()) {
-                    copy.put(String.valueOf(en.getKey()), en.getValue());
+                    hashMap.put(String.valueOf(en.getKey()), en.getValue());
                 }
-                newList.add(copy);
+                newList.add(hashMap);
             }
             boolean replaced = false;
             for (Map<String, Object> map : newList) {
@@ -157,68 +176,77 @@ public final class SellAxeCommand implements CommandExecutor, TabCompleter {
                 break;
             }
             if (!replaced) {
-                HashMap<String, Object> toAdd = new HashMap<>();
+                Map<String, Object> toAdd = new HashMap<>();
                 toAdd.put(entryKey, price);
                 newList.add(toAdd);
             }
             cfg.set(path, newList);
             this.plugin.saveWorthConfig();
             this.plugin.reloadPlugin();
-            sender.sendMessage(Utils.toComponent("&aSet &e" + entryKey + " &ain category &e" + category + " &ato &e" + price));
+            sender.sendMessage(Utils.formatColors("&aSet &e" + entryKey + " &ain category &e" + category + " &ato &e" + price));
             return true;
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("givesellwand")) {
+        if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("givesellwand")) {
+            List<String> enchList;
+            ItemStack sellAxe;
+            ItemMeta meta;
             Player target = Bukkit.getPlayerExact(args[1]);
             if (target == null) {
-                sender.sendMessage(Utils.toComponent("&cPlayer not found: " + args[1]));
+                sender.sendMessage(Utils.formatColors("&cPlayer not found: " + args[1]));
                 return true;
             }
-            ItemStack sellAxe = new ItemStack(Material.NETHERITE_AXE, 1);
-            ItemMeta meta = sellAxe.getItemMeta();
-            if (meta == null) {
-                this.plugin.getPlugin().getLogger().warning("Failed to create Sell Wand item!");
+            int uses = this.plugin.getConfig().getInt("sell-axe.amount", -1);
+            if (args.length == 3) {
+                try {
+                    uses = Integer.parseInt(args[2]);
+                    if (uses < -1) {
+                        throw new NumberFormatException();
+                    }
+                }
+                catch (NumberFormatException ex) {
+                    sender.sendMessage(Utils.formatColors("&cUses must be -1 or a positive whole number."));
+                    return true;
+                }
+            }
+            if ((meta = (sellAxe = new ItemStack(Material.NETHERITE_AXE, 1)).getItemMeta()) == null) {
+                this.plugin.getLogger().warning("Failed to create Sell Wand item!");
                 return true;
             }
-            String rawName = this.plugin.getConfig().getString("sell-axe.display-name", "&aSell Wand");
-            meta.displayName(Utils.toComponent(rawName));
-            List<String> loreTemplate = new ArrayList<>(this.plugin.getConfig().getStringList("sell-axe.lore"));
             boolean useCountdown = this.plugin.getConfig().getBoolean("sell-axe.use-countdown", true);
             long expiryMillis = 0L;
-            List<Component> loreComponents = new ArrayList<>();
+            String initialCountdown = "";
             if (useCountdown) {
                 long durationSeconds = this.plugin.getConfig().getLong("sell-axe.duration-seconds", 259200L);
                 expiryMillis = System.currentTimeMillis() + durationSeconds * 1000L;
-                String initialCountdown = this.formatDuration(durationSeconds * 1000L);
-                for (String line : loreTemplate) {
-                    loreComponents.add(Utils.toComponent(line.replace("%countdown%", initialCountdown)));
-                }
-            } else {
-                for (String line : loreTemplate) {
-                    loreComponents.add(Utils.toComponent(line));
-                }
+                initialCountdown = this.formatDuration(durationSeconds * 1000L);
             }
-            meta.lore(loreComponents);
-            List<String> enchList = this.plugin.getConfig().getStringList("sell-axe.enchantments");
-            for (String enchEntry : enchList) {
-                String[] parts = enchEntry.split(":");
-                if (parts.length != 2) continue;
-                try {
-                    Enchantment ench = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT)
-                            .get(NamespacedKey.minecraft(parts[0].toLowerCase(Locale.ROOT).trim()));
-                    if (ench == null) continue;
-                    meta.addEnchant(ench, Integer.parseInt(parts[1].trim()), true);
-                } catch (NumberFormatException ignored) {}
+            if ((enchList = this.plugin.getConfig().getStringList("sell-axe.enchantments")) != null) {
+                for (String enchEntry : enchList) {
+                    String[] parts = enchEntry.split(":");
+                    if (parts.length != 2) continue;
+                    try {
+                        String enchName = parts[0].toUpperCase().trim();
+                        int n = Integer.parseInt(parts[1].trim());
+                        Enchantment ench = Enchantment.getByName((String)enchName);
+                        if (ench == null) continue;
+                        meta.addEnchant(ench, n, true);
+                    }
+                    catch (NumberFormatException numberFormatException) {}
+                }
             }
             PersistentDataContainer pdc = meta.getPersistentDataContainer();
             pdc.set(this.sellAxeKey, PersistentDataType.BYTE, (byte) 1);
+            pdc.set(this.usesRemainingKey, PersistentDataType.INTEGER, uses);
             if (useCountdown) {
                 pdc.set(this.expiryKey, PersistentDataType.LONG, expiryMillis);
             }
+            this.plugin.updateSellAxeMeta(sellAxe, meta, initialCountdown);
             sellAxe.setItemMeta(meta);
-            target.getInventory().addItem(sellAxe);
+            target.getInventory().addItem(new ItemStack[]{sellAxe});
+            sender.sendMessage(Utils.formatColors("&aGave &e" + target.getName() + " &aa Sell Wand with &e" + this.plugin.formatSellAxeUses(uses) + " &auses."));
             return true;
         }
-        sender.sendMessage(Utils.toComponent("&cUsage: /donutsell <givesellwand|reload|resetall|addhanditem|prices>"));
+        sender.sendMessage(Utils.formatColors("&cUsage: /donutsell <givesellwand|reload|resetall|addhanditem|prices>"));
         return true;
     }
 
@@ -231,25 +259,28 @@ public final class SellAxeCommand implements CommandExecutor, TabCompleter {
         return days + "d " + hours + "h " + minutes + "m " + seconds + "s";
     }
 
-    @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-        if (!sender.hasPermission("sell.admin")) return Collections.emptyList();
+        if (!sender.hasPermission("sell.admin")) {
+            return Collections.emptyList();
+        }
         if (args.length == 1) {
-            return filter(Arrays.asList("givesellwand", "reload", "resetall", "addhanditem", "prices"), args[0]);
+            return this.filter(Arrays.asList("givesellwand", "reload", "resetall", "addhanditem", "prices"), args[0]);
         }
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("givesellwand") || args[0].equalsIgnoreCase("resetall")) {
                 String prefix = args[1].toLowerCase(Locale.ROOT);
-                return Bukkit.getOnlinePlayers().stream()
-                        .map(p -> p.getName())
-                        .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix))
-                        .collect(Collectors.toList());
+                return Bukkit.getOnlinePlayers().stream().map(Player::getName).filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix)).collect(Collectors.toList());
             }
             if (args[0].equalsIgnoreCase("addhanditem")) {
                 ConfigurationSection cats = this.plugin.getWorthConfig().getConfigurationSection("categories");
-                if (cats == null) return Collections.emptyList();
-                return filter(new ArrayList<>(cats.getKeys(false)), args[1]);
+                if (cats == null) {
+                    return Collections.emptyList();
+                }
+                return this.filter(new ArrayList<String>(cats.getKeys(false)), args[1]);
             }
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("givesellwand")) {
+            return this.filter(Arrays.asList("-1", "10", "100", "1000"), args[2]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("addhanditem")) {
             return Collections.singletonList("0.1");
@@ -258,12 +289,16 @@ public final class SellAxeCommand implements CommandExecutor, TabCompleter {
     }
 
     private List<String> filter(List<String> options, String prefix) {
-        if (prefix.isEmpty()) return options;
+        if (prefix.isEmpty()) {
+            return options;
+        }
         String lower = prefix.toLowerCase(Locale.ROOT);
-        List<String> out = new ArrayList<>();
+        ArrayList<String> out = new ArrayList<String>();
         for (String o : options) {
-            if (o.toLowerCase(Locale.ROOT).startsWith(lower)) out.add(o);
+            if (!o.toLowerCase(Locale.ROOT).startsWith(lower)) continue;
+            out.add(o);
         }
         return out;
     }
 }
+

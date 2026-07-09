@@ -41,33 +41,43 @@ public class EnderChestManager {
     }
 
     public void openOwnChest(Player player) {
+        openOwnChest(player, null);
+    }
+
+    public void openOwnChest(Player player, org.bukkit.block.Block clickedBlock) {
         int rows = getRows(player);
         if (rows == 0) {
             player.sendMessage(plugin.msgComponent("no-enderchest"));
             return;
         }
-        openAsync(player, player.getUniqueId(), player.getName(), rows, false);
+        openAsync(player, player.getUniqueId(), player.getName(), rows, false, clickedBlock);
     }
 
     public void openOthersChest(Player viewer, OfflinePlayer target) {
         boolean readOnly = !viewer.hasPermission("enderchest.modify.others");
         String name = target.getName() != null ? target.getName() : target.getUniqueId().toString();
-        openAsync(viewer, target.getUniqueId(), name, 6, readOnly);
+        openAsync(viewer, target.getUniqueId(), name, 6, readOnly, null);
     }
 
-    private void openAsync(Player viewer, UUID ownerUUID, String ownerName, int rows, boolean readOnly) {
+    private void openAsync(Player viewer, UUID ownerUUID, String ownerName, int rows, boolean readOnly, org.bukkit.block.Block clickedBlock) {
         plugin.runAsync(() -> {
             Map<Integer, ItemStack> fullItems = plugin.getDataManager().loadItems(ownerUUID);
             plugin.runAtPlayer(viewer, () -> {
                 if (!viewer.isOnline()) return;
                 String title = getTitle(rows, ownerName);
-                EnderChestHolder holder = new EnderChestHolder(ownerUUID, viewer.getUniqueId(), readOnly, rows, fullItems);
+                EnderChestHolder holder = new EnderChestHolder(ownerUUID, viewer.getUniqueId(), readOnly, rows, fullItems, clickedBlock);
                 Inventory inv = Bukkit.createInventory(holder, rows * 9, plugin.formatComponent(title));
                 holder.setInventory(inv);
                 for (Map.Entry<Integer, ItemStack> entry : fullItems.entrySet()) {
                     if (entry.getKey() < rows * 9) inv.setItem(entry.getKey(), entry.getValue());
                 }
                 viewer.openInventory(inv);
+                if (clickedBlock != null && clickedBlock.getType() == Material.ENDER_CHEST) {
+                    org.bukkit.block.BlockState state = clickedBlock.getState();
+                    if (state instanceof org.bukkit.block.Lidded lidded) {
+                        lidded.open();
+                    }
+                }
                 if (!viewer.getUniqueId().equals(ownerUUID)) {
                     viewer.sendMessage(plugin.formatComponent(plugin.msg("viewing-others").replace("<player>", ownerName)));
                 }

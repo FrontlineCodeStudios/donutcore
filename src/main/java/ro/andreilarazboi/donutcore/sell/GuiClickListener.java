@@ -9,7 +9,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 
-public class GuiClickListener implements Listener {
+@SuppressWarnings({"deprecation", "removal"})
+public class GuiClickListener
+implements Listener {
     private final DonutSell plugin;
 
     public GuiClickListener(DonutSell plugin) {
@@ -18,9 +20,13 @@ public class GuiClickListener implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        if (!(e.getView().getTopInventory().getHolder() instanceof GuiHolder holder)) return;
+        if (!this.plugin.isModuleActive()) return;
+        if (!(e.getView().getTopInventory().getHolder() instanceof GuiHolder)) {
+            return;
+        }
         e.setCancelled(true);
-        Player p = (Player) e.getWhoClicked();
+        GuiHolder holder = (GuiHolder)e.getView().getTopInventory().getHolder();
+        Player p = (Player)e.getWhoClicked();
         int slot = e.getRawSlot();
         FileConfiguration cfg = this.plugin.getConfig();
         if (holder.getPage() == -1) {
@@ -34,7 +40,12 @@ public class GuiClickListener implements Listener {
             }
             if (slot == backSlot) {
                 this.playClickSound(p, cfg);
-                this.plugin.getSellGui().open(p);
+                if (this.plugin.isSellMultiMenuEnabled()) {
+                    this.plugin.getSellGui().openNew(p);
+                } else {
+                    this.plugin.getSellGui().open(p);
+                }
+                return;
             }
             return;
         }
@@ -60,11 +71,11 @@ public class GuiClickListener implements Listener {
             if (this.plugin.getWorthConfig().getList("categories." + cat) != null) {
                 for (Object element : this.plugin.getWorthConfig().getList("categories." + cat)) {
                     if (!(element instanceof Map)) continue;
-                    totalEntries += ((Map<?, ?>) element).size();
+                    Map<?, ?> m = (Map<?, ?>)element;
+                    totalEntries += m.size();
                 }
             }
-            int maxPage = (int) Math.ceil((double) totalEntries / (double) perPage) - 1;
-            if (page < maxPage) {
+            if (page < (int)Math.ceil((double)totalEntries / (double)perPage) - 1) {
                 this.plugin.runAtPlayerLater(p, () -> new CategoryGui(this.plugin, cat).open(p, page + 1), 1L);
             }
             return;
@@ -77,13 +88,23 @@ public class GuiClickListener implements Listener {
 
     @EventHandler
     public void onDrag(InventoryDragEvent e) {
+        if (!this.plugin.isModuleActive()) return;
         if (e.getView().getTopInventory().getHolder() instanceof GuiHolder) {
             e.setCancelled(true);
         }
     }
 
     private void playClickSound(Player p, FileConfiguration cfg) {
+        Sound snd;
         String raw = cfg.getString("sounds.click-sound", "UI_BUTTON_CLICK");
-        p.playSound(p.getLocation(), Utils.resolveSound(raw, Sound.UI_BUTTON_CLICK), 1.0f, 1.0f);
+        try {
+            snd = Sound.valueOf((String)raw.toUpperCase());
+        }
+        catch (Exception ex) {
+            this.plugin.getLogger().warning("Invalid sounds.click-sound: '" + raw + "'. Using UI_BUTTON_CLICK instead.");
+            snd = Sound.UI_BUTTON_CLICK;
+        }
+        p.playSound(p.getLocation(), snd, 1.0f, 1.0f);
     }
 }
+

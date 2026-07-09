@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -17,7 +17,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-public final class SellHistoryGui {
+@SuppressWarnings({"deprecation", "removal", "unchecked", "rawtypes"})
+public class SellHistoryGui {
     private final DonutSell plugin;
     private int rows;
     private int size;
@@ -60,24 +61,26 @@ public final class SellHistoryGui {
         String rawTitle = cfg.getString("title", "&8Sell history (Page %history-page%)");
         this.titleTemplate = Utils.formatColors(rawTitle);
         int idx = rawTitle.indexOf("%history-page%");
-        if (idx < 0) idx = rawTitle.length();
-        this.titlePrefix = Utils.stripColor(Utils.formatColors(rawTitle.substring(0, idx)));
+        if (idx < 0) {
+            idx = rawTitle.length();
+        }
+        this.titlePrefix = ChatColor.stripColor((String)Utils.formatColors(rawTitle.substring(0, idx)));
         ConfigurationSection sold = cfg.getConfigurationSection("sold-items");
         this.itemNameTpl = Utils.formatColors(sold.getString("displayname", "%Item-Name%"));
         this.loreTpl = Utils.formatColors(sold.getStringList("lore"));
         ConfigurationSection prev = cfg.getConfigurationSection("history-back");
         this.backSlot = prev.getInt("slot", 45);
         this.backName = Utils.formatColors(prev.getString("displayname", "&fBack"));
-        this.backMat = Material.valueOf(prev.getString("material", "ARROW").toUpperCase());
+        this.backMat = Material.valueOf((String)prev.getString("material", "ARROW").toUpperCase());
         this.backLore = Utils.formatColors(prev.getStringList("lore"));
         ConfigurationSection nxt = cfg.getConfigurationSection("history-next");
         this.nextSlot = nxt.getInt("slot", 53);
         this.nextName = Utils.formatColors(nxt.getString("displayname", "&fNext"));
-        this.nextMat = Material.valueOf(nxt.getString("material", "ARROW").toUpperCase());
+        this.nextMat = Material.valueOf((String)nxt.getString("material", "ARROW").toUpperCase());
         this.nextLore = Utils.formatColors(nxt.getStringList("lore"));
         ConfigurationSection sort = cfg.getConfigurationSection("history-sort");
         this.sortSlot = sort.getInt("slot", 50);
-        this.sortMat = Material.valueOf(sort.getString("material", "HOPPER").toUpperCase());
+        this.sortMat = Material.valueOf((String)sort.getString("material", "HOPPER").toUpperCase());
         this.sortName = Utils.formatColors(sort.getString("displayname", "&aSort"));
         this.notCurrentColor = sort.getString("NotCurrentColor", "&f");
         this.currentColor = sort.getString("CurrentColor", "&a");
@@ -85,11 +88,11 @@ public final class SellHistoryGui {
         ConfigurationSection ref = cfg.getConfigurationSection("history-refresh");
         this.refreshSlot = ref.getInt("slot", 49);
         this.refreshName = Utils.formatColors(ref.getString("displayname", "&aRefresh"));
-        this.refreshMat = Material.valueOf(ref.getString("material", "ANVIL").toUpperCase());
+        this.refreshMat = Material.valueOf((String)ref.getString("material", "ANVIL").toUpperCase());
         this.refreshLore = Utils.formatColors(ref.getStringList("lore"));
         ConfigurationSection pp = cfg.getConfigurationSection("history-player");
         this.playerSlot = pp.getInt("slot", 48);
-        this.playerMat = Material.valueOf(pp.getString("material", "PLAYER_HEAD").toUpperCase());
+        this.playerMat = Material.valueOf((String)pp.getString("material", "PLAYER_HEAD").toUpperCase());
         this.playerNameTpl = pp.getString("displayname", "%player%");
         this.playerLoreTpl = pp.getStringList("lore");
     }
@@ -98,17 +101,26 @@ public final class SellHistoryGui {
         HistoryTracker tracker = this.plugin.getHistoryTracker();
         HistoryTracker.SortOrder order = tracker.getOrder(p.getUniqueId());
         Map<String, DonutSell.Stats> history = this.plugin.getHistory(p.getUniqueId());
-        ArrayList<Map.Entry<String, DonutSell.Stats>> all = new ArrayList<>(history.entrySet());
+        ArrayList<Map.Entry<String, DonutSell.Stats>> all = new ArrayList<Map.Entry<String, DonutSell.Stats>>(history.entrySet());
         switch (order) {
-            case HIGH -> all.sort((a, b) -> Double.compare(b.getValue().revenue, a.getValue().revenue));
-            case LOW -> all.sort((a, b) -> Double.compare(a.getValue().revenue, b.getValue().revenue));
-            case NAME -> all.sort(Comparator.comparing(e -> e.getKey()));
+            case HIGH: {
+                all.sort((a, b) -> Double.compare(b.getValue().revenue, a.getValue().revenue));
+                break;
+            }
+            case LOW: {
+                all.sort((a, b) -> Double.compare(a.getValue().revenue, b.getValue().revenue));
+                break;
+            }
+            case NAME: {
+                all.sort((a, b) -> a.getKey().compareTo(b.getKey()));
+                break;
+            }
         }
         int perPage = (this.rows - 1) * 9;
         int from = (page - 1) * perPage;
         int to = Math.min(from + perPage, all.size());
-        Inventory inv = Bukkit.createInventory(null, this.size,
-                Utils.toComponent(this.titleTemplate.replace("%history-page%", String.valueOf(page))));
+        Inventory inv = Bukkit.createInventory(null, (int)this.size, (String)this.titleTemplate.replace("%history-page%", String.valueOf(page)));
+        int slotIndex = 0;
         for (int i = from; i < to; i++) {
             Map.Entry<String, DonutSell.Stats> e = all.get(i);
             String key = e.getKey();
@@ -116,88 +128,103 @@ public final class SellHistoryGui {
             Material mat;
             try {
                 mat = Material.valueOf(key.toUpperCase());
-            } catch (IllegalArgumentException ex) {
+            }
+            catch (IllegalArgumentException ex) {
                 mat = Material.STONE;
             }
             ItemStack it = new ItemStack(mat);
             ItemMeta m = it.getItemMeta();
-            m.displayName(Utils.toComponent(this.itemNameTpl.replace("%Item-Name%", this.capitalize(key))));
-            m.lore(this.loreTpl.stream()
-                    .map(line -> Utils.toComponent(line
-                            .replace("%amount-sold%", String.valueOf((long) st.count))
-                            .replace("%price-sold%", Utils.abbreviateNumber(st.revenue))))
-                    .collect(Collectors.toList()));
-            it.setItemMeta(m);
-            inv.setItem(i - from, it);
+            if (m != null) {
+                m.setDisplayName(this.itemNameTpl.replace("%Item-Name%", this.capitalize(key)));
+                ArrayList<String> lore = new ArrayList<>();
+                for (String line : this.loreTpl) {
+                    lore.add(line.replace("%amount-sold%", String.valueOf((long)st.count)).replace("%price-sold%", Utils.abbreviateNumber(st.revenue)));
+                }
+                m.setLore(lore);
+                it.setItemMeta(m);
+            }
+            inv.setItem(slotIndex, it);
+            slotIndex++;
         }
-        this.place(inv, this.backSlot, this.backMat, this.backName, this.backLore);
-        this.place(inv, this.refreshSlot, this.refreshMat, this.refreshName, this.refreshLore);
-        this.place(inv, this.nextSlot, this.nextMat, this.nextName, this.nextLore);
-        // Sort button with highlighted current sort
+        ItemStack back = new ItemStack(this.backMat);
+        ItemMeta bm = back.getItemMeta();
+        bm.setDisplayName(this.backName);
+        bm.setLore(this.backLore);
+        back.setItemMeta(bm);
+        inv.setItem(this.backSlot, back);
+        ItemStack refresh = new ItemStack(this.refreshMat);
+        ItemMeta rm = refresh.getItemMeta();
+        rm.setDisplayName(this.refreshName);
+        rm.setLore(this.refreshLore);
+        refresh.setItemMeta(rm);
+        inv.setItem(this.refreshSlot, refresh);
         ItemStack sortBtn = new ItemStack(this.sortMat);
         ItemMeta sm = sortBtn.getItemMeta();
-        sm.displayName(Utils.toComponent(this.sortName));
-        ArrayList<Component> slore = new ArrayList<>();
-        for (String line : this.sortLoreBase) {
-            String trimmed = line.trim();
-            String prefix = (order == HistoryTracker.SortOrder.HIGH && trimmed.toLowerCase().contains("highest"))
-                    || (order == HistoryTracker.SortOrder.LOW && trimmed.toLowerCase().contains("lowest"))
-                    || (order == HistoryTracker.SortOrder.NAME && trimmed.toLowerCase().contains("name"))
-                    ? this.currentColor : this.notCurrentColor;
-            slore.add(Utils.toComponent(prefix + trimmed));
+        sm.setDisplayName(this.sortName);
+        ArrayList<String> slore = new ArrayList<String>();
+        for (String line2 : this.sortLoreBase) {
+            String trimmed = line2.trim();
+            String prefix = order == HistoryTracker.SortOrder.HIGH && trimmed.toLowerCase().contains("highest") ? this.currentColor : (order == HistoryTracker.SortOrder.LOW && trimmed.toLowerCase().contains("lowest") ? this.currentColor : (order == HistoryTracker.SortOrder.NAME && trimmed.toLowerCase().contains("name") ? this.currentColor : this.notCurrentColor));
+            slore.add(Utils.formatColors(prefix + trimmed));
         }
-        sm.lore(slore);
+        sm.setLore(slore);
         sortBtn.setItemMeta(sm);
         inv.setItem(this.sortSlot, sortBtn);
-        // Player head
         ItemStack head = new ItemStack(this.playerMat);
-        SkullMeta sk = (SkullMeta) head.getItemMeta();
-        sk.setOwningPlayer((OfflinePlayer) p);
+        SkullMeta sk = (SkullMeta)head.getItemMeta();
+        sk.setOwningPlayer((OfflinePlayer)p);
         String display = Utils.formatColors(this.playerNameTpl).replace("%player%", p.getName());
-        display = PlaceholderAPI.setPlaceholders(p, display);
-        sk.displayName(Utils.toComponent(display));
-        List<Component> plore = this.playerLoreTpl.stream()
-                .map(line -> Utils.formatColors(line))
-                .map(line -> line.replace("%player%", p.getName()))
-                .map(line -> PlaceholderAPI.setPlaceholders(p, line))
-                .map(Utils::toComponent)
-                .collect(Collectors.toList());
-        sk.lore(plore);
-        head.setItemMeta(sk);
+        display = PlaceholderAPI.setPlaceholders((Player)p, (String)display);
+        sk.setDisplayName(display);
+        List plore = this.playerLoreTpl.stream().map(line -> Utils.formatColors(line)).map(line -> line.replace("%player%", p.getName())).map(line -> PlaceholderAPI.setPlaceholders((Player)p, (String)line)).collect(Collectors.toList());
+        sk.setLore(plore);
+        head.setItemMeta((ItemMeta)sk);
         inv.setItem(this.playerSlot, head);
+        ItemStack next = new ItemStack(this.nextMat);
+        ItemMeta nm = next.getItemMeta();
+        nm.setDisplayName(this.nextName);
+        nm.setLore(this.nextLore);
+        next.setItemMeta(nm);
+        inv.setItem(this.nextSlot, next);
         p.openInventory(inv);
         this.plugin.getHistoryTracker().setPage(p.getUniqueId(), page);
     }
 
-    private void place(Inventory inv, int slot, Material mat, String name, List<String> lore) {
-        ItemStack item = new ItemStack(mat);
-        ItemMeta m = item.getItemMeta();
-        m.displayName(Utils.toComponent(name));
-        m.lore(Utils.toComponents(lore));
-        item.setItemMeta(m);
-        inv.setItem(slot, item);
-    }
-
     public boolean matchesTitle(String openTitle) {
-        return Utils.stripColor(openTitle).startsWith(this.titlePrefix);
+        String plain = ChatColor.stripColor((String)openTitle);
+        return plain.startsWith(this.titlePrefix);
     }
 
-    public int getRows() { return this.rows; }
-    public int getBackSlot() { return this.backSlot; }
-    public int getNextSlot() { return this.nextSlot; }
-    public int getSortSlot() { return this.sortSlot; }
-    public int getRefreshSlot() { return this.refreshSlot; }
-    public int getPlayerSlot() { return this.playerSlot; }
+    public int getRows() {
+        return this.rows;
+    }
+
+    public int getBackSlot() {
+        return this.backSlot;
+    }
+
+    public int getNextSlot() {
+        return this.nextSlot;
+    }
+
+    public int getSortSlot() {
+        return this.sortSlot;
+    }
+
+    public int getRefreshSlot() {
+        return this.refreshSlot;
+    }
+
+    public int getPlayerSlot() {
+        return this.playerSlot;
+    }
 
     private String capitalize(String key) {
-        String[] parts = key.split("_");
-        StringBuilder sb = new StringBuilder();
-        for (String part : parts) {
-            if (part.isEmpty()) continue;
-            sb.append(Character.toUpperCase(part.charAt(0)))
-              .append(part.substring(1).toLowerCase())
-              .append(" ");
+        CharSequence[] parts = key.split("_");
+        for (int i = 0; i < parts.length; ++i) {
+            parts[i] = ((String)parts[i]).substring(0, 1).toUpperCase() + ((String)parts[i]).substring(1).toLowerCase();
         }
-        return sb.toString().trim();
+        return String.join((CharSequence)" ", parts);
     }
 }
+

@@ -11,9 +11,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 
-public class HistoryClickListener implements Listener {
+@SuppressWarnings({"deprecation", "removal"})
+public class HistoryClickListener
+implements Listener {
     private final DonutSell plugin;
-    private final Set<UUID> suppressClear = new HashSet<>();
+    private final Set<UUID> suppressClear = new HashSet<UUID>();
 
     public HistoryClickListener(DonutSell plugin) {
         this.plugin = plugin;
@@ -21,17 +23,25 @@ public class HistoryClickListener implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        if (!this.plugin.isModuleActive()) return;
+        if (!(e.getWhoClicked() instanceof Player)) {
+            return;
+        }
+        Player p = (Player)e.getWhoClicked();
         HistoryTracker tracker = this.plugin.getHistoryTracker();
         SellHistoryGui gui = this.plugin.getSellHistoryGui();
-        String title = Utils.stripColor(e.getView().title());
-        if (!tracker.isTracked(p.getUniqueId())) return;
-        if (!gui.matchesTitle(title)) return;
+        String title = e.getView().getTitle();
+        if (!tracker.isTracked(p.getUniqueId())) {
+            return;
+        }
+        if (!gui.matchesTitle(title)) {
+            return;
+        }
         e.setCancelled(true);
         int slot = e.getRawSlot();
         int page = tracker.getPage(p.getUniqueId());
         if (e.getCurrentItem() != null && !e.getCurrentItem().getType().isAir()) {
-            Sound clickSound = Utils.resolveSound(this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"), Sound.UI_BUTTON_CLICK);
+            Sound clickSound = Sound.valueOf((String)this.plugin.getConfig().getString("sounds.click-sound", "UI_BUTTON_CLICK"));
             p.playSound(p.getLocation(), clickSound, 1.0f, 1.0f);
         }
         if (slot == gui.getSortSlot()) {
@@ -60,19 +70,34 @@ public class HistoryClickListener implements Listener {
 
     @EventHandler
     public void onDrag(InventoryDragEvent e) {
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        if (!this.plugin.isModuleActive()) return;
+        if (!(e.getWhoClicked() instanceof Player)) {
+            return;
+        }
+        Player p = (Player)e.getWhoClicked();
         HistoryTracker tracker = this.plugin.getHistoryTracker();
         SellHistoryGui gui = this.plugin.getSellHistoryGui();
-        if (!tracker.isTracked(p.getUniqueId())) return;
-        if (!gui.matchesTitle(Utils.stripColor(e.getView().title()))) return;
+        if (!tracker.isTracked(p.getUniqueId())) {
+            return;
+        }
+        if (!gui.matchesTitle(e.getView().getTitle())) {
+            return;
+        }
         e.setCancelled(true);
     }
 
     @EventHandler
     public void onClose(InventoryCloseEvent e) {
-        if (!(e.getPlayer() instanceof Player p)) return;
+        if (!this.plugin.isModuleActive()) return;
+        if (!(e.getPlayer() instanceof Player)) {
+            return;
+        }
+        Player p = (Player)e.getPlayer();
         UUID id = p.getUniqueId();
-        if (this.suppressClear.remove(id)) return;
+        if (this.suppressClear.remove(id)) {
+            return;
+        }
         this.plugin.getHistoryTracker().clear(id);
     }
 }
+

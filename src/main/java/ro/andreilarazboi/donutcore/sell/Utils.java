@@ -1,16 +1,12 @@
 package ro.andreilarazboi.donutcore.sell;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
-import org.bukkit.Sound;
+import org.bukkit.ChatColor;
 
+@SuppressWarnings("deprecation")
 public final class Utils {
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
 
@@ -25,80 +21,68 @@ public final class Utils {
         StringBuffer buffer = new StringBuffer(input.length() + 32);
         while (matcher.find()) {
             String hex = matcher.group(1);
-            StringBuilder replacement = new StringBuilder("§x");
+            StringBuilder replacement = new StringBuilder("\u00a7x");
             for (char c : hex.toCharArray()) {
-                replacement.append('§').append(c);
+                replacement.append('\u00a7').append(c);
             }
             matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement.toString()));
         }
         matcher.appendTail(buffer);
-        return translateAmpersandCodes(buffer.toString());
-    }
-
-    private static String translateAmpersandCodes(String input) {
-        char[] chars = input.toCharArray();
-        StringBuilder sb = new StringBuilder(chars.length);
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == '&' && i + 1 < chars.length) {
-                char code = Character.toLowerCase(chars[i + 1]);
-                if ("0123456789abcdefklmnorx".indexOf(code) >= 0) {
-                    sb.append('§').append(code);
-                    i++;
-                    continue;
-                }
-            }
-            sb.append(chars[i]);
-        }
-        return sb.toString();
-    }
-
-    public static Component toComponent(String text) {
-        if (text == null) return Component.empty();
-        return LegacyComponentSerializer.legacySection().deserialize(formatColors(text));
-    }
-
-    public static List<Component> toComponents(List<String> lines) {
-        return lines.stream().map(Utils::toComponent).collect(Collectors.toList());
+        return ChatColor.translateAlternateColorCodes((char)'&', (String)buffer.toString());
     }
 
     public static List<String> formatColors(List<String> lines) {
         return lines.stream().map(Utils::formatColors).collect(Collectors.toList());
     }
 
-    public static String stripColor(String s) {
-        if (s == null) return null;
-        return s.replaceAll("§[0-9a-fA-Fk-oK-OrRxX]", "");
-    }
-
-    public static String stripColor(Component component) {
-        if (component == null) return "";
-        return stripColor(LegacyComponentSerializer.legacySection().serialize(component));
-    }
-
-    public static Sound resolveSound(String name, Sound fallback) {
-        if (name == null || name.isEmpty()) return fallback;
-        String lower = name.toLowerCase(Locale.ROOT);
-        Sound s = Registry.SOUNDS.get(NamespacedKey.minecraft(lower));
-        if (s != null) return s;
-        String dotted = lower.replace('_', '.');
-        s = Registry.SOUNDS.get(NamespacedKey.minecraft(dotted));
-        if (s != null) return s;
-        return fallback;
-    }
-
     public static String abbreviateNumber(double number) {
+        int unitIndex;
         if (number < 1000.0) {
-            if (number == (double) ((long) number)) {
-                return String.format("%d", (long) number);
+            if (number == (double)((long)number)) {
+                return String.format("%d", (long)number);
             }
             return String.format("%.1f", number);
         }
         String[] units = new String[]{"K", "M", "B", "T", "Q"};
         double value = number;
-        int unitIndex = -1;
-        for (; value >= 1000.0 && unitIndex < units.length - 1; value /= 1000.0, ++unitIndex) {
+        for (unitIndex = -1; value >= 1000.0 && unitIndex < units.length - 1; value /= 1000.0, ++unitIndex) {
         }
-        String formatted = value == (double) ((long) value) ? String.format("%d", (long) value) : String.format("%.2f", value);
+        String formatted = value == (double)((long)value) ? String.format("%d", (long)value) : String.format("%.2f", value);
         return formatted + units[unitIndex];
     }
+
+    /**
+     * Parses a number that may include a shorthand suffix.
+     * Supported suffixes (case-insensitive): k=1,000  m=1,000,000  b=1,000,000,000  t=1e12  q=1e15
+     * Examples: "30k" → 30000, "1.5m" → 1500000, "30" → 30
+     *
+     * @param input the raw input string
+     * @return the parsed double value
+     * @throws NumberFormatException if the input cannot be parsed
+     */
+    public static double parseShorthandNumber(String input) {
+        if (input == null || input.isBlank()) {
+            throw new NumberFormatException("empty input");
+        }
+        String trimmed = input.trim().toLowerCase(java.util.Locale.ROOT);
+        double multiplier = 1.0;
+        if (trimmed.endsWith("q")) {
+            multiplier = 1_000_000_000_000_000.0;
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        } else if (trimmed.endsWith("t")) {
+            multiplier = 1_000_000_000_000.0;
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        } else if (trimmed.endsWith("b")) {
+            multiplier = 1_000_000_000.0;
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        } else if (trimmed.endsWith("m")) {
+            multiplier = 1_000_000.0;
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        } else if (trimmed.endsWith("k")) {
+            multiplier = 1_000.0;
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return Double.parseDouble(trimmed) * multiplier;
+    }
 }
+

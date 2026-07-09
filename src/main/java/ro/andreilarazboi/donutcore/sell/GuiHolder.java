@@ -3,7 +3,8 @@ package ro.andreilarazboi.donutcore.sell;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
-public class GuiHolder implements InventoryHolder {
+public class GuiHolder
+implements InventoryHolder {
     private final String categoryKey;
     private final int page;
 
@@ -24,3 +25,4 @@ public class GuiHolder implements InventoryHolder {
         return null;
     }
 }
+

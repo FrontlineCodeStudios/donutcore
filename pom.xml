@@ -141,5 +141,11 @@
             <version>7.0.12</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>me.serbob</groupId>
+            <artifactId>donutorder</artifactId>
+            <version>1.14.1-release-20</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

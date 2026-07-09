@@ -8,6 +8,7 @@ description: DonutCore - Modular plugin with DonutSMP like modules.
 softdepend:
   - PlaceholderAPI
   - Vault
+  - DonutOrder
 
 commands:
   donutcore:

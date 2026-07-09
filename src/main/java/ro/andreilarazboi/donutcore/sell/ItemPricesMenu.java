@@ -2,6 +2,7 @@ package ro.andreilarazboi.donutcore.sell;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,11 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -37,9 +34,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
-public class ItemPricesMenu implements Listener {
+@SuppressWarnings({"deprecation", "unchecked", "rawtypes", "unused", "removal"})
+public class ItemPricesMenu
+implements Listener {
     private static final String FILTER_ALL = "all";
     private final DonutSell plugin;
     private List<Map.Entry<ItemStack, Double>> masterEntries;
@@ -74,7 +74,7 @@ public class ItemPricesMenu implements Listener {
     private final String itemDisplayTemplate;
     private final List<String> itemLoreTemplate;
     private final String pageSwitchSoundName;
-    private final Map<String, List<Map.Entry<ItemStack, Double>>> sortedViewCache = new HashMap<>();
+    private final Map<String, List<Map.Entry<ItemStack, Double>>> sortedViewCache = new HashMap<String, List<Map.Entry<ItemStack, Double>>>();
     private static final Pattern ENCH_PATTERN = Pattern.compile("([a-z0-9_]+?)[_-]?(\\d+)-value");
     private static final Pattern POTION_PATTERN = Pattern.compile("(?:(splash|lingering)_)?(?:(long|strong)_)?([a-z_]+)$");
     private static final Pattern SPAWNER_PATTERN = Pattern.compile("([a-z_]+)_spawner-value");
@@ -83,38 +83,38 @@ public class ItemPricesMenu implements Listener {
     public ItemPricesMenu(DonutSell plugin) {
         this.plugin = plugin;
         this.PDC_CATEGORY = new NamespacedKey(plugin.getPlugin(), "category");
-        this.disabledSet = new HashSet<>();
+        this.disabledSet = new HashSet<String>();
         for (String s : plugin.getConfig().getStringList("disabled-items")) {
             this.disabledSet.add(s.toUpperCase(Locale.ROOT));
         }
         ConfigurationSection menu = plugin.getMenusConfig().getConfigurationSection("item-prices-menu");
         this.titleTemplate = menu.getString("title");
-        this.titlePrefix = Utils.stripColor(Utils.formatColors(this.titleTemplate)).split("%page%", 2)[0];
+        this.titlePrefix = this.titleTemplate.split("%page%", 2)[0];
         this.rows = menu.getInt("rows", 6);
         ConfigurationSection prev = menu.getConfigurationSection("previous");
-        this.prevMat = Material.valueOf(prev.getString("previous-page-material").toUpperCase());
+        this.prevMat = Material.valueOf((String)prev.getString("previous-page-material").toUpperCase());
         this.prevSlot = prev.getInt("previous-page-slot");
         this.prevName = prev.getString("previous-page-displayname");
         this.prevLore = prev.getStringList("previous-page-lore");
         ConfigurationSection nxt = menu.getConfigurationSection("next");
-        this.nextMat = Material.valueOf(nxt.getString("next-page-material").toUpperCase());
+        this.nextMat = Material.valueOf((String)nxt.getString("next-page-material").toUpperCase());
         this.nextSlot = nxt.getInt("next-page-slot");
         this.nextName = nxt.getString("next-page-displayname");
         this.nextLore = nxt.getStringList("next-page-lore");
         ConfigurationSection rf = menu.getConfigurationSection("refresh");
-        this.refreshMat = Material.valueOf(rf.getString("material").toUpperCase());
+        this.refreshMat = Material.valueOf((String)rf.getString("material").toUpperCase());
         this.refreshSlot = rf.getInt("slot");
         this.refreshName = rf.getString("displayname");
         this.refreshLore = rf.getStringList("lore");
         ConfigurationSection st = menu.getConfigurationSection("sort");
-        this.sortMat = Material.valueOf(st.getString("material").toUpperCase());
+        this.sortMat = Material.valueOf((String)st.getString("material").toUpperCase());
         this.sortSlot = st.getInt("slot");
         this.sortName = st.getString("displayname");
         this.sortNotCurColor = st.getString("NotCurrentColor");
         this.sortCurColor = st.getString("CurrentColor");
         this.sortOptions = st.getStringList("lore");
         ConfigurationSection fl = menu.getConfigurationSection("filter");
-        this.filterMat = Material.valueOf(fl.getString("material").toUpperCase());
+        this.filterMat = Material.valueOf((String)fl.getString("material").toUpperCase());
         this.filterSlot = fl.getInt("slot");
         this.filterName = fl.getString("displayname");
         this.filterNotCurColor = fl.getString("NotCurrentColor");
@@ -129,47 +129,45 @@ public class ItemPricesMenu implements Listener {
     }
 
     private void buildEntries() {
-        ArrayList<Map.Entry<ItemStack, Double>> list = new ArrayList<>();
-        HashSet<Object> seen = new HashSet<>();
+        double val;
+        ArrayList<Map.Entry<ItemStack, Double>> list = new ArrayList<Map.Entry<ItemStack, Double>>();
+        HashSet<Object> seen = new HashSet<Object>();
         boolean disableAllSpawnEggs = this.disabledSet.contains("SPAWN_EGG");
         for (Material m : Material.values()) {
-            if (!m.isItem() || m == Material.AIR || this.disabledSet.contains(m.name())
-                    || (disableAllSpawnEggs && m.name().endsWith("_SPAWN_EGG"))) continue;
+            if (!m.isItem() || m == Material.AIR || this.disabledSet.contains(m.name()) || disableAllSpawnEggs && m.name().endsWith("_SPAWN_EGG")) continue;
             if (m == Material.SPAWNER) {
-                double val = this.plugin.getPrice("spawner-value");
-                list.add(new AbstractMap.SimpleEntry<>(new ItemStack(Material.SPAWNER), val));
+                double val2 = this.plugin.getPrice("spawner-value");
+                ItemStack spawner = new ItemStack(Material.SPAWNER);
+                list.add(new AbstractMap.SimpleEntry<ItemStack, Double>(spawner, val2));
                 seen.add("spawner-value");
                 continue;
             }
             String key = m.name().toLowerCase(Locale.ROOT) + "-value";
-            double val = this.plugin.getPrice(key);
-            list.add(new AbstractMap.SimpleEntry<>(new ItemStack(m), val));
+            val = this.plugin.getPrice(key);
+            list.add(new AbstractMap.SimpleEntry<ItemStack, Double>(new ItemStack(m), val));
             seen.add(key);
         }
         for (String key : this.plugin.getItemValues().keySet()) {
-            if (!key.endsWith("-value") || seen.contains(key)) continue;
-            Matcher mk = ENCH_PATTERN.matcher(key);
-            if (!mk.matches()) continue;
+            ItemStack book;
+            EnchantmentStorageMeta esm;
+            Matcher mk;
+            if (!key.endsWith("-value") || seen.contains(key) || !(mk = ENCH_PATTERN.matcher(key)).matches()) continue;
             String enKey = mk.group(1);
             int lvl = Integer.parseInt(mk.group(2));
-            double val = this.plugin.getPrice(key);
-            Enchantment ench = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream()
-                    .filter(e -> e.getKey().getKey().equalsIgnoreCase(enKey))
-                    .findFirst().orElse(null);
-            ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
-            EnchantmentStorageMeta esm = (EnchantmentStorageMeta) book.getItemMeta();
-            if (ench == null || esm == null) continue;
+            val = this.plugin.getPrice(key);
+            Enchantment ench = Arrays.stream(Enchantment.values()).filter(e -> e.getKey().getKey().equalsIgnoreCase(enKey)).findFirst().orElse(null);
+            if (ench == null || (esm = (EnchantmentStorageMeta)(book = new ItemStack(Material.ENCHANTED_BOOK)).getItemMeta()) == null) continue;
             esm.addStoredEnchant(ench, lvl, true);
             esm.getPersistentDataContainer().set(this.PDC_CATEGORY, PersistentDataType.STRING, "book");
-            book.setItemMeta(esm);
-            list.add(new AbstractMap.SimpleEntry<>(book, val));
+            book.setItemMeta((ItemMeta)esm);
+            list.add(new AbstractMap.SimpleEntry<ItemStack, Double>(book, val));
             seen.add(key);
         }
         for (String rawKey : this.plugin.getItemValues().keySet()) {
-            if (!rawKey.endsWith("-value") || seen.contains(rawKey)) continue;
-            String baseKey = rawKey.substring(0, rawKey.length() - 6);
-            Matcher pm = POTION_PATTERN.matcher(baseKey);
-            if (!pm.matches()) continue;
+            ItemStack pot;
+            PotionMeta pmMeta;
+            Matcher pm;
+            if (!rawKey.endsWith("-value") || seen.contains(rawKey) || !(pm = POTION_PATTERN.matcher(rawKey.substring(0, rawKey.length() - 6))).matches()) continue;
             String splashOrLingering = pm.group(1);
             String longOrStrong = pm.group(2);
             String effectName = pm.group(3);
@@ -177,50 +175,46 @@ public class ItemPricesMenu implements Listener {
             boolean extended = "long".equalsIgnoreCase(longOrStrong);
             boolean upgraded = "strong".equalsIgnoreCase(longOrStrong);
             Material potMat = Material.POTION;
-            if ("splash".equalsIgnoreCase(splashOrLingering)) potMat = Material.SPLASH_POTION;
-            else if ("lingering".equalsIgnoreCase(splashOrLingering)) potMat = Material.LINGERING_POTION;
-            ItemStack pot = new ItemStack(potMat);
-            PotionMeta pmMeta = (PotionMeta) pot.getItemMeta();
-            if (pmMeta == null) continue;
+            if ("splash".equalsIgnoreCase(splashOrLingering)) {
+                potMat = Material.SPLASH_POTION;
+            } else if ("lingering".equalsIgnoreCase(splashOrLingering)) {
+                potMat = Material.LINGERING_POTION;
+            }
+            if ((pmMeta = (PotionMeta)(pot = new ItemStack(potMat)).getItemMeta()) == null) continue;
             PotionType type = this.resolvePotionType(effectName);
             if (type != null) {
-                PotionType effectiveType = type;
-                if (extended) {
-                    try { effectiveType = PotionType.valueOf("LONG_" + type.name()); } catch (IllegalArgumentException ignored) {}
-                } else if (upgraded) {
-                    try { effectiveType = PotionType.valueOf("STRONG_" + type.name()); } catch (IllegalArgumentException ignored) {}
-                }
-                pmMeta.setBasePotionType(effectiveType);
+                pmMeta.setBasePotionData(new PotionData(type, extended, upgraded));
             } else {
-                pmMeta.setBasePotionType(PotionType.AWKWARD);
-                pmMeta.displayName(Utils.toComponent(this.prettify(effectName) + " Potion"));
+                pmMeta.setBasePotionData(new PotionData(PotionType.AWKWARD, false, false));
+                String pretty = this.prettify(effectName) + " Potion";
+                pmMeta.setDisplayName(pretty);
             }
             pmMeta.getPersistentDataContainer().set(this.PDC_CATEGORY, PersistentDataType.STRING, "brewing_stand");
-            pot.setItemMeta(pmMeta);
-            list.add(new AbstractMap.SimpleEntry<>(pot, this.plugin.getPrice(rawKey)));
+            pot.setItemMeta((ItemMeta)pmMeta);
+            list.add(new AbstractMap.SimpleEntry<ItemStack, Double>(pot, this.plugin.getPrice(rawKey)));
             seen.add(rawKey);
         }
         for (String rawKey : this.plugin.getItemValues().keySet()) {
-            if (!rawKey.endsWith("-value") || seen.contains(rawKey)) continue;
-            Matcher sm = SPAWNER_PATTERN.matcher(rawKey);
-            if (!sm.matches()) continue;
-            String entityName = sm.group(1);
+            BlockState blockState;
             EntityType et;
+            Matcher sm;
+            if (!rawKey.endsWith("-value") || seen.contains(rawKey) || !(sm = SPAWNER_PATTERN.matcher(rawKey)).matches()) continue;
+            String entityName = sm.group(1);
             try {
-                et = EntityType.valueOf(entityName.toUpperCase(Locale.ROOT));
-            } catch (IllegalArgumentException ex) {
+                et = EntityType.valueOf((String)entityName.toUpperCase(Locale.ROOT));
+            }
+            catch (IllegalArgumentException ex) {
                 continue;
             }
-            double val = this.plugin.getPrice(rawKey);
+            double val3 = this.plugin.getPrice(rawKey);
             ItemStack sp = new ItemStack(Material.SPAWNER);
-            BlockStateMeta bsm = (BlockStateMeta) sp.getItemMeta();
-            if (bsm == null) continue;
-            BlockState blockState = bsm.getBlockState();
-            if (!(blockState instanceof CreatureSpawner cs)) continue;
+            BlockStateMeta bsm = (BlockStateMeta)sp.getItemMeta();
+            if (bsm == null || !((blockState = bsm.getBlockState()) instanceof CreatureSpawner)) continue;
+            CreatureSpawner cs = (CreatureSpawner)blockState;
             cs.setSpawnedType(et);
-            bsm.setBlockState(cs);
-            sp.setItemMeta(bsm);
-            list.add(new AbstractMap.SimpleEntry<>(sp, val));
+            bsm.setBlockState((BlockState)cs);
+            sp.setItemMeta((ItemMeta)bsm);
+            list.add(new AbstractMap.SimpleEntry<ItemStack, Double>(sp, val3));
             seen.add(rawKey);
         }
         this.masterEntries = list;
@@ -233,63 +227,75 @@ public class ItemPricesMenu implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player player)) return;
+        if (!this.plugin.isModuleActive()) return;
+        ItemStack clicked;
+        if (!(e.getWhoClicked() instanceof Player)) {
+            return;
+        }
         Inventory top = e.getView().getTopInventory();
-        String title = Utils.stripColor(e.getView().title());
-        if (!title.startsWith(this.titlePrefix)) return;
+        String title = e.getView().getTitle();
+        if (!title.startsWith(this.titlePrefix)) {
+            return;
+        }
         int slot = e.getRawSlot();
-        if (slot < 0 || slot >= top.getSize()) return;
+        if (slot < 0 || slot >= top.getSize()) {
+            return;
+        }
         e.setCancelled(true);
-        if (slot < this.rows * 9 - 9) {
-            ItemStack clicked = top.getItem(slot);
-            if (clicked != null && !clicked.getType().isAir()) {
-                this.plugin.promptPriceEdit(player, clicked);
-            }
+        Player player = (Player)e.getWhoClicked();
+        if (slot >= 0 && slot < this.rows * 9 - 9 && (clicked = top.getItem(slot)) != null && !clicked.getType().isAir()) {
+            this.plugin.promptPriceEdit(player, clicked);
         }
     }
 
     public void open(Player player, int reqPage) {
+        ItemStack filterItem;
+        ItemMeta fm;
         ViewTracker vt = this.plugin.getViewTracker();
         String filterCategory = vt.getFilter(player.getUniqueId());
-        String cacheKey = vt.getOrder(player.getUniqueId()).name() + "|"
-                + (filterCategory == null ? FILTER_ALL : filterCategory.toLowerCase(Locale.ROOT));
+        String cacheKey = vt.getOrder(player.getUniqueId()).name() + "|" + (filterCategory == null ? FILTER_ALL : filterCategory.toLowerCase(Locale.ROOT));
         List<Map.Entry<ItemStack, Double>> sorted = this.sortedViewCache.get(cacheKey);
         if (sorted == null) {
-            sorted = new ArrayList<>(this.masterEntries);
+            sorted = new ArrayList<Map.Entry<ItemStack, Double>>(this.masterEntries);
             switch (vt.getOrder(player.getUniqueId())) {
-                case HIGH_TO_LOW -> sorted.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
-                case LOW_TO_HIGH -> sorted.sort((a, b) -> Double.compare(a.getValue(), b.getValue()));
-                case A_TO_Z, NAME -> sorted.sort(Comparator.comparing(en -> {
-                    ItemMeta m = en.getKey().getItemMeta();
-                    return m != null && m.hasDisplayName() && m.displayName() != null
-                            ? LegacyComponentSerializer.legacySection().serialize(m.displayName())
-                            : this.prettify(en.getKey().getType());
-                }, String.CASE_INSENSITIVE_ORDER));
-                case Z_TO_A -> sorted.sort((a, b) -> {
-                    ItemMeta ma = a.getKey().getItemMeta();
-                    ItemMeta mb = b.getKey().getItemMeta();
-                    String da = ma != null && ma.hasDisplayName() && ma.displayName() != null
-                            ? LegacyComponentSerializer.legacySection().serialize(ma.displayName())
-                            : this.prettify(a.getKey().getType());
-                    String db = mb != null && mb.hasDisplayName() && mb.displayName() != null
-                            ? LegacyComponentSerializer.legacySection().serialize(mb.displayName())
-                            : this.prettify(b.getKey().getType());
-                    return String.CASE_INSENSITIVE_ORDER.compare(db, da);
-                });
+                case HIGH_TO_LOW: {
+                    sorted.sort((a, b) -> Double.compare((Double)b.getValue(), (Double)a.getValue()));
+                    break;
+                }
+                case LOW_TO_HIGH: {
+                    sorted.sort(Comparator.comparingDouble(Map.Entry::getValue));
+                    break;
+                }
+                case A_TO_Z: 
+                case NAME: {
+                    sorted.sort(Comparator.comparing(e -> {
+                        ItemMeta m = ((ItemStack)e.getKey()).getItemMeta();
+                        return m != null && m.hasDisplayName() ? m.getDisplayName() : this.prettify(((ItemStack)e.getKey()).getType());
+                    }, String.CASE_INSENSITIVE_ORDER));
+                    break;
+                }
+                case Z_TO_A: {
+                    sorted.sort((a, b) -> {
+                        ItemMeta ma = ((ItemStack)a.getKey()).getItemMeta();
+                        ItemMeta mb = ((ItemStack)b.getKey()).getItemMeta();
+                        String da = ma != null && ma.hasDisplayName() ? ma.getDisplayName() : this.prettify(((ItemStack)a.getKey()).getType());
+                        String db = mb != null && mb.hasDisplayName() ? mb.getDisplayName() : this.prettify(((ItemStack)b.getKey()).getType());
+                        return String.CASE_INSENSITIVE_ORDER.compare(db, da);
+                    });
+                }
             }
             if (filterCategory != null && !filterCategory.equalsIgnoreCase(FILTER_ALL)) {
                 String normalized = this.normalizeCategoryKey(filterCategory);
                 List<String> allowed = this.plugin.categoryItems.getOrDefault(normalized, Collections.emptyList());
-                sorted.removeIf(en -> !this.isAllowedInCategory(en.getKey(), filterCategory, allowed));
+                sorted.removeIf(e -> !this.isAllowedInCategory(e.getKey(), filterCategory, allowed));
             }
             this.sortedViewCache.put(cacheKey, sorted);
         }
         int size = this.rows * 9;
         int per = size - 9;
-        int maxPage = Math.max(1, (int) Math.ceil((double) sorted.size() / per));
+        int maxPage = Math.max(1, (int)Math.ceil((double)sorted.size() / (double)per));
         int page = Math.min(maxPage, Math.max(1, reqPage));
-        Inventory inv = Bukkit.createInventory(null, size,
-                Utils.toComponent(this.titleTemplate.replace("%page%", String.valueOf(page))));
+        Inventory inv = Bukkit.createInventory(null, (int)size, (String)Utils.formatColors(this.titleTemplate.replace("%page%", String.valueOf(page))));
         int start = (page - 1) * per;
         int end = Math.min(start + per, sorted.size());
         for (int i = start; i < end; ++i) {
@@ -298,26 +304,25 @@ public class ItemPricesMenu implements Listener {
             ItemMeta m = is.getItemMeta();
             if (m == null) continue;
             String base;
-            if (is.getType() == Material.SPAWNER && m instanceof BlockStateMeta bsm) {
-                BlockState bs = bsm.getBlockState();
-                if (bs instanceof CreatureSpawner cs && cs.getSpawnedType() != null) {
-                    base = this.prettify(cs.getSpawnedType().name() + "_SPAWNER");
+            if (is.getType() == Material.SPAWNER && m instanceof BlockStateMeta) {
+                BlockStateMeta bsm = (BlockStateMeta) m;
+                BlockState blockState = bsm.getBlockState();
+                if (blockState instanceof CreatureSpawner) {
+                    CreatureSpawner csSpawner = (CreatureSpawner) blockState;
+                    EntityType spawned = csSpawner.getSpawnedType();
+                    base = spawned != null ? this.prettify(spawned.name() + "_SPAWNER") : this.prettify("SPAWNER");
                 } else {
-                    base = this.prettify("SPAWNER");
+                    base = m.hasDisplayName() ? m.getDisplayName() : this.prettify(is.getType());
                 }
             } else {
-                base = m.hasDisplayName() && m.displayName() != null
-                        ? LegacyComponentSerializer.legacySection().serialize(m.displayName())
-                        : this.prettify(is.getType());
+                base = m.hasDisplayName() ? m.getDisplayName() : this.prettify(is.getType());
             }
-            m.displayName(Utils.toComponent(this.itemDisplayTemplate
-                    .replace("%ItemName%", base)
-                    .replace("%amount%", Utils.abbreviateNumber(ent.getValue()))));
-            ArrayList<Component> lore = new ArrayList<>();
+            m.setDisplayName(Utils.formatColors(this.itemDisplayTemplate.replace("%ItemName%", base).replace("%amount%", Utils.abbreviateNumber(ent.getValue()))));
+            ArrayList<String> lore = new ArrayList<String>();
             for (String line : this.itemLoreTemplate) {
-                lore.add(Utils.toComponent(line.replace("%ItemName%", base).replace("%amount%", Utils.abbreviateNumber(ent.getValue()))));
+                lore.add(Utils.formatColors(line.replace("%ItemName%", base).replace("%amount%", Utils.abbreviateNumber(ent.getValue()))));
             }
-            m.lore(lore);
+            m.setLore(lore);
             is.setItemMeta(m);
             inv.setItem(i - start, is);
         }
@@ -327,92 +332,119 @@ public class ItemPricesMenu implements Listener {
         ItemStack sortItem = new ItemStack(this.sortMat);
         ItemMeta sm = sortItem.getItemMeta();
         if (sm != null) {
-            sm.displayName(Utils.toComponent(this.sortName));
-            ArrayList<Component> sortLore = new ArrayList<>();
+            sm.setDisplayName(Utils.formatColors(this.sortName));
+            ArrayList<String> lore = new ArrayList<String>();
             ViewTracker.SortOrder cur = vt.getOrder(player.getUniqueId());
             for (String option : this.sortOptions) {
                 ViewTracker.SortOrder mode = this.sortOrderFromLabel(option);
                 String col = mode == cur ? this.sortCurColor : this.sortNotCurColor;
-                sortLore.add(Utils.toComponent(col + "• " + option));
+                lore.add(Utils.formatColors(col + "\u2022 " + option));
             }
-            sm.lore(sortLore);
+            sm.setLore(lore);
             sortItem.setItemMeta(sm);
             inv.setItem(this.sortSlot, sortItem);
         }
-        ItemStack filterItem = new ItemStack(this.filterMat);
-        ItemMeta fm = filterItem.getItemMeta();
-        if (fm != null) {
-            fm.displayName(Utils.toComponent(this.filterName));
-            ArrayList<Component> filterLore = new ArrayList<>();
+        if ((fm = (filterItem = new ItemStack(this.filterMat)).getItemMeta()) != null) {
+            fm.setDisplayName(Utils.formatColors(this.filterName));
+            ArrayList<String> lore = new ArrayList<String>();
             String curFilt = filterCategory == null ? FILTER_ALL : filterCategory;
             List<String> dynamic = this.filterOptions.isEmpty() ? Collections.singletonList(FILTER_ALL) : this.filterOptions;
             for (String opt : dynamic) {
                 String col = opt.equalsIgnoreCase(curFilt) ? this.filterCurColor : this.filterNotCurColor;
-                filterLore.add(Utils.toComponent(col + this.prettyCategoryName(opt)));
+                lore.add(Utils.formatColors(col + this.prettyCategoryName(opt)));
             }
-            fm.lore(filterLore);
+            fm.setLore(lore);
             filterItem.setItemMeta(fm);
             inv.setItem(this.filterSlot, filterItem);
         }
         player.openInventory(inv);
         vt.setPage(player.getUniqueId(), page);
-        player.playSound(player.getLocation(), Utils.resolveSound(this.pageSwitchSoundName, Sound.UI_BUTTON_CLICK), 1.0f, 1.0f);
+        try {
+            Sound sound = Sound.valueOf((String)this.pageSwitchSoundName);
+            player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
+        }
+        catch (IllegalArgumentException ex) {
+            player.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f);
+        }
     }
 
     private void place(Inventory inv, Material mat, int slot, String name, List<String> lore) {
         ItemStack b = new ItemStack(mat);
         ItemMeta m = b.getItemMeta();
         if (m != null) {
-            m.displayName(Utils.toComponent(name));
-            m.lore(Utils.toComponents(lore));
+            m.setDisplayName(Utils.formatColors(name));
+            m.setLore(Utils.formatColors(lore));
             b.setItemMeta(m);
             inv.setItem(slot, b);
         }
     }
 
-    private String prettify(Material m) { return this.prettify(m.name()); }
+    private String prettify(Material m) {
+        return this.prettify(m.name());
+    }
 
     private String prettify(String raw) {
-        String[] parts = raw.toLowerCase(Locale.ROOT).split("_");
-        StringBuilder sb = new StringBuilder();
-        for (String part : parts) {
-            if (part.isEmpty()) continue;
-            sb.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1)).append(" ");
+        CharSequence[] parts = raw.toLowerCase(Locale.ROOT).split("_");
+        for (int i = 0; i < parts.length; ++i) {
+            parts[i] = Character.toUpperCase(((String)parts[i]).charAt(0)) + ((String)parts[i]).substring(1);
         }
-        return sb.toString().trim();
+        return String.join((CharSequence)" ", parts);
     }
 
     private boolean isAllowedInCategory(ItemStack is, String filterCategory, List<String> allowed) {
+        String catTag;
         String normalizedFilter = this.normalizeCategoryKey(filterCategory);
         String type = is.getType().name();
         ItemMeta meta = is.getItemMeta();
         PersistentDataContainer pdc = meta != null ? meta.getPersistentDataContainer() : null;
-        String catTag = pdc != null && pdc.has(this.PDC_CATEGORY, PersistentDataType.STRING)
-                ? pdc.get(this.PDC_CATEGORY, PersistentDataType.STRING) : null;
+        String string = catTag = pdc != null && pdc.has(this.PDC_CATEGORY, PersistentDataType.STRING) ? (String)pdc.get(this.PDC_CATEGORY, PersistentDataType.STRING) : null;
         if ("book".equalsIgnoreCase(normalizedFilter)) {
-            if ("book".equalsIgnoreCase(catTag) || meta instanceof EnchantmentStorageMeta || type.endsWith("_BOOK")) return true;
+            if ("book".equalsIgnoreCase(catTag)) {
+                return true;
+            }
+            if (meta instanceof EnchantmentStorageMeta) {
+                return true;
+            }
+            if (type.endsWith("_BOOK")) {
+                return true;
+            }
         }
         if ("brewing_stand".equalsIgnoreCase(normalizedFilter)) {
-            if ("brewing_stand".equalsIgnoreCase(catTag) || type.equals("POTION") || type.equals("SPLASH_POTION") || type.equals("LINGERING_POTION")) return true;
+            if ("brewing_stand".equalsIgnoreCase(catTag)) {
+                return true;
+            }
+            if (type.equals("POTION") || type.equals("SPLASH_POTION") || type.equals("LINGERING_POTION")) {
+                return true;
+            }
         }
         if (allowed != null && !allowed.isEmpty()) {
-            if (allowed.contains(type)) return true;
-            if ((containsIgnoreCase(allowed, "BOOKS") || containsIgnoreCase(allowed, "ANY_BOOK"))
-                    && (type.endsWith("_BOOK") || meta instanceof EnchantmentStorageMeta)) return true;
-            if ((containsIgnoreCase(allowed, "POTIONS") || containsIgnoreCase(allowed, "ANY_POTION"))
-                    && (type.equals("POTION") || type.equals("SPLASH_POTION") || type.equals("LINGERING_POTION"))) return true;
+            if (allowed.contains(type)) {
+                return true;
+            }
+            if ((this.containsIgnoreCase(allowed, "BOOKS") || this.containsIgnoreCase(allowed, "ANY_BOOK")) && (type.endsWith("_BOOK") || meta instanceof EnchantmentStorageMeta)) {
+                return true;
+            }
+            if ((this.containsIgnoreCase(allowed, "POTIONS") || this.containsIgnoreCase(allowed, "ANY_POTION")) && (type.equals("POTION") || type.equals("SPLASH_POTION") || type.equals("LINGERING_POTION"))) {
+                return true;
+            }
         }
         return false;
     }
 
     private String prettyCategoryName(String key) {
-        if (key == null) return "";
-        if (key.equalsIgnoreCase(FILTER_ALL)) return "All";
+        if (key == null) {
+            return "";
+        }
+        if (key.equalsIgnoreCase(FILTER_ALL)) {
+            return "All";
+        }
         return this.prettify(this.normalizeCategoryKey(key));
     }
 
     private ViewTracker.SortOrder sortOrderFromLabel(String label) {
-        if (label == null) return ViewTracker.SortOrder.HIGH_TO_LOW;
+        if (label == null) {
+            return ViewTracker.SortOrder.HIGH_TO_LOW;
+        }
         return switch (label.trim().toLowerCase(Locale.ROOT)) {
             case "highest price" -> ViewTracker.SortOrder.HIGH_TO_LOW;
             case "lowest price" -> ViewTracker.SortOrder.LOW_TO_HIGH;
@@ -423,9 +455,11 @@ public class ItemPricesMenu implements Listener {
     }
 
     private String normalizeCategoryKey(String category) {
-        if (category == null) return "";
-        String c = category.toLowerCase(Locale.ROOT).replace(' ', '_');
-        return switch (c) {
+        String c;
+        if (category == null) {
+            return "";
+        }
+        return switch (c = category.toLowerCase(Locale.ROOT).replace(' ', '_')) {
             case "mob_drops" -> "bone";
             case "ores" -> "diamond";
             case "natural_items" -> "oak_leaves";
@@ -439,34 +473,47 @@ public class ItemPricesMenu implements Listener {
     }
 
     private boolean containsIgnoreCase(List<String> list, String token) {
-        for (String s : list) { if (s.equalsIgnoreCase(token)) return true; }
+        for (String s : list) {
+            if (!s.equalsIgnoreCase(token)) continue;
+            return true;
+        }
         return false;
     }
 
     private boolean looksLikePotion(String effectName) {
-        return effectName.contains("potion") || effectName.contains("vision") || effectName.contains("invisibility")
-                || effectName.contains("leaping") || effectName.contains("jump") || effectName.contains("fire_resistance")
-                || effectName.contains("swiftness") || effectName.contains("speed") || effectName.contains("slowness")
-                || effectName.contains("water_breathing") || effectName.contains("healing") || effectName.contains("harming")
-                || effectName.contains("poison") || effectName.contains("regeneration") || effectName.contains("strength")
-                || effectName.contains("weakness") || effectName.contains("turtle_master") || effectName.contains("slow_falling")
-                || effectName.contains("mundane") || effectName.contains("thick") || effectName.contains("awkward")
-                || effectName.contains("water") || effectName.contains("wind_charged") || effectName.contains("weaving")
-                || effectName.contains("oozing") || effectName.contains("infested");
+        return effectName.contains("potion") || effectName.contains("vision") || effectName.contains("invisibility") || effectName.contains("leaping") || effectName.contains("jump") || effectName.contains("fire_resistance") || effectName.contains("swiftness") || effectName.contains("speed") || effectName.contains("slowness") || effectName.contains("water_breathing") || effectName.contains("healing") || effectName.contains("harming") || effectName.contains("poison") || effectName.contains("regeneration") || effectName.contains("strength") || effectName.contains("weakness") || effectName.contains("turtle_master") || effectName.contains("slow_falling") || effectName.contains("mundane") || effectName.contains("thick") || effectName.contains("awkward") || effectName.contains("water") || effectName.contains("wind_charged") || effectName.contains("weaving") || effectName.contains("oozing") || effectName.contains("infested");
     }
 
     private PotionType resolvePotionType(String effectName) {
-        String n = effectName.toLowerCase(Locale.ROOT);
-        return switch (n) {
-            case "leaping" -> PotionType.LEAPING;
-            case "swiftness" -> PotionType.SWIFTNESS;
-            case "healing" -> PotionType.HEALING;
-            case "harming" -> PotionType.HARMING;
-            case "water", "potion" -> PotionType.WATER;
-            default -> {
-                String enumName = n.toUpperCase(Locale.ROOT).replace('-', '_');
-                try { yield PotionType.valueOf(enumName); } catch (IllegalArgumentException ignored) { yield null; }
+        String n;
+        switch (n = effectName.toLowerCase(Locale.ROOT)) {
+            case "leaping": {
+                return PotionType.LEAPING;
             }
-        };
+            case "swiftness": {
+                return PotionType.SWIFTNESS;
+            }
+            case "healing": {
+                return PotionType.HEALING;
+            }
+            case "harming": {
+                return PotionType.HARMING;
+            }
+            case "water": {
+                return PotionType.WATER;
+            }
+            case "potion": {
+                return PotionType.WATER;
+            }
+        }
+        String enumName = n.toUpperCase(Locale.ROOT);
+        enumName = enumName.replace('-', '_');
+        try {
+            return PotionType.valueOf((String)enumName);
+        }
+        catch (IllegalArgumentException ignored) {
+            return null;
+        }
     }
 }
+

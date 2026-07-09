@@ -1,3 +1,4 @@
+C:\Visual Studio Code\donutcore\src\main\java\andreilarazboi\lifestealorder\api\DonutOrderApi.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\CommandVisibilityListener.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\crates\BlockListener.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\crates\ChatInputListener.java
@@ -100,6 +101,7 @@ C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\A
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\CategoryGui.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\ChatInputListener.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\CleanupListener.java
+C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\DonutOrderBridge.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\DonutSell.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\GuiClickListener.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\GuiHolder.java
@@ -112,12 +114,14 @@ C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\R
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellAxe.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellAxeCommand.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellCommand.java
+C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellConfirmationGui.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellGui.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellHistoryCommand.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellHistoryGui.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellMenuClickListener.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellModule.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellMySQL.java
+C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellNotifyMode.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellPacketListener.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\SellPlaceholderExpansion.java
 C:\Visual Studio Code\donutcore\src\main\java\ro\andreilarazboi\donutcore\sell\ToggleWorthCommand.java

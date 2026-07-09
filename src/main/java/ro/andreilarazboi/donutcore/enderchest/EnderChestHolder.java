@@ -14,14 +14,20 @@ public class EnderChestHolder implements InventoryHolder {
     private final boolean readOnly;
     private final int rows;
     private final Map<Integer, ItemStack> fullItemsMap;
+    private final org.bukkit.block.Block clickedBlock;
     private Inventory inventory;
 
     public EnderChestHolder(UUID ownerUUID, UUID viewerUUID, boolean readOnly, int rows, Map<Integer, ItemStack> fullItemsMap) {
+        this(ownerUUID, viewerUUID, readOnly, rows, fullItemsMap, null);
+    }
+
+    public EnderChestHolder(UUID ownerUUID, UUID viewerUUID, boolean readOnly, int rows, Map<Integer, ItemStack> fullItemsMap, org.bukkit.block.Block clickedBlock) {
         this.ownerUUID = ownerUUID;
         this.viewerUUID = viewerUUID;
         this.readOnly = readOnly;
         this.rows = rows;
         this.fullItemsMap = new HashMap<>(fullItemsMap);
+        this.clickedBlock = clickedBlock;
     }
 
     @Override
@@ -33,4 +39,5 @@ public class EnderChestHolder implements InventoryHolder {
     public boolean isReadOnly() { return this.readOnly; }
     public int getRows() { return this.rows; }
     public Map<Integer, ItemStack> getFullItemsMap() { return this.fullItemsMap; }
+    public org.bukkit.block.Block getClickedBlock() { return this.clickedBlock; }
 }

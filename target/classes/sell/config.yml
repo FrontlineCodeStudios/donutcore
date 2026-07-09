@@ -1,18 +1,23 @@
-# DonutCore Sell Configuration
-
 lore:
   - '&7Worth: &#15e30f$%amount%'
 
-# ACTIONBAR or CHAT or TITLE available (You can choose multiple)
+
+# ACTOINBAR or CHAT or TITLE available (You can choose multiple)
 sell-notify-mode:
   - ACTIONBAR
   #- TITLE
   #- CHAT
 
+
 use-multipliers: true
 
 storage:
   type: SQLITE # SQLITE, MYSQL, YAML
+
+integrations:
+  donut-order:
+    sell-to-orders: true
+    use-order-prices-for-worth-lore: true
 
 sqlite:
   file: sell-data.db
@@ -24,29 +29,49 @@ sell-command:
 
 missing-price-not-sellable: false
 
-# Restart your server every time you change this
+# Choose which /sell menu style to use.
+# Option1 = old /sell menu
+# Option2 = old /sell menu + /sellmulti menu enabled
+# Option3 = 6-row /sell menu with a bottom-right sell button
+sell-menu-option: Option1
+
+# Legacy fallback. If sell-menu-option is missing, this still works.
 use-new-sell-menu: false
+
+placeholders:
+  toggleworth-status:
+    enabled: "&aON"
+    disabled: "&cOFF"
+
+sale-confirmation:
+  enabled: true
+  threshold: 1000000
 
 sell-notify:
   screen:
-    title: '&a+$%amount%'
-    subtitle: '&7You sold %items% items'
+    title: "&a+$%amount%"
+    subtitle: "&7You sold %items% items"
     fade-in: 5
     stay: 40
     fade-out: 10
 
-# GUI title names that should show worth lore (partial match)
+# GUI's worth lore should show in.
 worth-lore-whitelist-gui-names:
   - Chest
   - Shulker
+  - ᴘʟᴀᴄᴇ
 
-# Whether to show the "worth" lore on items
+# If true, worth lore is hidden in GUI titles that are not listed above.
+# If false, worth lore can show everywhere except creative/cursor safety cases.
+worth-lore-hide-in-non-whitelisted-guis: false
+
+# whether to show the “worth” lore items
 display-worth-lore: true
 
-# If true, lore shows worth for 1 item; if false, lore shows stack worth
+# if true, lore shows worth for 1 item; if false, lore shows stack worth
 worth-lore-per-item: false
 
-# The %vaultmoney_sell_money_formatted% placeholder uses these suffixes
+# The %vaultmoney_sell_money_formatted% placeholder displays the amount of VAULT money you have with a DonutSMP style formatting.
 money-suffixes:
   K: 1000
   M: 1000000
@@ -54,11 +79,13 @@ money-suffixes:
   T: 1000000000000
   Q: 1000000000000000
 
+
 sounds:
   page-switch: ITEM_BOOK_PAGE_TURN
   close-sound: ENTITY_EXPERIENCE_ORB_PICKUP
   click-sound: UI_BUTTON_CLICK
   declined: ENTITY_VILLAGER_NO
+
 
 disabled-items:
   - BARRIER
@@ -66,13 +93,17 @@ disabled-items:
   - SPAWN_EGG
   - SPAWNER
 
+
 sell-axe:
   use-countdown: true
   duration-seconds: 259200 # 3 days
+  amount: -1 # -1 = infinite uses
+  infinite-placeholder: "∞"
 
   display-name: '&#8e0beeᴀᴍᴇᴛʜʏѕᴛ ѕᴇʟʟ ᴡᴀɴᴅ'
   lore:
     - '&7Instanly Sells All Items in A Chest'
+    - '&8Uses left: &f{amount-used}'
     - '&8Self Destruct:'
     - '&8%countdown%'
 

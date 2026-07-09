@@ -10,7 +10,6 @@ ro\andreilarazboi\donutcore\crates\listener\HologramBackgroundGuiListener.class
 ro\andreilarazboi\donutcore\crates\listener\RootEditorGuiListener.class
 ro\andreilarazboi\donutcore\crates\ChatInputListener.class
 ro\andreilarazboi\donutcore\crates\DonutCrates$1.class
-ro\andreilarazboi\donutcore\sell\DonutSell$SellNotifyMode.class
 ro\andreilarazboi\donutcore\enderchest\EnderChestHolder.class
 ro\andreilarazboi\donutcore\crates\listener\ConfirmGuiListener.class
 ro\andreilarazboi\donutcore\sell\SellPacketListener$1.class
@@ -18,6 +17,7 @@ ro\andreilarazboi\donutcore\DonutCoreCommand$3.class
 ro\andreilarazboi\donutcore\sell\WorthCommand.class
 ro\andreilarazboi\donutcore\crates\gui\CrateSettingsGUI.class
 ro\andreilarazboi\donutcore\crates\listener\KeyEditorGuiListener.class
+ro\andreilarazboi\donutcore\sell\DonutOrderBridge.class
 ro\andreilarazboi\donutcore\crates\opening\anim\impl\CircleSpinEatAnimation.class
 ro\andreilarazboi\donutcore\sell\GuiClickListener.class
 ro\andreilarazboi\donutcore\crates\listener\CrateOpenService.class
@@ -35,6 +35,7 @@ ro\andreilarazboi\donutcore\crates\CrateManager$1.class
 ro\andreilarazboi\donutcore\crates\gui\CrateGUI.class
 ro\andreilarazboi\donutcore\sell\AdminPriceEditorMenu$PendingCategory.class
 ro\andreilarazboi\donutcore\sell\SellPacketListener.class
+andreilarazboi\lifestealorder\api\DonutOrderApi$Result.class
 ro\andreilarazboi\donutcore\crates\ChatInputListener$6.class
 ro\andreilarazboi\donutcore\crates\listener\CrateStatsGuiListener.class
 ro\andreilarazboi\donutcore\crates\gui\KeyListGUI.class
@@ -83,7 +84,9 @@ ro\andreilarazboi\donutcore\sell\SellMySQL.class
 ro\andreilarazboi\donutcore\crates\opening\anim\impl\RowSpinAnimation.class
 ro\andreilarazboi\donutcore\crates\CrateStatsHolder.class
 ro\andreilarazboi\donutcore\crates\opening\anim\impl\WaveSweepAnimation.class
+ro\andreilarazboi\donutcore\sell\DonutSell$SellQuote.class
 ro\andreilarazboi\donutcore\crates\DataManager$StatsRow.class
+ro\andreilarazboi\donutcore\sell\SellConfirmationGui.class
 ro\andreilarazboi\donutcore\crates\HologramListener.class
 ro\andreilarazboi\donutcore\crates\listener\RowEditorGuiListener.class
 ro\andreilarazboi\donutcore\crates\gui\CreateModeGUI.class
@@ -127,6 +130,7 @@ ro\andreilarazboi\donutcore\crates\ChatInputListener$5.class
 ro\andreilarazboi\donutcore\crates\gui\CrateRewardsGUI.class
 ro\andreilarazboi\donutcore\sell\HistoryClickListener.class
 ro\andreilarazboi\donutcore\sell\ItemPricesMenu$1.class
+ro\andreilarazboi\donutcore\sell\SellConfirmationGui$PendingSale.class
 ro\andreilarazboi\donutcore\sell\CleanupListener.class
 ro\andreilarazboi\donutcore\sell\ItemPricesMenu.class
 ro\andreilarazboi\donutcore\sell\SellAxe.class
@@ -134,6 +138,7 @@ ro\andreilarazboi\donutcore\crates\gui\HologramTemplateGUI.class
 ro\andreilarazboi\donutcore\DonutCoreCommand.class
 ro\andreilarazboi\donutcore\crates\listener\ItemEditorGuiListener.class
 ro\andreilarazboi\donutcore\crates\listener\CrateOpenService$PendingOpen.class
+ro\andreilarazboi\donutcore\sell\DonutOrderBridge$Result.class
 ro\andreilarazboi\donutcore\crates\gui\KeysEditorGUI.class
 ro\andreilarazboi\donutcore\sell\ResetConfirmationGui.class
 ro\andreilarazboi\donutcore\crates\gui\KeyEditorGUI.class
@@ -150,10 +155,12 @@ ro\andreilarazboi\donutcore\crates\listener\KeySelectGuiListener.class
 ro\andreilarazboi\donutcore\crates\gui\HologramBackgroundGUI$BgOption.class
 ro\andreilarazboi\donutcore\crates\ChatInputListener$4.class
 ro\andreilarazboi\donutcore\DonutCore.class
+andreilarazboi\lifestealorder\api\DonutOrderApi.class
 ro\andreilarazboi\donutcore\enderchest\EnderChestModule.class
 ro\andreilarazboi\donutcore\sell\AdminPriceEditorMenu$SortMode.class
 ro\andreilarazboi\donutcore\sell\SellMenuClickListener.class
 ro\andreilarazboi\donutcore\crates\listener\CrateRewardsGuiListener.class
+ro\andreilarazboi\donutcore\sell\SellNotifyMode.class
 ro\andreilarazboi\donutcore\enderchest\EnderChestDataManager.class
 ro\andreilarazboi\donutcore\enderchest\EnderChestManager.class
 ro\andreilarazboi\donutcore\crates\listener\InventoryProtectionListener.class

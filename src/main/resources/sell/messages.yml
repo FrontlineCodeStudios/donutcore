@@ -1,7 +1,8 @@
-# DonutCore Sell Messages
 messages:
-  cannot-sell: '&c[DonutCore] You cannot sell that item!'
-  no-permission: '&c[DonutCore] You do not have permission to do that.'
-  player-only: '&c[DonutCore] Only players can use this command.'
-  worth-enabled: '&a[DonutCore] Worth lore has been &aenabled&a.'
-  worth-disabled: '&c[DonutCore] Worth lore has been &cdisabled&c.'
+  expired-wand: '&cYour Sell Wand has expired and been removed.'
+  empty-chest: '&7Chest is empty – nothing to sell.'
+  worth: '&#10a5eb 1 %item% &7is worth &#3bef0f$%amount%'
+  worth-invalid: '&7Unknown item: &#10a5eb%input%'
+  cannot-sell: '&#10a5ebYou cannot sell that item!'
+  worth-enabled: "&#34ee80Worth lore: &aENABLED"
+  worth-disabled: "&#34ee80Worth lore: &cDISABLED"
