@@ -1,23 +1,31 @@
 package andreilarazboi.lifestealorder.api;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import net.milkbowl.vault.economy.Economy;
 import me.serbob.donutorder.commons.manager.e;
 import me.serbob.donutorder.api.util.Order;
 import me.serbob.donutorder.commons.m;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DonutOrderApi {
     private Economy econ;
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#?([A-Fa-f0-9]{6})");
 
     public DonutOrderApi() {
         setupEconomy();
@@ -44,6 +52,60 @@ public class DonutOrderApi {
         } catch (Throwable t) {
             Bukkit.getLogger().log(Level.SEVERE, "[DonutCore-OrdersBridge] Failed to get active orders map via reflection", t);
             return Collections.emptyMap();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean areNotificationsEnabled(Player player) {
+        try {
+            Field field = Class.forName("me.serbob.donutorder.commons.enums.f").getDeclaredField("J");
+            field.setAccessible(true);
+            Set<UUID> disabledPlayers = (Set<UUID>) field.get(null);
+            return disabledPlayers == null || !disabledPlayers.contains(player.getUniqueId());
+        } catch (Throwable t) {
+            return true; // Default to true if reflection fails
+        }
+    }
+
+    private String formatColors(String input) {
+        if (input == null) return null;
+        Matcher matcher = HEX_PATTERN.matcher(input);
+        StringBuffer buffer = new StringBuffer(input.length() + 32);
+        while (matcher.find()) {
+            String hex = matcher.group(1);
+            StringBuilder replacement = new StringBuilder("\u00a7x");
+            for (char c : hex.toCharArray()) {
+                replacement.append('\u00a7').append(c);
+            }
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement.toString()));
+        }
+        matcher.appendTail(buffer);
+        return org.bukkit.ChatColor.translateAlternateColorCodes('&', buffer.toString());
+    }
+
+    private void sendNotification(Player creator, UUID seller, ItemStack item, int amount) {
+        try {
+            File file = new File(Bukkit.getPluginManager().getPlugin("DonutOrder").getDataFolder(), "messages.yml");
+            if (!file.exists()) return;
+
+            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+            String msg = config.getString("notifications.items_delivered");
+            if (msg == null || msg.isEmpty()) return;
+
+            String sellerName = Bukkit.getOfflinePlayer(seller).getName();
+            if (sellerName == null) sellerName = "Someone";
+
+            String itemName = item.getItemMeta().hasDisplayName()
+                    ? item.getItemMeta().getDisplayName()
+                    : item.getType().name();
+
+            msg = msg.replace("{amount}", String.valueOf(amount))
+                     .replace("{itemName}", itemName)
+                     .replace("{senderName}", sellerName);
+
+            creator.sendMessage(formatColors(msg));
+        } catch (Throwable t) {
+            Bukkit.getLogger().log(Level.SEVERE, "[DonutCore-OrdersBridge] Failed to send delivery notification", t);
         }
     }
 
@@ -103,6 +165,12 @@ public class DonutOrderApi {
             e.getInstance().updateOrder(dbOrder);
             // Force save to database directly
             m.getDatabase().updateOrder(dbOrder);
+
+            // Trigger notification to the online buyer if enabled
+            Player creator = Bukkit.getPlayer(dbOrder.getCreatorId());
+            if (creator != null && creator.isOnline() && areNotificationsEnabled(creator)) {
+                sendNotification(creator, seller, item, toTake);
+            }
 
             totalFilled += toTake;
             totalPayout += toTake * price;
